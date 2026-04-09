@@ -1,7 +1,7 @@
 {
   "name": "stn-skills",
-  "description": "Professional Claude Code skill suite by Sven Thiermann. Currently includes: codebase audit (13-domain, evidence-based repository audit with optional auto-fix).",
-  "version": "2.1.0",
+  "description": "Professional Claude Code skill suite by Sven Thiermann. Includes: codebase audit (13-domain evidence-based repository audit with auto-fix) and codebase quality bootstrap (CLAUDE.md + hooks generator for zero-finding audit compliance).",
+  "version": "2.2.0",
   "author": {
     "name": "Sven Thiermann"
   },
@@ -10,6 +10,10 @@
   "license": "MIT",
   "keywords": [
     "audit",
+    "bootstrap",
+    "claudemd",
+    "hooks",
+    "standards",
     "security",
     "code-quality",
     "dead-code",

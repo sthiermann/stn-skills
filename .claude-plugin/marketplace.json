@@ -6,10 +6,11 @@
   "plugins": [
     {
       "name": "stn-skills",
-      "description": "Professional Claude Code skill suite by Sven Thiermann. Currently includes: codebase audit (13-domain, evidence-based repository audit with optional auto-fix).",
+      "description": "Professional Claude Code skill suite by Sven Thiermann. Includes: codebase audit (13-domain evidence-based repository audit with auto-fix) and codebase quality bootstrap (CLAUDE.md + hooks generator for zero-finding audit compliance).",
       "source": "./",
       "skills": [
-        "./skills/codebase-audit"
+        "./skills/codebase-audit",
+        "./skills/codebase-quality-bootstrap"
       ]
     }
   ]
