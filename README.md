@@ -1,8 +1,21 @@
+<div align="center">
+
 # Codebase Audit
 
-A Claude Code plugin that performs comprehensive, evidence-based code audits. It dispatches up to 13 specialized auditor agents in parallel — each focused on a single domain — then independently verifies every finding before delivering a structured report.
+**Evidence-based repository audits for Claude Code**
 
-Every reported issue includes the exact file and line where the problem exists, what the code does wrong, and how to fix it. No vague warnings. No false positives that waste your time.
+13 domains. Parallel agents. Zero false positives. Optional auto-fix.
+
+<p>
+  <img src="https://img.shields.io/badge/version-2.0.0-blue?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/audit_domains-13-orange?style=flat-square" alt="Domains">
+  <img src="https://img.shields.io/badge/phases-5_with_3_gates-purple?style=flat-square" alt="Phases">
+</p>
+
+</div>
+
+A Claude Code plugin that dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Optionally, it fixes the findings directly in your code — surgically, with verification.
 
 ---
 
@@ -36,25 +49,37 @@ Other phrases that work: `Review the codebase for production readiness` | `Run a
 
 ## How It Works
 
-```
-                           GATE 1                                 GATE 2
-                        User confirms                          User confirms
-                            scope                               findings
-                              |                                    |
-  Phase 1               Phase 2                    Phase 3         |    Phase 4
-  Reconnaissance  --->  Parallel Domain Audits --> Verification ---|-->  Report
-                                                                        Synthesis
-  - Detect stack        SEC   DOC   DEAD  DEPR     Independent         - Executive summary
-  - Read project rules  MAND  QUAL  ARCH  DEP      verifier reads     - Findings by severity
-  - Map modules         TEST  INFRA PERF            cited file:line    - Compliance matrix
-  - Classify size       CONC  PRIV                  for 30%+ of       - Remediation roadmap
-                                                    all findings
-                        All dispatched
-                        in parallel
+```mermaid
+graph LR
+    P1["Phase 1\nReconnaissance"] --> G1{"GATE 1\nScope"}
+    G1 -->|confirmed| P2["Phase 2\nParallel Audits\n(13 agents)"]
+    P2 --> P3["Phase 3\nVerification"]
+    P3 --> G2{"GATE 2\nFindings"}
+    G2 -->|confirmed| P4["Phase 4\nReport"]
+    P4 --> G3{"GATE 3\nRemediation"}
+    G3 -->|fix selected| P5["Phase 5\nFix & Verify"]
+    G3 -->|skip| Done(("Done"))
+    P5 --> Done
+
+    classDef phase fill:#2563eb,stroke:#1d4ed8,color:#fff,font-weight:bold
+    classDef gate fill:#d97706,stroke:#b45309,color:#fff,font-weight:bold
+    classDef done fill:#16a34a,stroke:#15803d,color:#fff,font-weight:bold
+
+    class P1,P2,P3,P4,P5 phase
+    class G1,G2,G3 gate
+    class Done done
 ```
 
-**Gate 1** lets you adjust scope before spending compute.
-**Gate 2** lets you challenge findings before the report is finalized.
+| Phase | What happens | Key detail |
+|-------|-------------|------------|
+| **Phase 1** | Detect tech stack, read project rules, map modules | Classifies repo size for optimal audit strategy |
+| **Gate 1** | You confirm the scope | Adjust domains or modules before spending compute |
+| **Phase 2** | 13 specialized auditors run in parallel | SEC, DOC, DEAD, DEPR, MAND, QUAL, ARCH, DEP, TEST, INFRA, PERF, CONC, PRIV |
+| **Phase 3** | Independent verifier checks 30%+ of findings | False positives are removed; domains with >25% FP rate get re-audited |
+| **Gate 2** | You review the verified findings | Challenge or investigate any finding before the report |
+| **Phase 4** | Structured report with remediation roadmap | Every finding has a stable ID (F1, F2, ...) for selection |
+| **Gate 3** | You choose what to fix — or skip entirely | Select by ID, severity, domain, or module. No code changes without your say. |
+| **Phase 5** | Fixes applied surgically, then verified | Bottom-up edits, test suite run, regression detection |
 
 ---
 
@@ -98,19 +123,34 @@ The skill is fully technology-agnostic. All audit checks are expressed as univer
 
 ---
 
-## Finding Format
+## Example Output
 
-Every finding follows a consistent structure:
-
-```markdown
-**[Critical] SEC: SQL injection in user search endpoint**
-- **File:** `src/api/users.py:47`
-- **Evidence:** `cursor.execute(f"SELECT * FROM users WHERE name = '{query}'")`
-- **Impact:** User-supplied input is interpolated directly into SQL, enabling data extraction
-- **Remediation:** Use parameterized query: `cursor.execute("SELECT * FROM users WHERE name = %s", (query,))`
-```
+Every finding follows this exact structure — severity, domain code, file:line evidence, impact, and a concrete fix. Each finding carries a stable ID (F1, F2, ...) for remediation selection at Gate 3.
 
 Severity levels: **Critical** (fix immediately) > **High** (fix this sprint) > **Medium** (fix this cycle) > **Low** (track)
+
+**F1 [Critical] SEC: SQL injection in user search endpoint**
+- **File:** `src/api/users.py:47`
+- **Evidence:** `cursor.execute(f"SELECT * FROM users WHERE name = '{query}'")`
+- **Impact:** User-supplied input is interpolated directly into SQL, enabling full database extraction via UNION-based injection
+- **Remediation:** Use parameterized query: `cursor.execute("SELECT * FROM users WHERE name = %s", (query,))`
+
+**F4 [High] PERF: N+1 query in order listing endpoint**
+- **File:** `src/api/orders.js:82`
+- **Evidence:** `orders.forEach(async (o) => { o.items = await db.query("SELECT * FROM items WHERE order_id = ?", o.id) })`
+- **Impact:** For N orders, executes N+1 database queries. At 500 orders per page, this produces 501 queries per request.
+- **Remediation:** Use a single JOIN or IN-clause: `SELECT * FROM items WHERE order_id IN (?)` with all order IDs batched
+
+**F9 [Medium] DEAD: Unused exported function**
+- **File:** `src/utils/format.ts:124`
+- **Evidence:** `export function formatLegacyDate(d: Date): string` — zero references found across 847 files searched
+- **Impact:** Dead code increases bundle size and confuses maintainers scanning the utils module
+- **Remediation:** Remove `formatLegacyDate` and its associated tests in `tests/utils/format.test.ts:89`
+
+**F15 [Low] DOC: README setup instructions reference removed env variable**
+- **File:** `README.md:34`
+- **Evidence:** `Set LEGACY_DB_URL in your .env` — but `LEGACY_DB_URL` is not referenced anywhere in source code
+- **Remediation:** Remove the outdated setup step or replace with the current `DATABASE_URL` variable
 
 ---
 
@@ -154,7 +194,7 @@ codebase-audit/
 |
 |-- skills/
 |   +-- codebase-audit/
-|       |-- SKILL.md                         # Orchestration (4 phases, 2 gates)
+|       |-- SKILL.md                         # Orchestration (5 phases, 3 gates)
 |       |
 |       |-- agents/
 |       |   |-- security-auditor.md          # OWASP Top 10, secrets, injection
@@ -171,7 +211,9 @@ codebase-audit/
 |       |   |-- concurrency-auditor.md       # Race conditions, deadlocks
 |       |   |-- data-privacy-auditor.md      # PII handling, retention
 |       |   |-- findings-verifier.md         # Independent evidence check
-|       |   +-- report-synthesizer.md        # Dedup, report generation
+|       |   |-- report-synthesizer.md        # Dedup, ID assignment, report
+|       |   |-- remediation-executor.md      # Applies fixes to code files
+|       |   +-- remediation-verifier.md      # Verifies fixes, runs tests
 |       |
 |       +-- references/
 |           |-- severity-classification.md   # Severity levels and evidence rules

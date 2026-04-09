@@ -1,6 +1,6 @@
 # Audit Report Template
 
-Use this exact structure for the final audit report. Replace all placeholders with actual data.
+Use this exact structure for the final audit report. Replace all placeholders with actual data. Every finding receives a stable ID (F1, F2, ...) assigned in order of appearance (Critical first, then High, Medium, Low). These IDs are used for GATE 3 remediation selection.
 
 ---
 
@@ -17,7 +17,8 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 ## Executive Summary
 
 - **Total findings:** {{TOTAL}} ({{CRITICAL}} Critical, {{HIGH}} High, {{MEDIUM}} Medium, {{LOW}} Low)
-- **Verification:** {{VERIFIED_COUNT}} findings verified, {{FP_COUNT}} false positives removed
+- **Verification:** {{VERIFIED_COUNT}} findings verified, {{FP_COUNT}} false positives removed ({{FP_RATE}}%)
+- **Domains re-audited:** {{RE_AUDIT_LIST or "none"}}
 - **Top priorities:**
   1. {{TOP_PRIORITY_1}}
   2. {{TOP_PRIORITY_2}}
@@ -25,7 +26,7 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 ---
 
-## Enterprise Mandate Compliance
+## Enterprise Mandate Compliance Matrix
 
 | # | Mandate | Status | Violations | Evidence |
 |---|---------|--------|------------|----------|
@@ -39,11 +40,13 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 ---
 
-## Critical Findings (fix immediately)
+## Findings by Severity
+
+### Critical (fix immediately)
 
 {{FOR_EACH_CRITICAL_FINDING}}
 
-**[CRITICAL] {{DOMAIN_CODE}}: {{TITLE}}**
+**F{{ID}} [CRITICAL] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
@@ -51,13 +54,11 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 {{END_FOR_EACH}}
 
----
-
-## High Findings (fix this sprint)
+### High (fix this sprint)
 
 {{FOR_EACH_HIGH_FINDING}}
 
-**[HIGH] {{DOMAIN_CODE}}: {{TITLE}}**
+**F{{ID}} [HIGH] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
@@ -65,13 +66,11 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 {{END_FOR_EACH}}
 
----
-
-## Medium Findings (fix this cycle)
+### Medium (fix this cycle)
 
 {{FOR_EACH_MEDIUM_FINDING}}
 
-**[MEDIUM] {{DOMAIN_CODE}}: {{TITLE}}**
+**F{{ID}} [MEDIUM] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
@@ -79,13 +78,11 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 {{END_FOR_EACH}}
 
----
-
-## Low Findings (track)
+### Low (track)
 
 {{FOR_EACH_LOW_FINDING}}
 
-**[LOW] {{DOMAIN_CODE}}: {{TITLE}}**
+**F{{ID}} [LOW] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Remediation:** {{SUGGESTED_IMPROVEMENT}}
@@ -110,21 +107,22 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 ---
 
-## Audit Methodology
-
-- **Domains audited:** {{DOMAIN_LIST}}
-- **Files examined:** {{FILE_COUNT}} source files across {{MODULE_COUNT}} modules
-- **Findings before verification:** {{PRE_VERIFICATION_COUNT}}
-- **False positives removed:** {{FP_COUNT}} ({{FP_RATE}}%)
-- **Domains re-audited:** {{RE_AUDIT_LIST or "none"}}
-
----
-
 ## Evidence Index
 
 ### By Domain
 {{FOR_EACH_DOMAIN}}
 #### {{DOMAIN_NAME}} ({{FINDING_COUNT}} findings)
-- `{{FILE_PATH}}:{{LINE}}` — {{BRIEF_DESCRIPTION}}
+- `{{FILE_PATH}}:{{LINE}}` — F{{ID}} {{BRIEF_DESCRIPTION}}
 {{END_FOR_EACH}}
+
+---
+
+## Audit Methodology & Verification Statistics
+
+- **Domains audited:** {{DOMAIN_LIST}}
+- **Files examined:** {{FILE_COUNT}} source files across {{MODULE_COUNT}} modules
+- **Findings before verification:** {{PRE_VERIFICATION_COUNT}}
+- **Findings after verification:** {{TOTAL}}
+- **False positives removed:** {{FP_COUNT}} ({{FP_RATE}}%)
+- **Domains re-audited:** {{RE_AUDIT_LIST or "none"}}
 ```

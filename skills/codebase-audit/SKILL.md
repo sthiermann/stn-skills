@@ -38,16 +38,14 @@ If an auditor reports an issue without citing the exact file and line — that f
 digraph when_to_use {
     "Repository-wide concern?" [shape=diamond];
     "Specific domain known?" [shape=diamond];
-    "Run full audit (all domains)" [shape=box];
+    "Run full audit (all 13 domains)" [shape=box];
     "Run targeted audit (selected domains)" [shape=box];
-    "Single file or function issue?" [shape=diamond];
-    "Use systematic-debugging instead" [shape=box];
+    "Not in scope — investigate the specific file directly" [shape=box];
 
     "Repository-wide concern?" -> "Specific domain known?" [label="yes"];
-    "Repository-wide concern?" -> "Single file or function issue?" [label="no"];
+    "Repository-wide concern?" -> "Not in scope — investigate the specific file directly" [label="no"];
     "Specific domain known?" -> "Run targeted audit (selected domains)" [label="yes"];
-    "Specific domain known?" -> "Run full audit (all 10 domains)" [label="no"];
-    "Single file or function issue?" -> "Use systematic-debugging instead" [label="yes"];
+    "Specific domain known?" -> "Run full audit (all 13 domains)" [label="no"];
 }
 ```
 
@@ -59,16 +57,16 @@ digraph when_to_use {
 - Assessing technical debt across a project
 - Preparing for a compliance or security review
 
-**Use a different skill when:**
-- Debugging a single bug → `superpowers:systematic-debugging`
-- Reviewing a specific PR → `superpowers:requesting-code-review`
-- Planning implementation → `superpowers:writing-plans`
+**Not designed for:**
+- Debugging a single bug in a known file — investigate that file directly
+- Reviewing a single pull request — use your standard review process
+- Planning a new feature — this skill audits existing code, not designs
 
 ---
 
-## The Four Phases
+## The Five Phases
 
-Complete each phase before proceeding to the next. Two user gates ensure alignment.
+Complete each phase before proceeding to the next. Three user gates ensure alignment.
 
 ```dot
 digraph audit_flow {
@@ -81,12 +79,18 @@ digraph audit_flow {
     P3 [label="Phase 3: Verification\n(independent evidence check)"];
     G2 [label="GATE 2: Findings Review" shape=diamond];
     P4 [label="Phase 4: Report Synthesis"];
+    G3 [label="GATE 3: Remediation Selection\n(opt-in)" shape=diamond];
+    P5 [label="Phase 5: Remediation Execution\n(fix, verify)"];
 
     P1 -> G1;
     G1 -> P2 [label="user confirms"];
     P2 -> P3;
     P3 -> G2;
     G2 -> P4 [label="user confirms"];
+    P4 -> G3;
+    G3 -> P5 [label="user selects findings"];
+    G3 -> end [label="user skips"];
+    end [label="Audit complete\n(report only)" shape=oval];
 }
 ```
 
@@ -128,7 +132,7 @@ Present to the user:
 - Detected tech stack (languages, frameworks, build tools, infrastructure)
 - Repository size classification
 - Module structure (if multi-module)
-- Proposed audit domains (all 10 by default)
+- Proposed audit domains (all 13 by default)
 
 Ask: **"Confirm this scope, or specify which domains to audit and which modules to focus on."**
 
@@ -295,13 +299,81 @@ When CLAUDE.md or project rules define non-negotiable mandates, the enterprise-m
 
 ---
 
-## Related Skills
+### GATE 3: Remediation Selection
 
-**Use during audit:**
-- `superpowers:dispatching-parallel-agents` — For efficient parallel subagent dispatch in Phase 2
+**Phase 5 is entirely optional.** The audit is complete after Phase 4. No code is modified unless the user explicitly requests it.
 
-**Use after audit:**
-- `superpowers:systematic-debugging` — To investigate specific findings deeper
-- `superpowers:writing-plans` — To convert the remediation roadmap into an implementation plan
-- `superpowers:subagent-driven-development` — To execute remediation tasks efficiently
-- `superpowers:verification-before-completion` — To verify remediation was successful
+Present to the user:
+- All findings numbered as F1..FN (IDs from the Phase 4 report)
+- Findings grouped by file path, showing which files have multiple findings
+- Detected conflicts (overlapping line ranges, contradictory remediations)
+- Quick-select options: `all` | `critical+high` | `domain:SEC` | `module:auth` | `F1,F3,F7`
+
+Ask: **"The audit is complete. Would you like me to fix any of these findings? Specify by ID, severity, domain, or module — or 'skip' to keep the report only."**
+
+- **`skip` or any declination = audit ends here.** No files are modified. The report stands as the deliverable.
+- Only an explicit selection of findings proceeds to Phase 5.
+- If the user selects findings with detected conflicts, explain the conflict and ask which approach to prefer before proceeding.
+- **No files are modified without explicit user approval.**
+
+Proceed only after the user confirms the final selection.
+
+---
+
+### Phase 5: Remediation Execution
+
+After the user selects findings at GATE 3, execute the fixes in three steps: plan batches, dispatch remediation agents, and verify results.
+
+**Step 1: Plan Remediation Batches**
+
+Group the selected findings into execution batches. The goal: maximize parallelism while preventing file conflicts.
+
+1. **Group by file.** All findings targeting the same file go into the same batch. A file must never be modified by two agents simultaneously.
+2. **Order within each batch.** Within a single-file batch, order fixes from bottom-of-file to top-of-file. This prevents line-number shifts from invalidating subsequent fixes.
+3. **Handle cross-file findings.** Some findings span multiple files (e.g., an architecture violation requiring changes in both caller and callee). For these, merge the batches for all involved files into a single batch that runs sequentially.
+4. **Assign batch execution order.** Batches with no cross-batch dependencies run in parallel. Batches that share a cross-file finding run sequentially in dependency order. Critical-severity batches execute first within each parallel group.
+
+Report the batch plan to the orchestrator: how many batches exist, how many can run in parallel, how many must be sequential.
+
+**Step 2: Dispatch Remediation Agents**
+
+For each batch, dispatch a remediation executor subagent using the Agent tool. Dispatch all independent batches in a single message to maximize parallelism.
+
+**Context package for each remediation agent:**
+```
+REPO_PATH:       {{REPO_PATH}}
+DETECTED_STACK:  {{DETECTED_STACK}}
+PROJECT_RULES:   {{PROJECT_RULES}}
+BATCH_ID:        {{BATCH_ID}}
+FINDINGS:        {{FINDINGS_IN_THIS_BATCH}}
+```
+
+Each agent reads `agents/remediation-executor.md` for its operating instructions.
+
+**Model selection:** Use the most capable model for batches containing Critical or High security findings. Use standard model for all other batches.
+
+**Step 3: Verify Remediation**
+
+After all remediation agents complete, dispatch the remediation verifier with the full set of changes.
+
+The verifier (`agents/remediation-verifier.md`):
+1. Re-reads every modified file to confirm the fix was applied correctly.
+2. Checks that the original finding's evidence is no longer present at the cited location.
+3. Checks for regressions: does the fix introduce new issues visible in the immediate context (syntax errors, broken imports, inconsistencies)?
+4. Runs the project's test suite if one was detected during Phase 1 reconnaissance.
+5. Reports results per finding: **Fixed** / **Partially Fixed** / **Fix Failed** / **Regression Detected**.
+
+**Handling failures:**
+- **Fix Failed:** The finding was not resolved. Report the finding ID, what was attempted, and what went wrong. Do not retry automatically — present to the user for manual resolution.
+- **Regression Detected:** A fix introduced a new problem. Report both the original finding and the regression. Present to the user with a recommendation: revert the change, or address the regression.
+- **Test Failures:** If the test suite was passing before remediation and now has failures, report which tests broke and which remediation batch likely caused each failure.
+
+**Final output — Remediation Summary:**
+
+Present to the user:
+- Findings fixed successfully (count and list)
+- Findings partially fixed (count, list, what remains)
+- Findings that failed (count, list, reason)
+- Regressions introduced (count, list, details)
+- Test suite status (before vs. after, which tests changed state)
+- Files modified (full list with line counts changed)

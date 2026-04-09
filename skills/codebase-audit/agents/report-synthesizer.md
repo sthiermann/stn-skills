@@ -31,13 +31,17 @@ Multiple auditors may cite the same `file:line` for overlapping reasons. For exa
    - Credits all originating domains.
 3. Record the deduplication count (how many findings were merged and into how many).
 
-### Step 2: Organize
+### Step 2: Assign Finding IDs and Organize
+
+Assign a stable, sequential ID to every finding. IDs follow the format F1, F2, F3, ... assigned in order of appearance after sorting. These IDs are used by GATE 3 for remediation selection — they must be stable and unambiguous.
 
 Sort the deduplicated findings into a strict hierarchy:
 
 1. **Primary sort:** Severity — Critical > High > Medium > Low.
 2. **Secondary sort:** Domain — within each severity level, group findings by domain code alphabetically.
 3. **Tertiary sort:** File path — within each domain group, order findings by file path for scanability.
+
+After sorting, assign IDs sequentially: the first Critical finding is F1, the next is F2, and so on through all severity levels. Once assigned, IDs do not change.
 
 ### Step 3: Generate Executive Summary
 
@@ -83,26 +87,27 @@ Build a reference table mapping every finding to its source evidence:
 
 ## Report Structure
 
-The final report must contain these sections in this exact order:
+The final report must contain these sections in this exact order. Follow the exact template defined in `references/report-template.md` for the full format.
 
 ```
-# Codebase Audit Report
+# Codebase Audit Report — {{REPO_NAME}}
 ## Executive Summary
-## Findings by Severity
-### Critical
-### High
-### Medium
-### Low
 ## Enterprise Mandate Compliance Matrix
+## Findings by Severity
+### Critical (fix immediately)
+### High (fix this sprint)
+### Medium (fix this cycle)
+### Low (track)
 ## Remediation Roadmap
-### Priority 1 — Immediate
-### Priority 2 — This Sprint
-### Priority 3 — This Cycle
-### Priority 4 — Backlog
+### Immediate
+### Short-term
+### Medium-term
+### Backlog
 ## Evidence Index
-## Verification Statistics
-## Appendix: Methodology
+## Audit Methodology & Verification Statistics
 ```
+
+Every finding in the report carries a stable ID (F1, F2, ...) prefixed before the severity tag. These IDs enable the user to select specific findings for remediation in GATE 3.
 
 ## Output Format
 
