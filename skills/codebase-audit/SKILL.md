@@ -34,19 +34,12 @@ If an auditor reports an issue without citing the exact file and line — that f
 
 ## When to Use
 
-```dot
-digraph when_to_use {
-    "Repository-wide concern?" [shape=diamond];
-    "Specific domain known?" [shape=diamond];
-    "Run full audit (all 13 domains)" [shape=box];
-    "Run targeted audit (selected domains)" [shape=box];
-    "Not in scope — investigate the specific file directly" [shape=box];
-
-    "Repository-wide concern?" -> "Specific domain known?" [label="yes"];
-    "Repository-wide concern?" -> "Not in scope — investigate the specific file directly" [label="no"];
-    "Specific domain known?" -> "Run targeted audit (selected domains)" [label="yes"];
-    "Specific domain known?" -> "Run full audit (all 13 domains)" [label="no"];
-}
+```mermaid
+graph TD
+    A{"Repository-wide\nconcern?"} -->|yes| B{"Specific domain\nknown?"}
+    A -->|no| C["Not in scope —\ninvestigate the specific\nfile directly"]
+    B -->|yes| D["Run targeted audit\n(selected domains)"]
+    B -->|no| E["Run full audit\n(all 13 domains)"]
 ```
 
 **Use this skill when:**
@@ -68,30 +61,24 @@ digraph when_to_use {
 
 Complete each phase before proceeding to the next. Three user gates ensure alignment.
 
-```dot
-digraph audit_flow {
-    rankdir=TB;
-    node [shape=box];
+```mermaid
+graph TD
+    P1["Phase 1: Repository Reconnaissance"] --> G1{"GATE 1:\nScope Confirmation"}
+    G1 -->|user confirms| P2["Phase 2: Parallel Domain Audits\n(dispatch up to 13 subagents)"]
+    P2 --> P3["Phase 3: Verification\n(independent evidence check)"]
+    P3 --> G2{"GATE 2:\nFindings Review"}
+    G2 -->|user confirms| P4["Phase 4: Report Synthesis"]
+    P4 --> G3{"GATE 3:\nRemediation Selection\n(opt-in)"}
+    G3 -->|user selects findings| P5["Phase 5: Remediation Execution\n(fix, verify)"]
+    G3 -->|user skips| Done(("Audit complete\n(report only)"))
 
-    P1 [label="Phase 1: Repository Reconnaissance"];
-    G1 [label="GATE 1: Scope Confirmation" shape=diamond];
-    P2 [label="Phase 2: Parallel Domain Audits\n(dispatch up to 13 subagents)"];
-    P3 [label="Phase 3: Verification\n(independent evidence check)"];
-    G2 [label="GATE 2: Findings Review" shape=diamond];
-    P4 [label="Phase 4: Report Synthesis"];
-    G3 [label="GATE 3: Remediation Selection\n(opt-in)" shape=diamond];
-    P5 [label="Phase 5: Remediation Execution\n(fix, verify)"];
+    classDef phase fill:#2563eb,stroke:#1d4ed8,color:#fff
+    classDef gate fill:#d97706,stroke:#b45309,color:#fff
+    classDef done fill:#16a34a,stroke:#15803d,color:#fff
 
-    P1 -> G1;
-    G1 -> P2 [label="user confirms"];
-    P2 -> P3;
-    P3 -> G2;
-    G2 -> P4 [label="user confirms"];
-    P4 -> G3;
-    G3 -> P5 [label="user selects findings"];
-    G3 -> end [label="user skips"];
-    end [label="Audit complete\n(report only)" shape=oval];
-}
+    class P1,P2,P3,P4,P5 phase
+    class G1,G2,G3 gate
+    class Done done
 ```
 
 ---
@@ -311,6 +298,46 @@ If you catch yourself or an auditor:
 
 ---
 
+## Finding Suppression
+
+Teams can suppress known false positives or intentional patterns by adding suppression comments directly in source code. The findings verifier respects these annotations and excludes matching findings from the report.
+
+**Suppression syntax** (language-agnostic — use the comment style of the file's language):
+
+```
+// audit-suppress: DOMAIN           — suppress all findings of this domain for the next line
+// audit-suppress: DOMAIN: reason   — suppress with documented justification (recommended)
+// audit-suppress: SEC,PERF         — suppress multiple domains
+// audit-suppress: *                — suppress all audit findings for the next line
+```
+
+Examples:
+```python
+# audit-suppress: DEAD: intentionally unused — reserved for plugin API
+def on_plugin_load(ctx):
+    pass
+```
+
+```java
+// audit-suppress: SEC: CSRF not applicable — internal microservice, no browser clients
+@PostMapping("/internal/sync")
+public void syncData(@RequestBody SyncRequest req) { ... }
+```
+
+**Rules:**
+- Suppression applies only to the **next line** after the comment (not the whole file)
+- Suppression comments must include the domain code — bare `audit-suppress` without a domain is ignored
+- The `reason` field is optional but strongly recommended — suppressions without reasons are flagged as Low findings by the enterprise-mandates auditor
+- Suppressions are reported in the audit methodology section: count of suppressed findings per domain
+- Suppressions do **not** hide Critical security findings with Confirmed confidence — these are always reported regardless of suppression
+
+During **Phase 3 (Verification)**, the findings verifier:
+1. For each finding, checks whether a suppression comment exists at the cited file:line
+2. If a matching suppression is found, marks the finding as **Suppressed** (not False Positive — suppression is intentional, not an error)
+3. Records all suppressions in the verification output for transparency
+
+---
+
 ## Enterprise Mandate Compliance
 
 When CLAUDE.md or project rules define non-negotiable mandates, the enterprise-mandates-auditor evaluates compliance. The standard mandates (configurable per project):
@@ -334,14 +361,27 @@ When CLAUDE.md or project rules define non-negotiable mandates, the enterprise-m
 Present to the user:
 - All findings numbered as F1..FN (IDs from the Phase 4 report)
 - Findings grouped by file path, showing which files have multiple findings
-- Detected conflicts (overlapping line ranges, contradictory remediations)
 - Quick-select options: `all` | `critical+high` | `domain:SEC` | `module:auth` | `F1,F3,F7`
+
+**Conflict detection** — before presenting the selection prompt, proactively scan for:
+
+1. **Overlapping line ranges:** Two findings cite the same file with overlapping line ranges (e.g., F3 at `auth.py:40-55` and F7 at `auth.py:50-70`). Mark these as a conflict pair.
+2. **Contradictory remediations:** Two findings for the same location suggest incompatible fixes (e.g., F3 says "delete this function" and F7 says "refactor this function"). Mark as a conflict pair.
+3. **Dependency chains:** Fixing F3 requires F7 to be fixed first (e.g., F3 adds an import that F7's fix would remove). Mark as an ordered dependency.
+
+Present detected conflicts explicitly:
+```
+Conflicts detected:
+- F3 and F7 overlap at auth.py:40-70 — select one or both (applied sequentially)
+- F12 depends on F5 — if you select F12, F5 will be included automatically
+```
 
 Ask: **"The audit is complete. Would you like me to fix any of these findings? Specify by ID, severity, domain, or module — or 'skip' to keep the report only."**
 
 - **`skip` or any declination = audit ends here.** No files are modified. The report stands as the deliverable.
 - Only an explicit selection of findings proceeds to Phase 5.
-- If the user selects findings with detected conflicts, explain the conflict and ask which approach to prefer before proceeding.
+- If the user selects findings with detected conflicts, explain each conflict and ask which approach to prefer before proceeding.
+- If the user selects a finding that has dependencies, automatically include the dependency and inform the user.
 - **No files are modified without explicit user approval.**
 
 Proceed only after the user confirms the final selection.

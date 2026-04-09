@@ -40,7 +40,8 @@ Each finding arrives in this structure:
 For every finding in the sample set, perform these checks in order:
 
 1. **Read the cited file and line.** Open the exact `file:line` referenced in the finding. If the file does not exist or the line number is out of range, mark as False Positive immediately.
-2. **Compare the code to the claimed evidence.** Does the code at that location match what the auditor described? If the auditor cited a function signature, variable, pattern, or vulnerability, confirm it is present at that location.
+2. **Check for suppression comments.** Read the line immediately above the cited line. If it contains an `audit-suppress:` comment matching the finding's domain code (or `*`), mark the finding as **Suppressed**. Exception: Critical findings with Confirmed confidence are never suppressed — always report them regardless of suppression comments.
+3. **Compare the code to the claimed evidence.** Does the code at that location match what the auditor described? If the auditor cited a function signature, variable, pattern, or vulnerability, confirm it is present at that location.
 3. **Evaluate the auditor's conclusion.** Given what the code actually does, is the auditor's severity and impact assessment reasonable? Consider language idioms, framework conventions, and the detected stack.
 4. **Check for mitigating context.** Look for nearby code (within the same file or direct callers/callees) that might mitigate the reported issue — e.g., input validation upstream, deprecation wrappers, conditional guards, or documented intentional patterns.
 5. **Validate confidence level.** Does the auditor's confidence rating match the evidence? Adjust if needed:
@@ -67,6 +68,7 @@ After all sampled findings are verified, compute per-domain statistics:
 |---------|-----------|--------|
 | **Verified** | The code at the cited location exhibits the issue exactly as described. The severity and impact are accurate. | Finding passes to the final report unchanged. |
 | **False Positive** | The cited code does not exhibit the claimed issue, the file or line does not exist, or the auditor misinterpreted a language idiom, framework convention, or mitigating pattern. | Finding is removed from the final report. |
+| **Suppressed** | The code exhibits the issue, but an `audit-suppress:` comment matching the domain exists on the line above. The team has intentionally acknowledged and accepted this pattern. Exception: Critical + Confirmed findings are never suppressed. | Finding is removed from the report but counted in the suppression summary in the Audit Methodology section. |
 | **Needs Context** | The code exists as described, but there is ambiguity about whether it constitutes an actual issue — e.g., intentional design decisions, framework magic, or runtime behavior that cannot be determined statically. | Finding passes to the final report with a `[NEEDS CONTEXT]` annotation and the specific question that must be answered. |
 
 ## Re-Audit Threshold

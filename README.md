@@ -237,6 +237,52 @@ codebase-audit/
 
 ---
 
+## Suppressing Findings
+
+Teams can suppress known false positives or intentional patterns by adding comments directly in source code:
+
+```python
+# audit-suppress: DEAD: intentionally unused — reserved for plugin API
+def on_plugin_load(ctx):
+    pass
+```
+
+```java
+// audit-suppress: SEC: CSRF not applicable — internal microservice, no browser clients
+@PostMapping("/internal/sync")
+public void syncData(@RequestBody SyncRequest req) { ... }
+```
+
+Suppression syntax: `audit-suppress: DOMAIN` or `audit-suppress: DOMAIN: reason`. Applies to the next line only. Critical findings with Confirmed confidence are never suppressed.
+
+---
+
+## CI/CD Integration
+
+The audit runs interactively by default (3 user gates for scope, findings, and remediation). For CI/CD pipelines, use Claude Code's headless mode with pre-confirmed scope:
+
+```yaml
+# GitHub Actions example
+- name: Run codebase audit
+  run: |
+    claude --print "Run a codebase audit on this repository. \
+      Scope: all 13 domains. \
+      At Gate 1: confirm full scope. \
+      At Gate 2: proceed to report. \
+      At Gate 3: skip remediation. \
+      Output the full report."
+```
+
+**Using the deploy recommendation:**
+The audit report includes a deploy recommendation at Gate 2 based on findings:
+- **Block deploy**: Critical findings with Confirmed or High confidence detected
+- **Deploy with caution**: High findings in non-critical paths
+- **Ship it**: No Critical or High findings
+
+Teams can parse the deploy recommendation from the report output and use it as a gate in their pipeline.
+
+---
+
 ## Contributing
 
 Contributions are welcome. If you want to improve an auditor's checklist, add support for a new domain, or fix an issue:
