@@ -75,6 +75,7 @@ Nothing is labeled as transitional. Every component is simply the current implem
 - TODO/FIXME comments referencing removal of old code, completion of migration, or cleanup of temporary implementations
 - Feature flags that toggle between old and new implementations
 - Documentation that references "the old way" vs. "the new way"
+- **Legitimate use whitelist**: The words "new", "old", "legacy", "v2" are not violations when they are part of domain terminology (e.g., `NewUserOnboarding` as a feature name, `LegacyGUID` as a domain type representing a genuinely legacy identifier format, `OAuth2` as a protocol name). Only flag these when they indicate a code-level separation between old and new implementations of the same functionality.
 
 ### Mandate 6: Full Rewrite Approach
 
@@ -100,16 +101,55 @@ Code assumes a fresh deployment with no pre-existing state. Every assumption abo
 - Default values derived from legacy conventions rather than explicit configuration
 - Import or loading logic that silently ignores missing dependencies rather than failing explicitly
 
+## Custom Mandate Support
+
+In addition to the 7 default mandates, evaluate any project-specific mandates defined in PROJECT_RULES under a "Mandates", "Non-Negotiables", or "Quality Gates" heading.
+
+For each custom mandate:
+1. Extract the rule statement from project rules.
+2. Identify the target state (what compliance looks like).
+3. Search the codebase for violations using the same evidence standards as default mandates.
+4. Report findings with the same structure, using `MAND:` domain code and the custom mandate text as the title.
+
+If no custom mandates are defined, report: "No custom mandates detected in project rules. Default 7 mandates applied."
+
 ## Evidence Requirements
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 Every violation finding follows this exact structure:
 
 ```markdown
-**[SEVERITY] MAND-[N]: [Descriptive title]**
+**[SEVERITY] MAND: [Descriptive title — include mandate name]**
 - **Mandate:** [which mandate is violated, by number and name]
 - **File:** `path/to/file.ext:line_number` (or `line_start-line_end` for ranges)
 - **Evidence:** [exact code snippet found at that location]
 - **Violation:** [why this code violates the mandate]
+- **Confidence:** [Confirmed / High / Medium / Low]
+- **Effort:** [Trivial / Small / Medium / Large]
+- **Risk:** [Safe / Moderate / High]
 - **Remediation:** [specific action to bring the code into compliance]
 ```
 

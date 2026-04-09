@@ -128,32 +128,40 @@ The skill is fully technology-agnostic. All audit checks are expressed as univer
 
 ## Example Output
 
-Every finding follows this exact structure — severity, domain code, file:line evidence, impact, and a concrete fix. Each finding carries a stable ID (F1, F2, ...) for remediation selection at Gate 3.
+Every finding includes severity, confidence, file:line evidence, impact, remediation, effort estimate, and risk level. Each carries a stable ID (F1, F2, ...) for remediation selection at Gate 3.
 
 Severity levels: **Critical** (fix immediately) > **High** (fix this sprint) > **Medium** (fix this cycle) > **Low** (track)
 
 **F1 [Critical] SEC: SQL injection in user search endpoint**
 - **File:** `src/api/users.py:47`
+- **Confidence:** Confirmed
 - **Evidence:** `cursor.execute(f"SELECT * FROM users WHERE name = '{query}'")`
 - **Impact:** User-supplied input is interpolated directly into SQL, enabling full database extraction via UNION-based injection
 - **Remediation:** Use parameterized query: `cursor.execute("SELECT * FROM users WHERE name = %s", (query,))`
+- **Effort:** Trivial (< 30min) | **Risk:** Safe
 
 **F4 [High] PERF: N+1 query in order listing endpoint**
 - **File:** `src/api/orders.js:82`
+- **Confidence:** Confirmed
 - **Evidence:** `orders.forEach(async (o) => { o.items = await db.query("SELECT * FROM items WHERE order_id = ?", o.id) })`
 - **Impact:** For N orders, executes N+1 database queries. At 500 orders per page, this produces 501 queries per request.
 - **Remediation:** Use a single JOIN or IN-clause: `SELECT * FROM items WHERE order_id IN (?)` with all order IDs batched
+- **Effort:** Small (< 2h) | **Risk:** Moderate
 
 **F9 [Medium] DEAD: Unused exported function**
 - **File:** `src/utils/format.ts:124`
+- **Confidence:** High
 - **Evidence:** `export function formatLegacyDate(d: Date): string` — zero references found across 847 files searched
 - **Impact:** Dead code increases bundle size and confuses maintainers scanning the utils module
 - **Remediation:** Remove `formatLegacyDate` and its associated tests in `tests/utils/format.test.ts:89`
+- **Effort:** Trivial (< 30min) | **Risk:** Safe
 
 **F15 [Low] DOC: README setup instructions reference removed env variable**
 - **File:** `README.md:34`
+- **Confidence:** Confirmed
 - **Evidence:** `Set LEGACY_DB_URL in your .env` — but `LEGACY_DB_URL` is not referenced anywhere in source code
 - **Remediation:** Remove the outdated setup step or replace with the current `DATABASE_URL` variable
+- **Effort:** Trivial (< 30min)
 
 ---
 

@@ -70,6 +70,20 @@ Use DETECTED_STACK and the actual project layout to determine which documentatio
 - Verify that comments explaining "why" a block of code exists still correspond to the current logic
 - Verify that commented-out code blocks are flagged when they have persisted across multiple releases
 
+### Example Code Validity
+
+- Verify that code examples in documentation (README, API docs, tutorials) use current APIs and would compile or run against the current codebase
+- Check that import paths, function signatures, configuration keys, and environment variable names in examples match the actual source
+
+### Type Signature Accuracy
+
+- Verify that documented function signatures, parameter types, return types, and default values match the actual source code
+- Check for missing optional parameters, renamed types, or changed defaults that are not reflected in the documentation
+
+### Changelog Accuracy
+
+- If a CHANGELOG or release notes file exists, verify that the most recent entries match actual changes visible in the source: new features documented match new exports, breaking changes documented match API signature changes, and fixed bugs reference real code changes
+
 ## Evidence Requirements
 
 Every finding MUST include:
@@ -82,6 +96,30 @@ Every finding MUST include:
 6. **Suggested correction**: the specific text or content change needed to bring documentation into alignment
 
 Findings without file:line evidence are invalid and must be excluded from the report.
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 ## Output Format
 
@@ -108,10 +146,13 @@ Structure the final report as follows:
 
 **[Severity] DOC: [Short title]**
 - **File:** `path/to/docs/file.md:15`
+- **Confidence:** Confirmed / High / Medium / Low
 - **Source reference:** `path/to/source/file.ext:42` (if applicable)
 - **Evidence:** [what the docs say vs. what the code does]
 - **Impact:** [how this misleads users or breaks setup]
 - **Remediation:** [specific text or content change needed]
+- **Effort:** Trivial / Small / Medium / Large
+- **Risk:** Safe / Moderate / High
 
 ---
 

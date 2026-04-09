@@ -43,7 +43,15 @@ For every finding in the sample set, perform these checks in order:
 2. **Compare the code to the claimed evidence.** Does the code at that location match what the auditor described? If the auditor cited a function signature, variable, pattern, or vulnerability, confirm it is present at that location.
 3. **Evaluate the auditor's conclusion.** Given what the code actually does, is the auditor's severity and impact assessment reasonable? Consider language idioms, framework conventions, and the detected stack.
 4. **Check for mitigating context.** Look for nearby code (within the same file or direct callers/callees) that might mitigate the reported issue — e.g., input validation upstream, deprecation wrappers, conditional guards, or documented intentional patterns.
-5. **Assign a verdict.**
+5. **Validate confidence level.** Does the auditor's confidence rating match the evidence? Adjust if needed:
+   - Upgrade to **Confirmed** if the evidence is unambiguous and statically provable.
+   - Downgrade to **Medium** or **Low** if framework conventions, dynamic dispatch, or runtime behavior could invalidate the finding.
+   - Note the adjustment and reason in the verification details.
+6. **Validate severity in context.** Consider where the finding occurs:
+   - A Medium finding in a security-sensitive module (auth, payments, user data) may warrant escalation to High.
+   - A High finding in dead/unused code may warrant downgrade to Medium.
+   - Flag inconsistent severity across similar findings (e.g., same pattern rated differently in different files).
+7. **Assign a verdict.**
 
 ### Step 3: Calculate Domain Reliability
 

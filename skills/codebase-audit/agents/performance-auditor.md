@@ -82,6 +82,34 @@ Verify that database access patterns are optimized for the query workload.
 - Identify transactions held open across slow operations (network calls, file I/O, external service requests)
 - Check that batch insert/update operations are used instead of individual statements in loops
 
+### 9. Parallelization Opportunities
+
+Identify sequential operations that could execute in parallel:
+
+- Independent database queries executed one after another where no data dependency exists between them
+- Independent API calls to external services made sequentially when the results are not interdependent
+- Independent file operations (reads, writes to different files) processed in sequence
+- Flag cases where the language or framework supports parallel execution (Promise.all, CompletableFuture.allOf, goroutines, asyncio.gather, Task.WhenAll) but it is not used
+
+### 10. Connection Pool Boundaries
+
+Verify that all connection pools have explicit maximum size limits:
+
+- Database connection pools (HikariCP, pgBouncer, SQLAlchemy pool_size) must have a configured maximum
+- HTTP client connection pools (OkHttp, Apache HttpClient, axios) must have a maximum connections setting
+- Redis, message queue, and cache client pools must have bounded configurations
+- Flag unbounded pools or pools with no explicit maximum as "resource exhaustion risk under load"
+
+### 11. Long Transaction Scope
+
+Identify database transactions held open across slow operations:
+
+- Network calls to external services within a transaction boundary
+- File I/O operations within a transaction
+- User-facing waits or interactive steps within a transaction
+- Message queue publish/consume operations within a transaction
+- Long-held transactions block other connections and can cause connection pool exhaustion under concurrent load
+
 ## Evidence Requirements
 
 Every finding MUST include:
@@ -90,6 +118,30 @@ Every finding MUST include:
 - **Evidence:** The actual code exhibiting the performance issue
 - **Impact:** Concrete performance consequence (e.g., "executes N+1 database queries for N items in the collection, causing linear growth in query count and response time")
 - **Remediation:** Specific fix using the detected stack's idiomatic approach, with a code example
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 Severity guidelines:
 - **Critical**: Performance issue that causes system failure under normal load (unbounded memory growth, connection pool exhaustion, query count explosion on primary endpoints)
@@ -111,8 +163,10 @@ Severity guidelines:
 
 **[SEVERITY] PERF: [Short title]**
 - **File:** `path/to/file.ext:42`
+- **Confidence:** [Confirmed | High | Medium | Low]
 - **Evidence:** [code snippet showing the anti-pattern]
 - **Impact:** [concrete performance consequence]
+- **Effort:** [Trivial | Small | Medium | Large] | **Risk:** [Safe | Moderate | High]
 - **Remediation:** [specific fix with idiomatic code example]
 
 [...repeat for each finding, ordered by severity descending...]

@@ -48,9 +48,11 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 **F{{ID}} [CRITICAL] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
+- **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
 - **Remediation:** {{SPECIFIC_ACTION_WITH_CODE_EXAMPLE}}
+- **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
 
 {{END_FOR_EACH}}
 
@@ -60,9 +62,11 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 **F{{ID}} [HIGH] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
+- **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
 - **Remediation:** {{SPECIFIC_ACTION_WITH_CODE_EXAMPLE}}
+- **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
 
 {{END_FOR_EACH}}
 
@@ -72,9 +76,11 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 **F{{ID}} [MEDIUM] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
+- **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
 - **Remediation:** {{SPECIFIC_ACTION_WITH_CODE_EXAMPLE}}
+- **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
 
 {{END_FOR_EACH}}
 
@@ -84,8 +90,10 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 **F{{ID}} [LOW] {{DOMAIN_CODE}}: {{TITLE}}**
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
+- **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Remediation:** {{SUGGESTED_IMPROVEMENT}}
+- **Effort:** {{EFFORT}}
 
 {{END_FOR_EACH}}
 
@@ -93,17 +101,30 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 ## Remediation Roadmap
 
+**Total estimated effort:** {{TOTAL_EFFORT_RANGE}}
+**Deploy recommendation:** {{BLOCK_DEPLOY / DEPLOY_WITH_CAUTION / SHIP_IT}}
+
 ### Immediate (this week)
-{{CRITICAL_FINDINGS_SUMMARIZED_WITH_EFFORT_ESTIMATE}}
+
+| Finding | Title | Effort | Risk | Confidence |
+|---------|-------|--------|------|------------|
+{{FOR_EACH_CRITICAL_FINDING}}
+| F{{ID}} | {{TITLE}} | {{EFFORT}} | {{RISK}} | {{CONFIDENCE}} |
+{{END_FOR_EACH}}
 
 ### Short-term (this sprint)
-{{HIGH_FINDINGS_SUMMARIZED_WITH_EFFORT_ESTIMATE}}
+
+| Finding | Title | Effort | Risk | Confidence |
+|---------|-------|--------|------|------------|
+{{FOR_EACH_HIGH_FINDING}}
+| F{{ID}} | {{TITLE}} | {{EFFORT}} | {{RISK}} | {{CONFIDENCE}} |
+{{END_FOR_EACH}}
 
 ### Medium-term (this cycle)
-{{MEDIUM_FINDINGS_GROUPED_BY_THEME}}
+{{MEDIUM_FINDINGS_GROUPED_BY_MODULE_WITH_EFFORT}}
 
 ### Backlog
-{{LOW_FINDINGS_GROUPED_BY_THEME}}
+{{LOW_FINDINGS_GROUPED_BY_THEME_WITH_COUNT}}
 
 ---
 

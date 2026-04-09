@@ -130,21 +130,71 @@ Every abstraction earns its existence by being used in more than one context or 
 - **Missing abstraction:** Data passed as primitive types (string, int) through multiple functions where a domain type would add clarity and safety
 - **Missing abstraction:** Multiple functions that operate on the same group of parameters, suggesting a missing data structure or class
 
+### 11. Cognitive Complexity
+
+Beyond cyclomatic complexity, identify functions where the combination of nesting depth, number of break points (early returns, continues, breaks), and interleaving of concerns makes the function hard to reason about. A function with cyclomatic complexity 5 but 6 levels of nesting is harder to understand than one with complexity 10 in a flat structure.
+
+- Functions where understanding the happy path requires mentally tracking more than 3 nested conditions
+- Functions that mix multiple levels of abstraction (e.g., HTTP parsing interleaved with business logic interleaved with database calls)
+- Functions where the control flow requires backward jumps (loops with complex break/continue logic)
+
+### 12. Type System Usage
+
+In typed languages (TypeScript, Kotlin, Rust, Java with generics, C# with nullable reference types), verify that the type system is used effectively:
+
+- Union types or sealed classes instead of runtime type checks (typeof, instanceof) for known variants
+- Generics instead of any/Object casts or unchecked type assertions
+- Exhaustive pattern matching (switch/when expressions) instead of else clauses that silently handle unknown cases
+- Nullable reference types or Option/Maybe types instead of null checks scattered through calling code
+
+### 13. API Surface Consistency
+
+Verify that public API methods within the same module or class use consistent patterns:
+
+- Consistent naming conventions (all camelCase or all snake_case, not a mix within the same interface)
+- Consistent parameter ordering (e.g., context/config always first, data payload second, options last)
+- Consistent return type patterns (all return Result/Either, or all throw exceptions, or all return nullable — not a mix within the same API surface)
+- Consistent error signaling (if some methods throw and others return error codes, that is inconsistent)
+
 ## Evidence Requirements
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 Every finding follows this exact structure:
 
 ```markdown
-**[SEVERITY] QUAL-[DIMENSION]: [Descriptive title]**
+**[SEVERITY] QUAL: [Descriptive title]**
 - **Dimension:** [which quality dimension, by number and name]
 - **File:** `path/to/file.ext:line_number` (or `line_start-line_end` for ranges)
 - **Evidence:** [exact code snippet found at that location]
 - **Impact:** [how this affects readability, maintainability, or correctness]
+- **Confidence:** [Confirmed / High / Medium / Low]
+- **Effort:** [Trivial / Small / Medium / Large]
+- **Risk:** [Safe / Moderate / High]
 - **Remediation:** [specific refactoring action, with an idiomatic code example for the detected language where helpful]
 ```
-
-Dimension codes for the QUAL prefix:
-`QUAL-SRP`, `QUAL-OCP`, `QUAL-LSP`, `QUAL-ISP`, `QUAL-DIP`, `QUAL-DRY`, `QUAL-NAME`, `QUAL-LEN`, `QUAL-GOD`, `QUAL-ERR`, `QUAL-IDIOM`, `QUAL-MAGIC`, `QUAL-NEST`, `QUAL-ABS`
 
 Severity follows the project's classification:
 - **Critical:** Quality issue that directly causes bugs, data corruption, or security vulnerabilities (e.g., swallowed errors hiding failures in payment processing)
@@ -173,9 +223,12 @@ After scanning all dimensions, produce this summary table:
 | 12 | Magic Numbers/Strings | PASS / CONCERNS | count | severity or n/a |
 | 13 | Nesting Depth | PASS / CONCERNS | count | severity or n/a |
 | 14 | Abstraction Balance | PASS / CONCERNS | count | severity or n/a |
+| 15 | Cognitive Complexity | PASS / CONCERNS | count | severity or n/a |
+| 16 | Type System Usage | PASS / CONCERNS | count | severity or n/a |
+| 17 | API Surface Consistency | PASS / CONCERNS | count | severity or n/a |
 ```
 
-**Overall Quality Score: [X/14 PASS]**
+**Overall Quality Score: [X/17 PASS]**
 
 ## Findings Output
 

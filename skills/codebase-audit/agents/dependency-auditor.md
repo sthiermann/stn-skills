@@ -78,6 +78,27 @@ Verify that each direct dependency is actively maintained.
 - Note dependencies with no release in the past 18 months (unless they are stable and feature-complete by design).
 - Identify dependencies maintained by a single individual with no succession plan, where a more established alternative exists.
 
+### 9. Supply Chain Risk Indicators
+
+Flag dependencies that exhibit supply chain risk indicators:
+
+- Single-maintainer projects with high download counts (bus factor = 1)
+- Recent maintainer ownership transfers (npm package transferred, GitHub repo ownership changed)
+- Packages with pre-install or post-install scripts that execute arbitrary code (check package.json scripts, setup.py install hooks)
+- Packages whose source repository does not match the published package content (if verifiable)
+- Dependencies with no published security policy or vulnerability disclosure process
+
+Note: these are risk indicators, not confirmed vulnerabilities. Mark with Confidence: Medium and note the specific indicator.
+
+### 10. Transitive Dependency Exposure
+
+For each direct dependency, assess the transitive dependency footprint:
+
+- Note the count of transitive dependencies each direct dependency introduces
+- Flag direct dependencies that pull in more than 50 transitive packages, as each represents additional attack surface and maintenance burden
+- Note the deepest transitive dependency chain (e.g., A → B → C → D → E is depth 4)
+- Flag any transitive dependency that appears in multiple direct dependency trees at different versions (version conflict risk)
+
 ## Evidence Requirements
 
 Every finding MUST include:
@@ -92,6 +113,30 @@ Every finding MUST include:
   - Low: An observation worth noting that does not require immediate action.
 
 If a checklist area has zero findings, state explicitly: "No issues found for [area]."
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 ## Output Format
 
@@ -113,6 +158,9 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 - **Dependency**: `library-name@declared-version`
 - **Evidence**: [version comparison, CVE ID, missing import search, or license identifier]
 - **Impact**: [one-sentence description of what this causes]
+- **Confidence**: [Confirmed / High / Medium / Low]
+- **Effort**: [Trivial / Small / Medium / Large]
+- **Risk**: [Safe / Moderate / High]
 - **Remediation**: [one-sentence actionable suggestion]
 
 ...
@@ -128,4 +176,6 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 | 6. License Compatibility | [count] | [severity or "clean"] |
 | 7. Transitive Dependency Risks | [count] | [severity or "clean"] |
 | 8. Maintenance and Activity | [count] | [severity or "clean"] |
+| 9. Supply Chain Risk Indicators | [count] | [severity or "clean"] |
+| 10. Transitive Dependency Exposure | [count] | [severity or "clean"] |
 ```

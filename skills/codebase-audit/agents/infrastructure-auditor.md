@@ -114,6 +114,33 @@ If IaC files are present (Terraform, Pulumi, CloudFormation, CDK, Ansible), veri
 
 Cite the IaC file:line for each finding. If no IaC files exist, note the absence and skip this dimension.
 
+### 9. Observability Configuration
+
+Verify that the application and infrastructure are configured for production observability:
+
+- Structured logging is enabled (JSON or key-value format, not unstructured print/console.log statements) with consistent fields (timestamp, level, service, trace ID)
+- Metrics are exported to a collection system (Prometheus, StatsD, CloudWatch, Datadog) with at minimum: request rate, error rate, latency percentiles
+- For multi-service architectures, distributed tracing is configured (OpenTelemetry, Jaeger, Zipkin) with trace context propagation across service boundaries
+- Flag services that produce no structured telemetry as "observability gap"
+
+### 10. Scaling Configuration
+
+If the deployment targets Kubernetes or a cloud platform:
+
+- Verify that autoscaling is configured: Horizontal Pod Autoscaler (HPA) or equivalent with appropriate CPU/memory thresholds
+- Verify that resource requests and limits are set for all containers (prevent noisy neighbor and OOM scenarios)
+- Verify that minimum and maximum replica counts are defined and reasonable for the workload
+- Flag deployments with no scaling configuration as "manual scaling only — risk of capacity issues under load"
+
+### 11. Network Security
+
+Verify that network isolation is configured for production environments:
+
+- Kubernetes NetworkPolicies or cloud security groups restrict inter-service communication to declared dependencies only
+- Ingress rules limit external access to public endpoints; internal services are not exposed externally
+- Egress rules prevent unauthorized outbound connections from application pods (data exfiltration risk)
+- Flag services with unrestricted network access (default-allow) as a security concern
+
 ## Evidence Requirements
 
 Every finding must include:
@@ -122,6 +149,30 @@ Every finding must include:
 2. **Code evidence**: The actual configuration snippet found at that location
 3. **Why it matters**: Concrete impact (e.g., "unpinned base image means builds are not reproducible and a future upstream change could break the build or introduce vulnerabilities")
 4. **Remediation**: Specific, actionable change with a corrected configuration example
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 Before reporting a finding, confirm:
 - You have read the cited file at the cited line
@@ -150,8 +201,10 @@ Return findings as structured markdown. Group by dimension, sort by severity wit
 
 **[SEVERITY] INFRA-01: [Descriptive title]**
 - **File:** `path/to/file.ext:line`
+- **Confidence:** [Confirmed | High | Medium | Low]
 - **Evidence:** [exact configuration snippet at that location]
 - **Impact:** [concrete consequence of this configuration gap]
+- **Effort:** [Trivial | Small | Medium | Large] | **Risk:** [Safe | Moderate | High]
 - **Remediation:** [specific corrected configuration]
 
 [...repeat for each finding...]

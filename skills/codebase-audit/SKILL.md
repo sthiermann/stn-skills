@@ -200,10 +200,29 @@ The verifier's mandate:
 ### GATE 2: Findings Review
 
 Present to the user:
+
+**1. Severity Overview:**
 - Findings count by severity: Critical | High | Medium | Low
-- Findings count by domain
-- Top 5 most impactful findings (brief summary with file references)
-- Verification statistics (how many checked, how many removed)
+- Confidence distribution: how many Confirmed vs. High vs. Medium vs. Low confidence
+
+**2. Hotspot Analysis:**
+- Top 5 most affected modules/directories (ranked by finding count weighted by severity)
+- Finding clusters: group identical patterns (e.g., "47 unused imports across 12 files" instead of 47 individual findings)
+
+**3. Blast Radius Assessment:**
+- Findings in security-sensitive paths (auth, payments, user data) flagged separately
+- Findings affecting shared/core modules vs. isolated leaf modules
+
+**4. Top 5 Most Impactful Findings:**
+- Brief summary with file references, confidence, and estimated effort
+
+**5. Verification Statistics:**
+- How many findings checked, how many false positives removed, which domains (if any) were re-audited
+
+**6. Deploy Recommendation:**
+- **Block deploy**: Any Critical finding with Confirmed or High confidence
+- **Deploy with caution**: High findings in non-critical paths, or Critical with Medium confidence
+- **Ship it**: No Critical or High findings, or all are Low confidence
 
 Ask: **"These are the verified findings. Proceed to full report, or investigate any area deeper?"**
 
@@ -241,14 +260,23 @@ Full classification details in `references/severity-classification.md`.
 Every finding follows this exact structure:
 
 ```markdown
-**[SEVERITY] [DOMAIN-CODE]: [Descriptive title]**
+**[SEVERITY] DOMAIN: Descriptive title**
 - **File:** `path/to/file.ext:line-range`
+- **Confidence:** Confirmed / High / Medium / Low
 - **Evidence:** [exact code snippet or description of what was found at that location]
 - **Impact:** [what happens if this is not addressed]
 - **Remediation:** [specific action to take, with idiomatic code example for the detected language]
+- **Effort:** Trivial (< 30min) / Small (< 2h) / Medium (< 1 day) / Large (> 1 day)
+- **Risk:** Safe (drop-in) / Moderate (requires testing) / High (could break functionality)
 ```
 
 Domain codes: `SEC`, `DOC`, `DEAD`, `DEPR`, `MAND`, `QUAL`, `ARCH`, `DEP`, `TEST`, `INFRA`, `PERF`, `CONC`, `PRIV`
+
+**Confidence levels:**
+- **Confirmed**: Statically verifiable with certainty. The evidence alone proves the finding.
+- **High**: Very likely correct. Minimal false positive risk.
+- **Medium**: Probably correct, but framework conventions or runtime behavior could invalidate.
+- **Low**: Possible issue, but requires runtime verification to confirm.
 
 ---
 

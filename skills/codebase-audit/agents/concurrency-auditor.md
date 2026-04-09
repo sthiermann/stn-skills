@@ -73,6 +73,32 @@ Verify that signal handlers and interrupt routines follow safety constraints.
 - Check that graceful shutdown handlers set atomic flags rather than performing complex cleanup inline
 - Verify that cancellation tokens, context.Done channels, or AbortSignals are checked in long-running loops
 
+### 8. Deadlock Risk Detection
+
+Trace lock acquisition patterns across the codebase:
+
+- Identify cases where two or more locks (mutexes, synchronized blocks, RWLocks) are acquired in different orders in different code paths
+- Flag any potential lock ordering inconsistency, even if the deadlock requires specific timing to manifest
+- In Go, include channel operations that could block in circular dependency patterns (goroutine A sends to channel X and reads from Y, goroutine B sends to Y and reads from X)
+- In async runtimes, identify await points inside lock guards that could cause executor-level deadlocks
+
+### 9. Memory Visibility and Ordering
+
+In languages with relaxed memory models (Java, C++, C#, Rust unsafe):
+
+- Verify that shared mutable state accessed across threads uses appropriate memory visibility guarantees: volatile or atomic fields for single variables, synchronized blocks or memory barriers for compound operations
+- Flag reads of shared mutable state that lack visibility guarantees (non-volatile field read in Java, non-atomic access in C++)
+- Verify that double-checked locking patterns use the correct memory ordering (volatile in Java, std::atomic with acquire/release in C++)
+
+### 10. Unbounded Concurrency
+
+Identify patterns where concurrency is unbounded:
+
+- Goroutines spawned per incoming request without a semaphore or worker pool limiting total active goroutines
+- Threads created per connection without a thread pool bounding the maximum
+- Async tasks spawned in a loop without concurrency limits (no Semaphore, no p-limit, no bounded channel)
+- Flag these as "resource exhaustion risk" — under load, unbounded concurrency causes memory exhaustion, context switching overhead, or file descriptor exhaustion
+
 ## Evidence Requirements
 
 Every finding MUST include:
@@ -81,6 +107,30 @@ Every finding MUST include:
 - **Evidence:** The actual code exhibiting the unsafe pattern, including both the shared state declaration and the concurrent access point
 - **Impact:** Concrete consequence (e.g., "two goroutines write to this map without synchronization, causing potential panic from concurrent map writes")
 - **Remediation:** Specific fix using the detected stack's idiomatic concurrency primitives, with a code example
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 Severity guidelines:
 - **Critical**: Data corruption, deadlock, or undefined behavior under normal concurrent load (unprotected shared mutable state in request handlers, lock ordering violation between core mutexes)
@@ -102,8 +152,10 @@ Severity guidelines:
 
 **[SEVERITY] CONC: [Short title]**
 - **File:** `path/to/file.ext:42`
+- **Confidence:** [Confirmed | High | Medium | Low]
 - **Evidence:** [code snippet showing the concurrency issue]
 - **Impact:** [concrete consequence under concurrent execution]
+- **Effort:** [Trivial | Small | Medium | Large] | **Risk:** [Safe | Moderate | High]
 - **Remediation:** [specific fix with idiomatic concurrency primitive]
 
 [...repeat for each finding, ordered by severity descending...]

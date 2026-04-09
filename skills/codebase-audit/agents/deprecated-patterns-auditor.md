@@ -41,6 +41,22 @@ Locate error handling patterns that predate the project's current language or fr
 
 Find configuration files, settings, or environment setups that use deprecated keys, formats, or structures according to the tool or framework version in use. Check official migration documentation for the specific version to confirm the configuration key or format has been superseded.
 
+### Deprecation Urgency Classification
+
+Classify each deprecated pattern by urgency:
+- **Immediate**: Security patches stopped, end-of-life reached, or known vulnerabilities in the deprecated version. Migration is a security requirement.
+- **Near-term**: End-of-life announced within 12 months, migration path available and documented. Migration should be planned this quarter.
+- **Long-term**: Deprecated but still maintained with security patches. No immediate risk, but technical debt accumulates. Migration is a backlog item.
+
+Include the urgency classification in each finding's title or evidence field.
+
+### Migration Path Availability
+
+For each deprecated pattern found, verify that the recommended replacement is available within the project's current version constraints:
+- If the project pins dependency X at v2 and the modern API requires v4, note this version gap as a blocker in the finding.
+- If the replacement API requires a framework version upgrade, estimate the scope of that upgrade in the Effort field.
+- If no direct replacement exists, note this and adjust Risk to High.
+
 ## Evidence Requirements
 
 For every finding, provide this exact structure:
@@ -48,11 +64,13 @@ For every finding, provide this exact structure:
 ```markdown
 **[SEVERITY] DEPR-[CATEGORY]: [Descriptive title]**
 - **File:** `path/to/file.ext:LINE`
+- **Confidence:** Confirmed / High / Medium / Low
 - **Evidence:** [The exact deprecated code at that location]
 - **Version context:** [The project's declared version of the relevant language/framework/library, and the version at which this pattern was deprecated]
 - **Recommended replacement:** [The modern equivalent, with a code example idiomatic to this project's stack]
-- **Migration effort:** [Low: drop-in replacement | Medium: requires structural changes | High: requires architectural rework]
 - **Impact:** [What happens if this remains — runtime warnings, future breakage, performance penalty, security exposure]
+- **Effort:** Trivial / Small / Medium / Large
+- **Risk:** Safe / Moderate / High
 ```
 
 ### Category Codes
@@ -86,6 +104,30 @@ Before reporting any finding, complete these checks:
 4. **Document the version boundary** where deprecation was introduced in your finding
 
 Findings that skip version verification are automatically rejected.
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 ## Output Format
 

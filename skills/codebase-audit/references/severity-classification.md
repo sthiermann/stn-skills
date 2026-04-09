@@ -48,6 +48,37 @@ A finding escalates to a higher severity when:
 - A Medium finding appears in 10+ locations → High (systemic pattern)
 - A High finding exists in a security-sensitive code path → Critical
 - A Low finding violates an explicit project mandate → Medium or High (per mandate severity)
+- A finding of any severity has Confirmed confidence in a core module → consider one level escalation
+
+## Confidence Levels
+
+Every finding carries a confidence rating independent of severity:
+
+| Level | Criteria | Effect on Deploy Recommendation |
+|-------|----------|--------------------------------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Critical + Confirmed = Block deploy |
+| **High** | Very likely correct based on static analysis. Minimal false positive risk. | Critical + High = Block deploy |
+| **Medium** | Probably correct, but framework conventions, dynamic dispatch, or runtime behavior could invalidate. | Critical + Medium = Deploy with caution |
+| **Low** | Possible issue, but requires runtime verification or deeper context to confirm. | Not counted toward deploy recommendation |
+
+The findings verifier may adjust confidence levels during Phase 3 verification. Adjustments are documented with rationale.
+
+## Effort and Risk Estimates
+
+Every finding includes remediation effort and risk estimates:
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code, fixing typos. No behavior change for working code paths. |
+| **Moderate** | Changes behavior but in predictable ways. Requires testing to verify. |
+| **High** | Could break existing functionality, affects shared interfaces, or changes security-sensitive code paths. |
 
 ## Domain Code Reference
 

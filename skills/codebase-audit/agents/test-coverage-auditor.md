@@ -117,6 +117,35 @@ Verify that tests follow the idiomatic patterns for the detected test framework:
 
 Cite the test file:line where a non-idiomatic pattern appears.
 
+### 11. Test Data Quality
+
+Verify that tests use realistic data that exercises real-world edge cases:
+
+- Flag tests where all string inputs are "test", "foo", "bar", or single characters
+- Flag tests where all numbers are 0, 1, or other trivial values that don't exercise boundary conditions
+- Flag tests where all dates are hardcoded to a single value rather than testing across time zones, DST transitions, or edge dates
+- Flag tests where all collections have exactly one item, never testing empty, large, or boundary-size inputs
+- Tests with toy data may pass while real-world inputs fail at boundary conditions
+
+### 12. Contract Testing
+
+If the project exposes APIs consumed by external clients or other services:
+
+- Verify that contract tests exist to prevent breaking changes (schema validation, response structure assertions)
+- Check for consumer-driven contract test patterns (Pact, Spring Cloud Contract) or at minimum tests that validate the complete API response schema against a reference
+- Flag public API endpoints that have no schema or contract validation tests
+- For GraphQL APIs, verify that schema changes are tested for backward compatibility
+
+### 13. Test Maintainability
+
+Flag tests that test implementation details rather than behavior:
+
+- Tests that assert on internal method call counts (spy verification of private methods)
+- Tests that check exact log messages or log call counts rather than observable behavior
+- Tests that verify private state or internal data structures rather than public outputs
+- Tests that break on any refactoring (rename, extract method, reorder) without indicating a real bug
+- Tests where the setup is longer than the assertion, suggesting over-specification of context
+
 ## Evidence Requirements
 
 Every finding must include:
@@ -125,6 +154,30 @@ Every finding must include:
 2. **Code evidence**: The actual code snippet found at that location
 3. **Why it matters**: Concrete impact (e.g., "this endpoint handles payment processing and has no test for malformed currency input")
 4. **Remediation**: Specific, actionable step using the detected test framework
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 Before reporting a finding, confirm:
 - You have read the cited file at the cited line
@@ -155,8 +208,10 @@ Return findings as structured markdown. Group by dimension, sort by severity wit
 
 **[SEVERITY] TEST-01: [Descriptive title]**
 - **File:** `path/to/file.ext:line`
+- **Confidence:** [Confirmed | High | Medium | Low]
 - **Evidence:** [exact code snippet at that location]
 - **Impact:** [concrete consequence of this gap]
+- **Effort:** [Trivial | Small | Medium | Large] | **Risk:** [Safe | Moderate | High]
 - **Remediation:** [specific action with framework-idiomatic example]
 
 [...repeat for each finding...]

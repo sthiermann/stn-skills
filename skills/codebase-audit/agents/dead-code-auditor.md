@@ -53,17 +53,35 @@ Locate build targets, npm/composer/rake scripts, Makefile rules, CI jobs, or tas
 
 Find symbols explicitly exported from a module (via export, module.exports, pub, public, __all__, or equivalent) that are never imported by any consumer within the project. Distinguish between internal library boundaries (where external consumers may exist) and application code (where all consumers are visible).
 
+## Framework-Specific False Positive Guidance
+
+Before classifying code as dead, check these framework-specific patterns that may appear unused but are invoked indirectly:
+
+- **Spring/Java**: Classes annotated with @Component, @Service, @Repository, @Controller, @Configuration, @Bean are instantiated by the framework. Methods annotated with @Scheduled, @EventListener, @PostConstruct are invoked by lifecycle. Fields annotated with @Autowired, @Inject, @Value are populated via dependency injection.
+- **React/JSX**: Components exported and used in JSX templates may not appear in import searches. Search for component name usage in JSX files (e.g., `<ComponentName`).
+- **Django/Python**: Models, views, serializers, and admin classes referenced in urls.py, admin.py, or settings.py may not have direct import chains. Check URL patterns and app configurations.
+- **Rails/Ruby**: Controllers, models, and helpers follow naming conventions that connect them without explicit imports. Check routes.rb and autoload paths.
+- **Angular**: Components, services, and pipes declared in module files (@NgModule declarations, providers, imports) are loaded by the framework.
+- **Go**: init() functions, interface implementations, and types registered with encoding/gob or database/sql are used implicitly.
+
+If a symbol matches any of these patterns, verify its framework registration before classifying it as dead. Mark findings involving framework-managed code with Confidence: Medium and note the framework pattern in the Evidence field.
+
 ## Evidence Requirements
 
 For every finding, provide this exact structure:
 
 ```markdown
-**[SEVERITY] DEAD-[CATEGORY]: [Descriptive title]**
+**[SEVERITY] DEAD: [Descriptive title]**
 - **File:** `path/to/file.ext:LINE`
+- **Confidence:** Confirmed / High / Medium / Low
 - **Evidence:** [The exact code at that location, plus proof it is unused — e.g., "zero references found across N files searched"]
 - **Impact:** [Why this dead code is harmful — maintenance burden, confusion, misleading coverage, bundle size]
 - **Remediation:** [Specific action — remove the code, or if uncertain, the verification step to confirm removal safety]
+- **Effort:** Trivial / Small / Medium / Large
+- **Risk:** Safe / Moderate / High
 ```
+
+Category codes are for internal reference. Finding headers use `DEAD:` with a descriptive title.
 
 ### Category Codes
 
@@ -88,6 +106,30 @@ For every finding, provide this exact structure:
 | **High** | Entire unused files, classes, or modules; dead tests masking missing coverage; unreachable security-relevant branches |
 | **Medium** | Unused functions or methods; commented-out code blocks spanning 10+ lines; orphaned config entries for removed features |
 | **Low** | Single unused imports, variables, or constants; small commented-out snippets; unused convenience scripts |
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 ## Output Format
 

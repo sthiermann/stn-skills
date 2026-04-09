@@ -101,6 +101,27 @@ Use DETECTED_STACK to select the appropriate patterns, APIs, and idioms for each
 - Verify that deserialization of external input restricts accepted classes/types to an explicit allowlist
 - Verify that serialization formats with code-execution capability use their safe alternatives (e.g., safe_load instead of load in YAML, JSON instead of native binary serialization)
 
+### CSRF Protection
+
+- Verify that all state-changing endpoints (POST, PUT, DELETE) validate a CSRF token or rely on SameSite cookie attributes to prevent cross-site request forgery
+- Verify that anti-CSRF tokens are bound to the user session, single-use or time-limited, and validated server-side before processing the request
+
+### JWT Validation
+
+- Verify that JWT token validation checks the signature algorithm explicitly and rejects tokens with `alg: none` or unexpected algorithms
+- Verify that JWT claims are validated: expiration (`exp`), issuer (`iss`), audience (`aud`), and not-before (`nbf`) where applicable
+- Verify that JWT signing keys are loaded from environment variables or secret managers, not hardcoded in source
+
+### Session Fixation Prevention
+
+- Verify that session identifiers are regenerated after every privilege level change (login, role elevation, password change), not just after initial authentication
+- Verify that old session tokens are invalidated immediately after regeneration
+
+### Input Validation Breadth
+
+- Verify that input validation covers length limits, format constraints (regex for emails, UUIDs, phone numbers), and type coercion (string-to-number, string-to-boolean) at all API boundaries
+- Verify that validation failures return specific, actionable error messages without exposing internal implementation details
+
 ## Evidence Requirements
 
 Every finding MUST include:
@@ -113,6 +134,30 @@ Every finding MUST include:
 6. **Suggested remediation**: a concrete, actionable fix described in terms of the detected stack
 
 Findings without file:line evidence are invalid and must be excluded from the report.
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 ## Output Format
 
@@ -139,10 +184,13 @@ Structure the final report as follows:
 
 **[Severity] SEC: [Short title]**
 - **File:** `path/to/file.ext:42`
+- **Confidence:** Confirmed / High / Medium / Low
 - **Checklist ref:** A0X - Category, check N
 - **Evidence:** [relevant code snippet, 1-8 lines]
 - **Impact:** [what the code should do vs. what it does, and the security consequence]
 - **Remediation:** [concrete fix for the detected stack]
+- **Effort:** Trivial / Small / Medium / Large
+- **Risk:** Safe / Moderate / High
 
 ---
 

@@ -80,6 +80,34 @@ Verify that the codebase supports consent management where required.
 - Identify data collection endpoints that store PII without any corresponding consent check or consent record
 - Verify that consent withdrawal triggers data deletion or anonymization in the corresponding data stores
 
+### 9. PII in Caching Layers
+
+Verify that caching systems do not leak PII:
+
+- Check that Redis, Memcached, in-memory caches, and CDN caches either do not store PII, or if they do: TTLs are configured to limit retention duration
+- Verify that cache entries containing user data are invalidated on account deletion or data erasure requests
+- Check that cache keys do not contain PII (e.g., user email as cache key is visible in cache monitoring tools and memory dumps)
+- Verify that cache contents are not logged in debug or diagnostic output
+
+### 10. PII in Observability Stack
+
+Verify that telemetry systems do not capture PII:
+
+- Check that structured log fields, distributed trace span attributes, and metric labels do not contain user emails, names, phone numbers, or other identifiable information
+- Verify that log sanitization filters are applied before PII reaches log aggregation systems (ELK, Splunk, CloudWatch)
+- Check that error reporting services (Sentry, Bugsnag, Rollbar) are configured to scrub PII from error payloads and stack traces
+- Flag cases where user IDs, emails, or names appear in span attributes, log fields, or metric labels
+
+### 11. GDPR-Extended PII Definition
+
+Beyond standard PII fields (email, phone, SSN, name), also check for:
+
+- IP addresses logged with user association (IP + user ID in the same log entry or database row)
+- Device identifiers (IDFA, GAID, browser fingerprints) stored or transmitted to third parties
+- Geolocation data (latitude/longitude, city-level) stored with user association
+- Cookie identifiers or session tokens that can be linked to individuals across requests
+- These are personal data under GDPR Article 4 and require the same consent and deletion handling as traditional PII fields
+
 ## Evidence Requirements
 
 Every finding MUST include:
@@ -88,6 +116,30 @@ Every finding MUST include:
 - **Evidence:** The actual code showing PII exposure, including the specific PII field or variable involved
 - **Impact:** Concrete privacy consequence (e.g., "user email addresses are written to application logs in plaintext, visible to anyone with log access and retained per the log rotation policy")
 - **Remediation:** Specific fix using the detected stack's data protection idioms, with a code example
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 Severity guidelines:
 - **Critical**: PII actively leaking to unprotected systems (PII in logs without masking, PII in URLs, PII in error responses to clients, unencrypted PII at rest in production paths)
@@ -109,8 +161,10 @@ Severity guidelines:
 
 **[SEVERITY] PRIV: [Short title]**
 - **File:** `path/to/file.ext:42`
+- **Confidence:** [Confirmed | High | Medium | Low]
 - **Evidence:** [code snippet showing PII handling issue]
 - **Impact:** [concrete privacy consequence]
+- **Effort:** [Trivial | Small | Medium | Large] | **Risk:** [Safe | Moderate | High]
 - **Remediation:** [specific fix with code example]
 
 [...repeat for each finding, ordered by severity descending...]

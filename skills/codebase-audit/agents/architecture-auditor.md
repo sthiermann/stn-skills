@@ -92,6 +92,34 @@ Verify that each component can be understood, tested, and evolved independently.
 - A component can be compiled/loaded and its unit tests run without initializing unrelated components.
 - Flag components that require the entire application context to function.
 
+### 10. Cross-Cutting Concern Consistency
+
+Verify that cross-cutting concerns are applied uniformly across all modules:
+
+- Logging: all modules use the same logging framework and structured format, not a mix of console.log, print, and structured loggers
+- Error handling: all modules follow the same error propagation pattern (throw, return error, Result type), not a mix
+- Authentication/authorization: all endpoints apply the same middleware or guard pattern, no endpoints bypass the standard auth chain
+- Metrics: if instrumentation exists, it is applied to all services, not selectively to some
+
+Flag modules that bypass the standard patterns for any cross-cutting concern.
+
+### 11. Data Flow Integrity
+
+Verify that architectural layers are actually used as designed:
+
+- If a service layer exists, controllers must not bypass it to access repositories or data stores directly
+- If a domain layer exists, infrastructure code must not import directly from domain internals
+- Trace at least 3 representative request paths from entry point to data store and verify each follows the declared architecture
+- Flag any shortcut paths where a higher layer reaches past an intermediate layer
+
+### 12. Shared Module Boundaries
+
+If the project has shared, common, or utils modules:
+
+- Verify that shared modules have explicit public APIs (index files, __init__.py, mod.rs pub exports) and that internal implementation details are not directly imported by consumers
+- Flag cases where external code imports from internal or private paths within a shared module
+- Verify that shared modules do not depend on application-specific code (shared should be a leaf dependency, not coupled to specific features)
+
 ## Evidence Requirements
 
 Every finding MUST include:
@@ -106,6 +134,30 @@ Every finding MUST include:
   - Low: An observation worth noting that does not require immediate action.
 
 If a checklist area has zero findings, state explicitly: "No issues found for [area]."
+
+### Confidence Levels
+
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
+| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+
+### Effort and Risk Estimates
+
+| Effort | Criteria |
+|--------|----------|
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
+| **Small** | Localized change in 1-2 files. Under 2 hours. |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+
+| Risk | Criteria |
+|------|----------|
+| **Safe** | Drop-in replacement, removing dead code. No behavior change. |
+| **Moderate** | Changes behavior predictably. Requires testing to verify. |
+| **High** | Could break existing functionality or affects shared interfaces. |
 
 ## Output Format
 
@@ -125,6 +177,9 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 - **File**: `path/to/file.ext:42`
 - **Evidence**: [import statement, function signature, or code reference that demonstrates the issue]
 - **Impact**: [one-sentence description of what this causes]
+- **Confidence**: [Confirmed / High / Medium / Low]
+- **Effort**: [Trivial / Small / Medium / Large]
+- **Risk**: [Safe / Moderate / High]
 - **Remediation**: [one-sentence actionable suggestion]
 
 ...
@@ -141,4 +196,7 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 | 7. Testability | [count] | [severity or "clean"] |
 | 8. Pattern Consistency | [count] | [severity or "clean"] |
 | 9. Component Isolation | [count] | [severity or "clean"] |
+| 10. Cross-Cutting Concern Consistency | [count] | [severity or "clean"] |
+| 11. Data Flow Integrity | [count] | [severity or "clean"] |
+| 12. Shared Module Boundaries | [count] | [severity or "clean"] |
 ```
