@@ -104,6 +104,8 @@ Structure your complete output as follows:
 - **Cited location:** `file:line`
 - **What the auditor claimed:** [summary]
 - **What the code actually shows:** [your independent observation]
+- **Confidence adjustment:** [Original → Adjusted, with reason] or [No change]
+- **Severity adjustment:** [Original → Adjusted, with reason] or [No change]
 - **Verdict rationale:** [why you assigned this verdict]
 
 ### Filtered Findings Set

@@ -97,14 +97,6 @@ Build a reference table mapping every finding to its source evidence:
 2. Within each domain, list references in file path order.
 3. Note which findings cite each location (for deduplicated findings, list all contributing domains).
 
-### Step 6: Compile Evidence Index
-
-Build a reference table mapping every finding to its source evidence:
-
-1. Group all cited `file:line` references by domain.
-2. Within each domain, list references in file path order.
-3. Note which findings cite each location (for deduplicated findings, list all contributing domains).
-
 ## Report Structure
 
 The final report must contain these sections in this exact order. Follow the exact template defined in `references/report-template.md` for the full format.

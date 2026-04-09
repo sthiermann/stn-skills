@@ -92,8 +92,9 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 - **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
 - **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
+- **Impact:** {{IMPACT}}
 - **Remediation:** {{SUGGESTED_IMPROVEMENT}}
-- **Effort:** {{EFFORT}}
+- **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
 
 {{END_FOR_EACH}}
 
@@ -121,10 +122,20 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 {{END_FOR_EACH}}
 
 ### Medium-term (this cycle)
-{{MEDIUM_FINDINGS_GROUPED_BY_MODULE_WITH_EFFORT}}
+
+| Module | Findings | Combined Effort | Batch Description |
+|--------|----------|----------------|-------------------|
+{{FOR_EACH_MODULE_GROUP}}
+| {{MODULE}} | F{{IDs}} | {{COMBINED_EFFORT}} | {{BATCH_DESCRIPTION}} |
+{{END_FOR_EACH}}
 
 ### Backlog
-{{LOW_FINDINGS_GROUPED_BY_THEME_WITH_COUNT}}
+
+| Category | Count | Quick Wins (Trivial effort) |
+|----------|-------|-----------------------------|
+{{FOR_EACH_LOW_CATEGORY}}
+| {{CATEGORY}} | {{COUNT}} | {{TRIVIAL_ITEMS_OR_DASH}} |
+{{END_FOR_EACH}}
 
 ---
 

@@ -203,7 +203,7 @@ Present to the user:
 
 **1. Severity Overview:**
 - Findings count by severity: Critical | High | Medium | Low
-- Confidence distribution: how many Confirmed vs. High vs. Medium vs. Low confidence
+- Confidence distribution: how many Confirmed vs. High vs. Medium vs. Low confidence (note: confidence levels may have been adjusted by the verifier during Phase 3 based on evidence quality)
 
 **2. Hotspot Analysis:**
 - Top 5 most affected modules/directories (ranked by finding count weighted by severity)

@@ -160,8 +160,9 @@ Severity levels: **Critical** (fix immediately) > **High** (fix this sprint) > *
 - **File:** `README.md:34`
 - **Confidence:** Confirmed
 - **Evidence:** `Set LEGACY_DB_URL in your .env` — but `LEGACY_DB_URL` is not referenced anywhere in source code
+- **Impact:** Users following setup instructions will configure an unused variable, wasting time and causing confusion
 - **Remediation:** Remove the outdated setup step or replace with the current `DATABASE_URL` variable
-- **Effort:** Trivial (< 30min)
+- **Effort:** Trivial (< 30min) | **Risk:** Safe
 
 ---
 
