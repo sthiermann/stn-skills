@@ -1,6 +1,6 @@
 {
   "name": "codebase-audit",
-  "description": "Comprehensive, technology-agnostic repository-wide code audit covering security, documentation, dead code, deprecated patterns, code quality, architecture, dependencies, tests, and infrastructure. Works with any programming language and framework.",
+  "description": "Comprehensive, technology-agnostic repository-wide code audit covering security, documentation, dead code, deprecated patterns, code quality, architecture, dependencies, tests, infrastructure, performance, concurrency, and data privacy. Works with any programming language and framework.",
   "version": "2.0.0",
   "author": {
     "name": "Sven Thiermann"
@@ -18,6 +18,9 @@
     "dependencies",
     "testing",
     "infrastructure",
+    "performance",
+    "concurrency",
+    "data-privacy",
     "owasp",
     "universal",
     "technology-agnostic"
