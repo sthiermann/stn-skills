@@ -144,7 +144,7 @@ Structure the final report as follows:
 
 ### Findings
 
-**[Severity] DOC: [Short title]**
+**[SEVERITY] DOC: [Short title]**
 - **File:** `path/to/docs/file.md:15`
 - **Confidence:** Confirmed / High / Medium / Low
 - **Source reference:** `path/to/source/file.ext:42` (if applicable)

@@ -173,7 +173,7 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 
 #### [Checklist Section Number]. [Checklist Section Name]
 
-**[severity] ARCH: [Short title]**
+**[SEVERITY] ARCH: [Short title]**
 - **File**: `path/to/file.ext:42`
 - **Evidence**: [import statement, function signature, or code reference that demonstrates the issue]
 - **Impact**: [one-sentence description of what this causes]

@@ -182,4 +182,7 @@ Severity guidelines:
 | 6. Resource Leak Patterns | [count] | [severity or "clean"] |
 | 7. Unoptimized Serialization | [count] | [severity or "clean"] |
 | 8. Missing Database Optimization | [count] | [severity or "clean"] |
+| 9. Parallelization Opportunities | [count] | [severity or "clean"] |
+| 10. Connection Pool Boundaries | [count] | [severity or "clean"] |
+| 11. Long Transaction Scope | [count] | [severity or "clean"] |
 ```

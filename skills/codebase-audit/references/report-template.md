@@ -156,5 +156,6 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 - **Findings before verification:** {{PRE_VERIFICATION_COUNT}}
 - **Findings after verification:** {{TOTAL}}
 - **False positives removed:** {{FP_COUNT}} ({{FP_RATE}}%)
+- **Findings suppressed:** {{SUPPRESSED_COUNT}} ({{SUPPRESSED_PER_DOMAIN}})
 - **Domains re-audited:** {{RE_AUDIT_LIST or "none"}}
 ```

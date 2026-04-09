@@ -145,12 +145,13 @@ Every violation finding follows this exact structure:
 **[SEVERITY] MAND: [Descriptive title — include mandate name]**
 - **Mandate:** [which mandate is violated, by number and name]
 - **File:** `path/to/file.ext:line_number` (or `line_start-line_end` for ranges)
-- **Evidence:** [exact code snippet found at that location]
-- **Violation:** [why this code violates the mandate]
 - **Confidence:** [Confirmed / High / Medium / Low]
+- **Evidence:** [exact code snippet found at that location]
+- **Impact:** [what happens if this violation is not addressed — e.g., technical debt accumulation, compliance failure, migration blockers]
+- **Violation:** [why this code violates the mandate]
+- **Remediation:** [specific action to bring the code into compliance]
 - **Effort:** [Trivial / Small / Medium / Large]
 - **Risk:** [Safe / Moderate / High]
-- **Remediation:** [specific action to bring the code into compliance]
 ```
 
 Severity follows the project's classification:

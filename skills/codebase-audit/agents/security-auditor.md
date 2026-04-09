@@ -182,7 +182,7 @@ Structure the final report as follows:
 
 ### Findings
 
-**[Severity] SEC: [Short title]**
+**[SEVERITY] SEC: [Short title]**
 - **File:** `path/to/file.ext:42`
 - **Confidence:** Confirmed / High / Medium / Low
 - **Checklist ref:** A0X - Category, check N

@@ -206,7 +206,7 @@ Return findings as structured markdown. Group by dimension, sort by severity wit
 
 ### Findings
 
-**[SEVERITY] TEST-01: [Descriptive title]**
+**[SEVERITY] TEST: [Descriptive title]**
 - **File:** `path/to/file.ext:line`
 - **Confidence:** [Confirmed | High | Medium | Low]
 - **Evidence:** [exact code snippet at that location]

@@ -180,4 +180,7 @@ Severity guidelines:
 | 6. Encryption at Rest | [count] | [severity or "clean"] |
 | 7. Third-Party Transmission | [count] | [severity or "clean"] |
 | 8. Consent and Lawful Basis | [count] | [severity or "clean"] |
+| 9. PII in Caching Layers | [count] | [severity or "clean"] |
+| 10. PII in Observability Stack | [count] | [severity or "clean"] |
+| 11. GDPR-Extended PII Definition | [count] | [severity or "clean"] |
 ```

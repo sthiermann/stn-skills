@@ -199,7 +199,7 @@ Return findings as structured markdown. Group by dimension, sort by severity wit
 
 ### Findings
 
-**[SEVERITY] INFRA-01: [Descriptive title]**
+**[SEVERITY] INFRA: [Descriptive title]**
 - **File:** `path/to/file.ext:line`
 - **Confidence:** [Confirmed | High | Medium | Low]
 - **Evidence:** [exact configuration snippet at that location]
@@ -208,6 +208,21 @@ Return findings as structured markdown. Group by dimension, sort by severity wit
 - **Remediation:** [specific corrected configuration]
 
 [...repeat for each finding...]
+
+### Checklist Coverage
+| Section | Findings | Highest Severity |
+|---------|----------|-----------------|
+| 1. Container Best Practices | [count] | [severity or "clean"] |
+| 2. Container Orchestration | [count] | [severity or "clean"] |
+| 3. CI/CD Pipeline Completeness | [count] | [severity or "clean"] |
+| 4. Environment Variable Hygiene | [count] | [severity or "clean"] |
+| 5. Build Optimization | [count] | [severity or "clean"] |
+| 6. Secret Management | [count] | [severity or "clean"] |
+| 7. Deployment Configuration | [count] | [severity or "clean"] |
+| 8. Infrastructure as Code | [count] | [severity or "clean"] |
+| 9. Observability Configuration | [count] | [severity or "clean"] |
+| 10. Scaling Configuration | [count] | [severity or "clean"] |
+| 11. Network Security | [count] | [severity or "clean"] |
 
 ### Infrastructure Strengths
 [List configurations that follow best practices, as reference points]

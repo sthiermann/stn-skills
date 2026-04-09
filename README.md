@@ -4,7 +4,7 @@
 
 **Evidence-based repository audits for Claude Code**
 
-13 domains. Parallel agents. Zero false positives. Optional auto-fix.
+13 domains. Parallel agents. Independently verified findings. Optional auto-fix.
 
 <p>
   <img src="https://img.shields.io/badge/version-2.0.0-blue?style=flat-square" alt="Version">
@@ -202,7 +202,8 @@ The final audit report contains:
 codebase-audit/
 |
 |-- .claude-plugin/
-|   +-- plugin.json                          # Plugin metadata
+|   |-- plugin.json                          # Plugin metadata
+|   +-- marketplace.json                     # Marketplace registration
 |
 |-- skills/
 |   +-- codebase-audit/

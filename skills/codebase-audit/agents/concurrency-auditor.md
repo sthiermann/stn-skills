@@ -170,4 +170,7 @@ Severity guidelines:
 | 5. Lazy Initialization | [count] | [severity or "clean"] |
 | 6. Async/Await Pitfalls | [count] | [severity or "clean"] |
 | 7. Signal/Interrupt Safety | [count] | [severity or "clean"] |
+| 8. Deadlock Risk Detection | [count] | [severity or "clean"] |
+| 9. Memory Visibility and Ordering | [count] | [severity or "clean"] |
+| 10. Unbounded Concurrency | [count] | [severity or "clean"] |
 ```

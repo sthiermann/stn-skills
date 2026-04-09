@@ -62,7 +62,7 @@ For each deprecated pattern found, verify that the recommended replacement is av
 For every finding, provide this exact structure:
 
 ```markdown
-**[SEVERITY] DEPR-[CATEGORY]: [Descriptive title]**
+**[SEVERITY] DEPR: [Descriptive title]**
 - **File:** `path/to/file.ext:LINE`
 - **Confidence:** Confirmed / High / Medium / Low
 - **Evidence:** [The exact deprecated code at that location]

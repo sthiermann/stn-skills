@@ -153,7 +153,7 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 
 #### [Checklist Section Number]. [Checklist Section Name]
 
-**[severity] DEP: [Short title]**
+**[SEVERITY] DEP: [Short title]**
 - **File**: `path/to/dependency-file:17`
 - **Dependency**: `library-name@declared-version`
 - **Evidence**: [version comparison, CVE ID, missing import search, or license identifier]
