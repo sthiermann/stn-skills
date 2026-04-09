@@ -29,8 +29,11 @@ These systemic issues need a systematic audit, not a file-by-file review. This s
 
 ## Install
 
-```bash
-claude plugin add https://github.com/sthiermann/codebase-audit
+Run these two commands inside Claude Code (not in your terminal):
+
+```
+/plugin marketplace add sthiermann/codebase-audit
+/plugin install codebase-audit
 ```
 
 ## Quick Start

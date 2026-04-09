@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "sthiermann-codebase-audit",
+  "description": "Comprehensive, evidence-based codebase audit plugin for Claude Code",
+  "owner": {
+    "name": "Sven Thiermann"
+  },
+  "plugins": [
+    {
+      "name": "codebase-audit",
+      "description": "Comprehensive, technology-agnostic repository-wide code audit covering security, documentation, dead code, deprecated patterns, code quality, architecture, dependencies, tests, infrastructure, performance, concurrency, and data privacy.",
+      "source": ".",
+      "category": "development",
+      "homepage": "https://github.com/sthiermann/codebase-audit"
+    }
+  ]
+}
