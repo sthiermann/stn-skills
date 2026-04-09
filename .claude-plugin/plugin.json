@@ -1,12 +1,12 @@
 {
-  "name": "codebase-audit",
-  "description": "Comprehensive, technology-agnostic repository-wide code audit covering security, documentation, dead code, deprecated patterns, code quality, architecture, dependencies, tests, infrastructure, performance, concurrency, and data privacy. Works with any programming language and framework.",
+  "name": "stn-skills",
+  "description": "Professional Claude Code skill suite by Sven Thiermann. Currently includes: codebase audit (13-domain, evidence-based repository audit with optional auto-fix).",
   "version": "2.0.0",
   "author": {
     "name": "Sven Thiermann"
   },
-  "homepage": "https://github.com/sthiermann/codebase-audit",
-  "repository": "https://github.com/sthiermann/codebase-audit",
+  "homepage": "https://github.com/sthiermann/stn-skills",
+  "repository": "https://github.com/sthiermann/stn-skills",
   "license": "MIT",
   "keywords": [
     "audit",

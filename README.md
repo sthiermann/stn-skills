@@ -1,6 +1,6 @@
 <div align="center">
 
-# Codebase Audit
+# stn-skills: Codebase Audit
 
 **Evidence-based repository audits for Claude Code**
 
@@ -11,11 +11,12 @@
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/audit_domains-13-orange?style=flat-square" alt="Domains">
   <img src="https://img.shields.io/badge/phases-5_with_3_gates-purple?style=flat-square" alt="Phases">
+  <img src="https://img.shields.io/badge/plugin-stn--skills-brightgreen?style=flat-square" alt="Plugin">
 </p>
 
 </div>
 
-A Claude Code plugin that dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Optionally, it fixes the findings directly in your code — surgically, with verification.
+Part of the **stn-skills** plugin suite by Sven Thiermann. A Claude Code skill that dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Optionally, it fixes the findings directly in your code — surgically, with verification.
 
 ---
 
@@ -32,8 +33,8 @@ These systemic issues need a systematic audit, not a file-by-file review. This s
 Run these two commands inside Claude Code (not in your terminal):
 
 ```
-/plugin marketplace add sthiermann/codebase-audit
-/plugin install codebase-audit
+/plugin marketplace add sthiermann/stn-skills
+/plugin install stn-skills
 ```
 
 ## Quick Start

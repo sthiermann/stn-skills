@@ -1,12 +1,12 @@
 {
-  "name": "sthiermann-codebase-audit",
+  "name": "sthiermann-stn-skills",
   "owner": {
     "name": "Sven Thiermann"
   },
   "plugins": [
     {
-      "name": "codebase-audit",
-      "description": "Comprehensive, technology-agnostic repository-wide code audit covering security, documentation, dead code, deprecated patterns, code quality, architecture, dependencies, tests, infrastructure, performance, concurrency, and data privacy.",
+      "name": "stn-skills",
+      "description": "Professional Claude Code skill suite by Sven Thiermann. Currently includes: codebase audit (13-domain, evidence-based repository audit with optional auto-fix).",
       "source": "./",
       "skills": [
         "./skills/codebase-audit"
