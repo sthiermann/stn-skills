@@ -42,12 +42,10 @@ All skills are available immediately after installation.
 ### Codebase Audit
 
 ```
-Audit this repository
+/stn-skills:codebase-audit
 ```
 
-The skill detects your tech stack, confirms scope, dispatches 13 specialized auditors in parallel, independently verifies every finding, and delivers a structured report. Optionally fixes issues directly in your code.
-
-Other triggers: `Review the codebase for production readiness` | `Run a code health check` | `Check this repo for security issues`
+Or use natural language: `Audit this repository` | `Review the codebase for production readiness` | `Run a code health check` | `Check this repo for security issues`
 
 ---
 
@@ -59,6 +57,9 @@ stn-skills/
 |-- .claude-plugin/
 |   |-- plugin.json                          # Plugin metadata
 |   +-- marketplace.json                     # Marketplace registration
+|
+|-- commands/
+|   +-- codebase-audit.md                    # /stn-skills:codebase-audit
 |
 |-- skills/
 |   +-- codebase-audit/                      # Codebase Audit skill

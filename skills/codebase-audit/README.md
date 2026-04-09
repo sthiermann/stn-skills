@@ -28,15 +28,15 @@ These systemic issues need a systematic audit, not a file-by-file review. This s
 
 ## Quick Start
 
-Open Claude Code in any repository and say:
+Open Claude Code in any repository and run:
 
 ```
-Audit this repository
+/stn-skills:codebase-audit
 ```
 
-That's it. The skill detects your tech stack, confirms scope with you, dispatches auditors, verifies findings, and generates the report.
+Or use natural language: `Audit this repository` | `Review the codebase for production readiness` | `Run a code health check` | `Check this repo for security issues` | `Find dead code and deprecated patterns`
 
-Other phrases that work: `Review the codebase for production readiness` | `Run a code health check` | `Check this repo for security issues` | `Find dead code and deprecated patterns`
+The skill detects your tech stack, confirms scope with you, dispatches auditors, verifies findings, and generates the report.
 
 ---
 
