@@ -1,7 +1,7 @@
 {
   "name": "stn-skills",
   "description": "Professional Claude Code skill suite by Sven Thiermann. Currently includes: codebase audit (13-domain, evidence-based repository audit with optional auto-fix).",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": {
     "name": "Sven Thiermann"
   },
