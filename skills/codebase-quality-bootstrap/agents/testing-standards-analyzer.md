@@ -117,7 +117,12 @@ Return your output in this exact structure:
 ```markdown
 ## CLAUDE.md Section: Testing
 
-{TEST rules as bullet points, framework-specific}
+{TEST rules in bold-header format: `- **{Rule Name}.** {positive instruction} -- {prohibited alternative}`}
+
+Example format:
+- **Test commands.** `npm test` for all tests, `npx vitest path/to/test.ts` for single files.
+- **Meaningful assertions.** Verify specific return values with `expect(result).toEqual(expected)` -- not just `toBeTruthy()`.
+- **Real implementations preferred.** Use mocks only for external boundaries (HTTP, database) -- never mock internal modules.
 
 ## Hook Recommendations
 
@@ -140,3 +145,5 @@ If you find yourself writing any of these, STOP and rewrite:
 - Mock guidance for a mocking library not present in the project
 - Test file patterns that don't match the detected convention
 - Recommending auto-test hook when test runner can't efficiently run related tests
+- A rule without bold-header format (`- **{Name}.** {instruction}`)
+- A rule that uses only negative framing without stating the positive alternative first

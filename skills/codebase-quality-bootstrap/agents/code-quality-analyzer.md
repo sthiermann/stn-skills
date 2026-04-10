@@ -105,18 +105,18 @@ Generate deprecated pattern prevention rules based on the detected framework ver
 
 ### 4. CLAUDE.md Section: Enterprise Mandates (MAND)
 
-Always include these 7 mandates verbatim:
+Always include these 7 mandates verbatim (positively framed):
 
 ```markdown
 ### Enterprise Mandates
 
-- All code uses current, officially recommended APIs
-- No migration scripts, compatibility layers, or transition logic
-- Current best practices applied consistently to every component
-- No backward compatibility shims, version checks, or legacy adapters
-- No "old/new/legacy" labeling -- everything is the current state
-- No partial patches preserving outdated structures
-- No assumptions about pre-existing users, data, or state
+- **Current APIs exclusively.** Use current, officially recommended APIs and language idioms for all code.
+- **Clean-slate architecture.** Build every component as current state -- no migration scripts, compatibility layers, or transition logic.
+- **State-of-the-art practices.** Apply current best practices consistently to every component in the codebase.
+- **Forward-only development.** Write code for the current version only -- no backward compatibility shims, version checks, or legacy adapters.
+- **Unified codebase.** Maintain one canonical implementation -- no "old/new/legacy" labeling or parallel code paths.
+- **Complete implementations.** Implement features fully using current patterns -- no partial patches preserving outdated structures.
+- **Zero legacy assumptions.** Design for the current state -- no assumptions about pre-existing users, data formats, or system state.
 ```
 
 ### 5. Hook Recommendations
@@ -152,19 +152,17 @@ Reference `references/audit-domain-alignment.md` for the complete mapping.
 Return your output in this exact structure:
 
 ```markdown
-## CLAUDE.md Section: Code Standards
+## CLAUDE.md Section: Code Quality
 
-### Quality Rules
-{QUAL rules as bullet points}
+{QUAL rules in bold-header format: `- **{Rule Name}.** {positive instruction} -- {prohibited alternative}`}
 
-### Dead Code Prevention
-{DEAD rules as bullet points}
+## CLAUDE.md Section: {Language} Conventions
 
-### Deprecated Pattern Avoidance
-{DEPR rules as bullet points}
+{Per detected language: naming, idioms, imports, type annotations. One section per language for polyglot projects.}
 
-### Enterprise Mandates
-{7 mandates verbatim}
+## CLAUDE.md Section: Enterprise Mandates
+
+{7 mandates in positive bold-header format, verbatim from template}
 
 ## Hook Recommendations
 
@@ -188,3 +186,5 @@ If you find yourself writing any of these, STOP and rewrite:
 - A naming rule that contradicts the detected language's conventions
 - A deprecated pattern warning for a version that hasn't actually deprecated it
 - An enterprise mandate that is paraphrased instead of verbatim
+- A rule without bold-header format (`- **{Name}.** {instruction}`)
+- A rule that uses only negative framing without stating the positive alternative first

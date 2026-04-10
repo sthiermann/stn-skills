@@ -149,13 +149,17 @@ Reference `references/audit-domain-alignment.md` ARCH and CONC sections for the 
 Return your output in this exact structure:
 
 ```markdown
-## CLAUDE.md Section: Architecture Rules
+## CLAUDE.md Section: Architecture Compliance
 
-{ARCH rules as bullet points, using actual detected directory names}
+{ARCH rules in bold-header format: `- **{Rule Name}.** {positive instruction} -- {prohibited alternative}`}
+
+Example format:
+- **Dependency direction.** Dependencies flow inward: `src/domain/` <- `src/application/` <- `src/infrastructure/` -- never import domain from infrastructure.
+- **No circular dependencies.** Modules communicate through defined interfaces -- no import cycles between packages.
 
 ## CLAUDE.md Section: Concurrency
 
-{CONC rules as bullet points -- OR "Not applicable: no concurrency patterns detected"}
+{CONC rules in bold-header format -- OR "Not applicable: no concurrency patterns detected"}
 
 ## Hook Recommendations
 
@@ -178,3 +182,5 @@ If you find yourself writing any of these, STOP and rewrite:
 - Architecture rules that reference directories that don't exist in the project
 - "Use proper synchronization" without naming the specific primitives
 - Generic layering rules that don't match the detected project structure
+- A rule without bold-header format (`- **{Name}.** {instruction}`)
+- A rule that uses only negative framing without stating the positive alternative first

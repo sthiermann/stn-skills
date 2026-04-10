@@ -113,51 +113,88 @@ The skill is fully technology-agnostic. Rules are generated specific to whatever
 ```markdown
 # my-app
 
+This file provides guidance to Claude Code when working with code in this repository.
+
+## Project
+
 Next.js 14 App Router application with Prisma ORM and PostgreSQL.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install dependencies |
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm test` | Run all tests (Vitest) |
-| `npx eslint .` | Lint code |
-| `npx prettier --write .` | Format code |
+```bash
+# Setup
+npm install
 
-## Code Standards
+# Development
+npm run dev                           # Start dev server on port 3000
+npm run build                         # Production build
 
-- Functions under 40 lines, nesting under 3 levels
-- `camelCase` for functions/variables, `PascalCase` for components/types, `UPPER_SNAKE_CASE` for constants
-- No unused imports (enforced by ESLint `no-unused-vars`)
-- No commented-out code blocks — use git history for recovery
-- Use App Router patterns: server components by default, `"use client"` only when interactivity needed
-- No `getServerSideProps` / `getStaticProps` — use server components and `fetch` with caching
+# Testing
+npm test                              # Run all tests (Vitest)
+npx vitest path/to/test.ts            # Run single test file
+
+# Code Quality
+npx eslint .                          # Lint
+npx prettier --write .                # Format
+npx tsc --noEmit                      # Type check
+```
+
+## Architecture
+
+```
+src/
+  app/                                # Next.js App Router pages and layouts
+  components/                         # Shared React components
+  lib/                                # Core utilities, config, database client
+  server/                             # Server-side services and API logic
+prisma/                               # Prisma schema and migrations
+```
+
+## Development Standards
+
+These standards cover all code changes. Critical rules are enforced by hooks in `.claude/settings.json`.
+
+### Security
+
+- **Parameterized queries only.** Use Prisma's query builder for all database access -- never use `$queryRawUnsafe()` or concatenate user input into SQL.
+- **Secrets from environment.** Load all secrets via `src/lib/config.ts` which reads `process.env` -- never hardcode credentials, tokens, or API keys.
+- **CORS restricted.** Configure allowed origins explicitly in `next.config.js` -- never use wildcard `*`.
+- **No PII in logs.** Use the structured logger from `src/lib/logger.ts` -- never log raw user emails, IPs, or tokens.
+- **Auth on every route.** Use NextAuth.js middleware for all non-public routes -- never expose unprotected API endpoints.
+
+### Code Quality
+
+- **Current APIs only.** Use App Router patterns (server components, `fetch` with caching) -- no `getServerSideProps` or `getStaticProps`.
+- **State-of-the-art practices.** Apply current Next.js 14 idioms to every component -- no legacy patterns.
+- **No dead code.** Remove unused imports, components, and variables -- use git history for recovery, not comments.
+- **Clean codebase.** All code is the current state -- no "old", "v2", or "legacy" labeling.
 
 ### Enterprise Mandates
 
-- All code uses current, officially recommended APIs
-- No backward compatibility shims, version checks, or legacy adapters
+- **Current APIs exclusively.** Use current, officially recommended APIs and language idioms for all code.
+- **State-of-the-art practices.** Apply current best practices consistently to every component.
+- **Forward-only development.** Write code for the current version only -- no backward compatibility shims.
 - ...
 
-## Security
+### TypeScript Conventions
 
-- All Prisma queries use parameterized inputs — no raw SQL with string interpolation
-- Secrets loaded from environment variables via `process.env`, never hardcoded
-- CORS restricted to specific origins in `next.config.js`, not wildcard `*`
-- No PII (names, emails, IPs) in `console.log()` or error responses
-- Authentication via NextAuth.js with secure session configuration
-- ...
+- **Strict mode.** TypeScript strict mode with `noUncheckedIndexedAccess` enabled -- no `any` types.
+- **Functional components.** Use function components with hooks -- no class components.
+- **Path aliases.** Use `@/` path aliases for all imports -- no relative `../../` paths.
+- **Naming.** `camelCase` for functions/variables, `PascalCase` for components/types, `UPPER_SNAKE_CASE` for constants.
 
-## Testing
+### Testing
 
-- `npm test` — run full suite (Vitest)
-- `npx vitest path/to/test.ts` — run single file
-- Test files co-located: `foo.ts` → `foo.test.ts`
-- Assertions verify specific values: `expect(result).toEqual(expected)`, not `toBeTruthy()`
-- Mocks only for external boundaries (API calls, database) — never mock internal modules
-- ...
+- **Test commands.** `npm test` for all tests, `npx vitest path/to/test.ts` for single files.
+- **Co-located tests.** Test files next to source: `foo.ts` -> `foo.test.ts`.
+- **Meaningful assertions.** Verify specific values with `expect(result).toEqual(expected)` -- not just `toBeTruthy()`.
+- **Real implementations preferred.** Use mocks only for external boundaries (HTTP, database) -- never mock internal modules.
+
+### Error Handling
+
+- **Structured responses.** Return `{ error: { code, message } }` shape from all API routes -- no raw error strings.
+- **Structured logging.** Use `src/lib/logger.ts` with context -- never bare `console.log()` or `console.error()`.
+- **Fail fast on startup.** Validate all required env vars in `src/lib/config.ts` -- missing config causes immediate exit.
 ```
 
 ### Generated Hooks (`.claude/settings.json`)

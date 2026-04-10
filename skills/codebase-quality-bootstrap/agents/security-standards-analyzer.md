@@ -143,11 +143,12 @@ Return your output in this exact structure:
 ```markdown
 ## CLAUDE.md Section: Security
 
-{bullet-pointed rules, tech-stack-specific}
+{SEC + PRIV rules in bold-header format: `- **{Rule Name}.** {positive instruction} -- {prohibited alternative}`}
 
-## CLAUDE.md Section: Security (Data Privacy)
-
-{bullet-pointed PRIV rules}
+Example format:
+- **Parameterized queries only.** Use {ORM}'s query builder for all database access -- never concatenate user input into SQL strings.
+- **Secrets from environment.** Load all secrets from environment variables via `{config module}` -- never hardcode credentials, tokens, or API keys.
+- **No PII in logs.** Use {logger} with auto-redaction -- never log raw user data, emails, IPs, or tokens.
 
 ## Hook Recommendations
 
@@ -170,3 +171,5 @@ If you find yourself writing any of these, STOP and rewrite:
 - "Implement proper authentication" without naming the auth framework
 - A rule that would apply identically to any tech stack
 - A rule that references a library not present in the detected stack
+- A rule without bold-header format (`- **{Name}.** {instruction}`)
+- A rule that uses only negative framing without stating the positive alternative first

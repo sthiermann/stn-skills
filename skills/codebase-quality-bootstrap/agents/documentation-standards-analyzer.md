@@ -109,7 +109,11 @@ Return your output in this exact structure:
 ```markdown
 ## CLAUDE.md Section: Documentation
 
-{DOC rules as bullet points, language-specific}
+{DOC rules in bold-header format: `- **{Rule Name}.** {positive instruction} -- {prohibited alternative}`}
+
+Example format:
+- **README reflects reality.** Update README in the same PR when changes affect setup, API, or architecture -- stale docs are worse than no docs.
+- **Self-documenting code.** Add comments only for WHY (business logic, workarounds) -- never for WHAT (the code itself).
 
 ## Hook Recommendations
 
@@ -132,3 +136,5 @@ If you find yourself writing any of these, STOP and rewrite:
 - API documentation rules when no API endpoints are detected
 - Recommending a documentation tool not present in the project without noting it as a recommendation
 - "Add comments to all functions" -- only non-obvious logic needs comments
+- A rule without bold-header format (`- **{Name}.** {instruction}`)
+- A rule that uses only negative framing without stating the positive alternative first

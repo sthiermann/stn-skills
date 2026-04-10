@@ -147,15 +147,23 @@ Return your output in this exact structure:
 ```markdown
 ## CLAUDE.md Section: Dependencies
 
-{DEP rules as bullet points}
+{DEP rules in bold-header format: `- **{Rule Name}.** {positive instruction} -- {prohibited alternative}`}
 
 ## CLAUDE.md Section: Infrastructure
 
-{INFRA rules as bullet points -- OR "Not applicable: no container/CI/CD/IaC detected"}
+{INFRA rules in bold-header format -- OR "Not applicable: no container/CI/CD/IaC detected"}
 
 ## CLAUDE.md Section: Performance
 
-{PERF rules as bullet points, framework-specific}
+{PERF rules in bold-header format}
+
+## CLAUDE.md Section: Error Handling
+
+{Error handling rules per architectural layer in bold-header format}
+
+## CLAUDE.md Section: Configuration
+
+{Configuration management rules in bold-header format}
 
 ## Audit Domain Alignment
 
@@ -175,3 +183,5 @@ If you find yourself writing any of these, STOP and rewrite:
 - Container rules when no Dockerfile is detected
 - CI/CD rules when no pipeline config is detected
 - N+1 prevention advice for a stack that doesn't use an ORM
+- A rule without bold-header format (`- **{Name}.** {instruction}`)
+- A rule that uses only negative framing without stating the positive alternative first
