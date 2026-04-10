@@ -5,7 +5,7 @@
 **Professional Claude Code skill suite by Sven Thiermann**
 
 <p>
-  <img src="https://img.shields.io/badge/version-2.3.0-blue?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.4.0-blue?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/skills-2-brightgreen?style=flat-square" alt="Skills">
 </p>

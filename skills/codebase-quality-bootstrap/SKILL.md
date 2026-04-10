@@ -105,7 +105,21 @@ If brownfield, parse each section and classify:
 | **CUSTOM** | Heading does not match any template section | Preserve verbatim in original position |
 | **STALE** | References files, commands, or configs that no longer exist | Flag for removal at GATE 2 |
 
-Standard headings (case-insensitive match): Commands, Architecture, Code Standards, Enterprise Mandates, Security, Architecture Rules, Concurrency, Testing, Dependencies, Infrastructure, Performance, Documentation, Gotchas
+Standard headings (case-insensitive match): Project, Commands, Architecture, Development Standards, Security, Architecture Compliance, Code Quality, Enterprise Mandates, Testing, Database, Dependencies, Error Handling, Infrastructure, Performance, Concurrency, Configuration, Documentation, Gotchas
+
+**CRITICAL: Brownfield does NOT mean "skip".** Even if the existing CLAUDE.md appears comprehensive, ALWAYS run the full 4-phase workflow. The skill must verify that ALL of the following are present and correctly formatted:
+
+1. **Enterprise Mandates** — All 7 mandates present, positively framed, with bold-header format
+2. **Current APIs / state-of-the-art** — Explicit rules requiring current patterns, prohibiting deprecated code
+3. **Forward-only development** — Explicit rule prohibiting backward compatibility shims and legacy adapters
+4. **Clean codebase** — Explicit rule prohibiting "old/new/legacy" labeling and migration scaffolding
+5. **Bold-header rule format** — Every rule uses `- **{Name}.** {instruction} -- {prohibition}` format
+6. **Enforcement callout** — "These standards cover all code changes. Critical rules are enforced by hooks."
+7. **Development Standards parent section** — All rules nested under `## Development Standards` with H3 subsections
+
+If ANY of these are missing or incorrectly formatted, the CLAUDE.md is NOT production-grade and MUST be updated. "Looks comprehensive" is not the same as "meets enterprise mandates."
+
+**The skill NEVER outputs "no changes needed."** At minimum, it verifies and reports compliance with all 7 checks above. If all pass, it reports specific compliance status at GATE 2 instead of skipping.
 
 **3. Read existing `.claude/settings.json`** — Detect current hooks and permissions.
 
@@ -344,8 +358,10 @@ When the skill is re-run on a previously bootstrapped project:
 | "I'll add CLAUDE.md later" | Later never comes. Standards are cheapest when established first. |
 | "Generic rules are fine, Claude is smart" | Claude follows what you write. Vague rules produce inconsistent behavior. |
 | "We don't need hooks, discipline is enough" | Hooks enforce deterministically. Discipline fails under pressure. |
-| "Existing CLAUDE.md is good enough" | Re-run the bootstrap -- it preserves custom rules and only adds missing standards. |
-| "200 lines is too limiting" | Instruction bloat causes Claude to ignore rules. Concise standards are followed. |
+| "Existing CLAUDE.md is good enough" | "Good enough" is not enterprise-grade. Check all 7 mandatory items. If any missing, it needs updating. |
+| "CLAUDE.md already looks comprehensive" | Looking comprehensive is not the same as having the enterprise mandates, bold-header format, and enforcement callout. Always verify. |
+| "No changes needed" | The skill NEVER skips. At minimum verify and report compliance with all mandatory checks. |
+| "250 lines is too limiting" | Instruction bloat causes Claude to ignore rules. Concise standards are followed. |
 | "We'll set up standards after the first sprint" | First sprint sets the patterns. Bad patterns compound. |
 | "This framework is too niche for specific rules" | Read the detected framework. Every stack has specific idioms. Write those. |
 
@@ -361,11 +377,15 @@ If you catch yourself doing any of these, STOP and return to the relevant phase:
 - Generating INFRA rules when no containers or CI/CD are detected
 - Overwriting existing CLAUDE.md without brownfield classification
 - Silently replacing existing hooks without presenting conflicts
-- Exceeding 200 lines without condensing or using @import
+- Exceeding 250 lines without condensing or using @import
 - Proceeding past a gate without user confirmation
 - Generating hooks for formatters/linters not present in the project
 - Including rules that reference libraries not in the detected stack
 - Producing a CLAUDE.md that would apply identically to any tech stack
+- **Declaring "no changes needed" or "already production-grade" without verifying all 7 mandatory items**
+- **Skipping the full workflow because the existing CLAUDE.md "looks good"**
+- Writing rules without bold-header format (`- **{Name}.** {instruction}`)
+- Writing rules with only negative framing (no positive alternative stated first)
 
 ---
 
@@ -373,12 +393,23 @@ If you catch yourself doing any of these, STOP and return to the relevant phase:
 
 Before completing at GATE 3, verify:
 
-- [ ] Every section in CLAUDE.md contains tech-stack-specific rules (not generic advice)
+**Mandatory items (NEVER skip):**
+- [ ] All 7 Enterprise Mandates present, positively framed, with bold-header format
+- [ ] "Current APIs exclusively" mandate present (prohibits deprecated code)
+- [ ] "State-of-the-art practices" mandate present (requires current best practices)
+- [ ] "Forward-only development" mandate present (prohibits backward compatibility)
+- [ ] "Clean-slate architecture" mandate present (prohibits migration scaffolding)
+- [ ] Every rule uses bold-header format: `- **{Name}.** {instruction} -- {prohibition}`
+- [ ] Development Standards section opens with enforcement callout
+- [ ] All rules nested under `## Development Standards` with H3 subsections
+
+**Quality checks:**
+- [ ] Every section contains tech-stack-specific rules (not generic advice)
 - [ ] All 13 audit domains are addressed (or explicitly noted as not applicable)
-- [ ] CLAUDE.md is under 200 lines (or overflow is in @imported file)
+- [ ] CLAUDE.md is under 250 lines (or overflow is in @imported file)
 - [ ] Hooks reference only tools that are actually configured in the project
 - [ ] If brownfield: custom sections preserved, stale content flagged
-- [ ] Commands section reflects actual project commands
+- [ ] Commands section reflects actual project commands with copy-paste ready syntax
 - [ ] Architecture section reflects actual directory structure
 - [ ] Sentinel comment present at bottom of CLAUDE.md
 - [ ] `.claude/settings.json` is valid JSON
