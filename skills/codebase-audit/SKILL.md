@@ -109,6 +109,12 @@ Before dispatching any auditor, understand what you are auditing.
 | Medium | 50 – 500 | Standard parallel dispatch |
 | Monorepo | 500+ or multi-module | Scope to user-selected modules |
 
+**Monorepo strategy:** For 500+ file monorepos, after the user selects modules at GATE 1:
+- Dispatch auditors scoped to selected modules, but include shared/common packages in the scan
+- Organize findings by module in the report (group under module headings)
+- Flag cross-module dependency violations in the architecture audit
+- The remediation roadmap should indicate which module each fix belongs to
+
 **5. Identify primary and secondary languages** — note all languages present and their approximate proportion.
 
 ---
@@ -324,6 +330,15 @@ def on_plugin_load(ctx):
 public void syncData(@RequestBody SyncRequest req) { ... }
 ```
 
+**Block suppression** for multi-line constructs:
+```
+// audit-suppress-start: DOMAIN: reason
+... suppressed code block ...
+// audit-suppress-end
+```
+
+Block suppression applies to all lines between the start and end markers. The same restrictions as single-line suppression apply: Critical findings with Confirmed confidence can never be suppressed. The domain code and reason are required on the start marker.
+
 **Rules:**
 - Suppression applies only to the **next line** after the comment (not the whole file)
 - Suppression comments must include the domain code — bare `audit-suppress` without a domain is ignored
@@ -344,12 +359,12 @@ When CLAUDE.md or project rules define non-negotiable mandates, the enterprise-m
 
 | Mandate | Target state |
 |---------|-------------|
-| **Current APIs** | All code uses current, officially recommended APIs and language idioms |
-| **Clean-slate system** | The codebase operates without migration scripts, transition logic, or compatibility layers |
-| **State-of-the-art** | Every component applies current best practices for its technology |
-| **Forward-only** | Code contains no backward compatibility shims, version checks, or legacy adapters |
+| **Current APIs exclusively** | All code uses current, officially recommended APIs and language idioms |
+| **Clean-slate architecture** | The codebase operates without migration scripts, transition logic, or compatibility layers |
+| **State-of-the-art practices** | Every component applies current best practices for its technology |
+| **Forward-only development** | Code contains no backward compatibility shims, version checks, or legacy adapters |
 | **Unified codebase** | No code is labeled "new", "old", "legacy", or "replaced" — everything is the current state |
-| **Full rewrite approach** | No partial patches, minimal diffs, or preservation of outdated structures |
+| **Complete implementations** | No partial patches, minimal diffs, or preservation of outdated structures |
 | **Zero legacy assumptions** | No code assumes pre-existing users, data, schemas, or runtime dependencies |
 
 ---

@@ -58,12 +58,12 @@ Evaluate the codebase against the 7 enterprise mandates (or project-specific man
 
 | Mandate | Status | Evidence |
 |---------|--------|----------|
-| Current APIs | PASS / FAIL | [cite specific findings or state "no violations detected with N files examined"] |
-| Clean-slate system | PASS / FAIL | [cite findings or evidence of absence] |
-| State-of-the-art | PASS / FAIL | [cite findings or evidence of absence] |
-| Forward-only | PASS / FAIL | [cite findings or evidence of absence] |
+| Current APIs exclusively | PASS / FAIL | [cite specific findings or state "no violations detected with N files examined"] |
+| Clean-slate architecture | PASS / FAIL | [cite findings or evidence of absence] |
+| State-of-the-art practices | PASS / FAIL | [cite findings or evidence of absence] |
+| Forward-only development | PASS / FAIL | [cite findings or evidence of absence] |
 | Unified codebase | PASS / FAIL | [cite findings or evidence of absence] |
-| Full rewrite approach | PASS / FAIL | [cite findings or evidence of absence] |
+| Complete implementations | PASS / FAIL | [cite findings or evidence of absence] |
 | Zero legacy assumptions | PASS / FAIL | [cite findings or evidence of absence] |
 
 A mandate FAILs if any verified finding directly violates it. Cite the specific finding IDs as evidence. A mandate PASSes only when the relevant auditor examined the area and found no violations — absence of audit is not evidence of compliance.

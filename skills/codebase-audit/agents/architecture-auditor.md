@@ -139,19 +139,19 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Domain module `orders/` imports directly from `infrastructure/database/pool.ts` |
+| **High** | Very likely correct. Minimal false positive risk. | Circular dependency: `auth` → `users` → `permissions` → `auth` |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Controller contains 40 lines of business logic that belongs in a service layer |
+| **Low** | Possible issue, requires runtime verification to confirm. | Utility module has mixed responsibilities (string formatting and HTTP helpers) |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Move import to use interface instead of concrete class |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Extract business logic from controller to service |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Break circular dependency by introducing interface |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Restructure module boundaries to fix layering violations across package |
 
 | Risk | Criteria |
 |------|----------|

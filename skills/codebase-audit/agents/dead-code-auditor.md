@@ -63,6 +63,12 @@ Before classifying code as dead, check these framework-specific patterns that ma
 - **Rails/Ruby**: Controllers, models, and helpers follow naming conventions that connect them without explicit imports. Check routes.rb and autoload paths.
 - **Angular**: Components, services, and pipes declared in module files (@NgModule declarations, providers, imports) are loaded by the framework.
 - **Go**: init() functions, interface implementations, and types registered with encoding/gob or database/sql are used implicitly.
+- **Next.js/Nuxt.js**: Files in `pages/` or `app/` directories are route handlers loaded by convention. Exported functions like `generateStaticParams`, `generateMetadata`, `getStaticProps`, `getServerSideProps` are framework-invoked.
+- **Pytest**: Functions decorated with `@pytest.fixture` are injected by name into test functions — they may appear unused at their definition site.
+- **FastAPI**: Dependency injection functions passed via `Depends()` may appear unused at their definition site.
+- **NestJS**: Classes decorated with `@Injectable()`, `@Controller()`, `@Module()` are instantiated by the framework's dependency injection container.
+- **Vue.js `<script setup>`**: Components imported in `<script setup>` blocks are used in the template section, not in JavaScript.
+- **Svelte**: Components imported in `.svelte` files are used in the markup section, not in JavaScript.
 
 If a symbol matches any of these patterns, verify its framework registration before classifying it as dead. Mark findings involving framework-managed code with Confidence: Medium and note the framework pattern in the Evidence field.
 
@@ -111,19 +117,19 @@ Category codes are for internal reference. Finding headers use `DEAD:` with a de
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Function `processLegacyOrder()` has zero call sites, zero references, and no framework annotation |
+| **High** | Very likely correct. Minimal false positive risk. | Entire file `utils/old-helpers.ts` has no imports from any other file in the project |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Exported function `onPluginInit()` has no internal callers — may be consumed by external plugins |
+| **Low** | Possible issue, requires runtime verification to confirm. | Variable `retryCount` assigned but only read in a conditionally-compiled debug block |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Remove unused import statement |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Delete unused utility function and its single test |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Remove dead feature module and update all references |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Untangle dead code interleaved with live code across shared module |
 
 | Risk | Criteria |
 |------|----------|
@@ -143,18 +149,18 @@ Structure your complete output as follows:
 
 ### Summary
 
-| Category | Count | High | Medium | Low |
-|----------|-------|------|--------|-----|
-| Unused imports | N | ... | ... | ... |
-| Unused functions/methods/classes | N | ... | ... | ... |
-| Unused variables/constants | N | ... | ... | ... |
-| Unused files | N | ... | ... | ... |
-| Unreachable branches | N | ... | ... | ... |
-| Commented-out code | N | ... | ... | ... |
-| Dead tests | N | ... | ... | ... |
-| Orphaned config | N | ... | ... | ... |
-| Unused build targets | N | ... | ... | ... |
-| Unused exports | N | ... | ... | ... |
+| Category | Count | Critical | High | Medium | Low |
+|----------|-------|----------|------|--------|-----|
+| Unused imports | N | ... | ... | ... | ... |
+| Unused functions/methods/classes | N | ... | ... | ... | ... |
+| Unused variables/constants | N | ... | ... | ... | ... |
+| Unused files | N | ... | ... | ... | ... |
+| Unreachable branches | N | ... | ... | ... | ... |
+| Commented-out code | N | ... | ... | ... | ... |
+| Dead tests | N | ... | ... | ... | ... |
+| Orphaned config | N | ... | ... | ... | ... |
+| Unused build targets | N | ... | ... | ... | ... |
+| Unused exports | N | ... | ... | ... | ... |
 
 ### Findings
 

@@ -112,19 +112,19 @@ Every finding MUST include:
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Shared mutable `HashMap` accessed from multiple goroutines without mutex |
+| **High** | Very likely correct. Minimal false positive risk. | `check-then-act` pattern: file existence check followed by write without lock |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Async function spawns unbounded parallel tasks with no concurrency limit |
+| **Low** | Possible issue, requires runtime verification to confirm. | Thread pool size hardcoded to 4, may not scale on high-core-count machines |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Add mutex lock around shared map access |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Replace check-then-act with atomic operation |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Add concurrency limiter to unbounded parallel task spawning |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Redesign shared state management to use channels/message passing |
 
 | Risk | Criteria |
 |------|----------|

@@ -109,19 +109,19 @@ Findings that skip version verification are automatically rejected.
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Calls `fs.readFile` callback API in Node 22 ESM project using async/await everywhere else |
+| **High** | Very likely correct. Minimal false positive risk. | Uses `@angular/http` module removed in Angular v7, project uses Angular 17 |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Uses `componentWillMount` lifecycle method deprecated since React 16.3 |
+| **Low** | Possible issue, requires runtime verification to confirm. | String formatting uses `%` operator in Python 3.12 where f-strings are standard |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Replace `substr()` with `substring()` |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Migrate callback to async/await in one module |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Replace deprecated ORM query builder across 5 files |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Migrate from removed framework module to current replacement |
 
 | Risk | Criteria |
 |------|----------|

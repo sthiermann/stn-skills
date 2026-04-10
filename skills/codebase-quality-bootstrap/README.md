@@ -64,7 +64,7 @@ graph LR
 | **Phase 1** | Detect tech stack, read existing CLAUDE.md, scan formatters/linters/test runners | Classifies greenfield (new) vs brownfield (existing CLAUDE.md) |
 | **Gate 1** | You confirm the detected stack and scope | Correct misdetections before spending compute |
 | **Phase 2** | 6 clustered analyzers generate rules in parallel | Each analyzer covers related audit domains with tech-stack-specific rules |
-| **Phase 3** | Assemble CLAUDE.md + hooks, enforce 200-line budget | Brownfield: custom sections preserved, stale content flagged |
+| **Phase 3** | Assemble CLAUDE.md + hooks, enforce 150-250-line budget | Brownfield: custom sections preserved, stale content flagged |
 | **Gate 2** | You review the complete generated content | Modify specific sections before writing |
 | **Phase 4** | Write files, read back to verify correctness | Both CLAUDE.md and .claude/settings.json are written atomically |
 | **Gate 3** | Completion summary with audit domain coverage | Recommendation: run codebase-audit to verify zero findings |
@@ -263,12 +263,12 @@ The generated CLAUDE.md always includes these 7 non-negotiable mandates — the 
 
 | # | Mandate | Target State |
 |---|---------|-------------|
-| 1 | **Current APIs** | All code uses current, officially recommended APIs and language idioms |
-| 2 | **Clean-slate system** | No migration scripts, compatibility layers, or transition logic |
-| 3 | **State-of-the-art** | Current best practices applied consistently to every component |
-| 4 | **Forward-only** | No backward compatibility shims, version checks, or legacy adapters |
+| 1 | **Current APIs exclusively** | All code uses current, officially recommended APIs and language idioms |
+| 2 | **Clean-slate architecture** | No migration scripts, compatibility layers, or transition logic |
+| 3 | **State-of-the-art practices** | Current best practices applied consistently to every component |
+| 4 | **Forward-only development** | No backward compatibility shims, version checks, or legacy adapters |
 | 5 | **Unified codebase** | No "old/new/legacy" labeling — everything is the current state |
-| 6 | **Full rewrite** | No partial patches preserving outdated structures |
+| 6 | **Complete implementations** | No partial patches preserving outdated structures |
 | 7 | **Zero legacy assumptions** | No assumptions about pre-existing users, data, or state |
 
 ---

@@ -101,19 +101,19 @@ Findings without file:line evidence are invalid and must be excluded from the re
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | README references `src/config.ts` which was deleted 3 commits ago |
+| **High** | Very likely correct. Minimal false positive risk. | Setup instructions produce different output than documented on current version |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | API endpoint documentation omits optional query parameter used in tests |
+| **Low** | Possible issue, requires runtime verification to confirm. | Architecture diagram may not reflect recent module reorganization |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Fix incorrect code example in README |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Update API docs for renamed endpoints |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Rewrite outdated architecture section |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Document all undocumented public API endpoints |
 
 | Risk | Criteria |
 |------|----------|

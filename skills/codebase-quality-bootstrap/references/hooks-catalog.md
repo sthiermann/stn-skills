@@ -37,6 +37,22 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 
 ---
 
+## File Extension Guards
+
+**File extension guards:** Every auto-format hook command MUST filter by file extension to avoid running formatters on unsupported file types. Use `case` statements on `$CLAUDE_FILE_PATH`:
+
+Pattern for single-language formatters:
+```bash
+case "$CLAUDE_FILE_PATH" in *.py) ruff format "$CLAUDE_FILE_PATH" ;; esac 2>/dev/null || true
+```
+
+Pattern for multi-language formatters (Prettier, Biome):
+```bash
+case "$CLAUDE_FILE_PATH" in *.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md) npx prettier --write "$CLAUDE_FILE_PATH" ;; esac 2>/dev/null || true
+```
+
+---
+
 ## Hook 1: Auto-Format on Edit/Write
 
 **Event:** PostToolUse
@@ -50,7 +66,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "npx prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx|*.json|*.css|*.md) npx prettier --write \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -59,7 +75,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) npx eslint --fix \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -68,7 +84,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "npx @biomejs/biome check --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx|*.json|*.css) npx @biomejs/biome check --fix \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -77,7 +93,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "npx prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null; npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) npx prettier --write \"$CLAUDE_FILE_PATH\"; npx eslint --fix \"$CLAUDE_FILE_PATH\" ;; *.json|*.css|*.md) npx prettier --write \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -88,7 +104,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "ruff check --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null; ruff format \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.py) ruff check --fix \"$CLAUDE_FILE_PATH\"; ruff format \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -97,7 +113,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "black \"$CLAUDE_FILE_PATH\" 2>/dev/null; isort \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.py) black \"$CLAUDE_FILE_PATH\"; isort \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -106,7 +122,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "autopep8 --in-place \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.py) autopep8 --in-place \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -117,7 +133,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "gofmt -w \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.go) gofmt -w \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 15
 }
 ```
@@ -126,7 +142,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "goimports -w \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.go) goimports -w \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 15
 }
 ```
@@ -137,7 +153,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "rustfmt \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.rs) rustfmt \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 15
 }
 ```
@@ -148,7 +164,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "google-java-format --replace \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.java) google-java-format --replace \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -157,7 +173,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "ktlint --format \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.kt|*.kts) ktlint --format \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -168,7 +184,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "clang-format -i \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.c|*.h|*.cpp|*.hpp|*.cc|*.cxx) clang-format -i \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 15
 }
 ```
@@ -179,7 +195,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "rubocop --autocorrect \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.rb|*.rake|Gemfile|Rakefile) rubocop --autocorrect \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -190,7 +206,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "php-cs-fixer fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.php) php-cs-fixer fix \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 30
 }
 ```
@@ -201,7 +217,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "dart format \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.dart) dart format \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 15
 }
 ```
@@ -212,7 +228,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "swift-format format --in-place \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.swift) swift-format format --in-place \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 15
 }
 ```
@@ -223,7 +239,7 @@ Claude Code hooks use this structure in `.claude/settings.json`:
 ```json
 {
   "type": "command",
-  "command": "mix format \"$CLAUDE_FILE_PATH\" 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.ex|*.exs) mix format \"$CLAUDE_FILE_PATH\" ;; esac 2>/dev/null || true",
   "timeout": 15
 }
 ```
@@ -296,7 +312,7 @@ FULL_PATTERN="$BASE_PATTERNS|$LOCK_PATTERNS"
 ```json
 {
   "type": "command",
-  "command": "npx jest --findRelatedTests \"$CLAUDE_FILE_PATH\" --passWithNoTests 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) npx jest --findRelatedTests \"$CLAUDE_FILE_PATH\" --passWithNoTests ;; esac 2>/dev/null || true",
   "timeout": 60
 }
 ```
@@ -305,7 +321,7 @@ FULL_PATTERN="$BASE_PATTERNS|$LOCK_PATTERNS"
 ```json
 {
   "type": "command",
-  "command": "npx vitest related \"$CLAUDE_FILE_PATH\" --run 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.ts|*.tsx|*.js|*.jsx) npx vitest related \"$CLAUDE_FILE_PATH\" --run ;; esac 2>/dev/null || true",
   "timeout": 60
 }
 ```
@@ -316,7 +332,7 @@ FULL_PATTERN="$BASE_PATTERNS|$LOCK_PATTERNS"
 ```json
 {
   "type": "command",
-  "command": "python -m pytest \"$(echo \"$CLAUDE_FILE_PATH\" | sed 's|/\\([^/]*\\)\\.py$|/test_\\1.py|')\" --no-header -q 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.py) python -m pytest \"$(echo \"$CLAUDE_FILE_PATH\" | sed 's|/\\([^/]*\\)\\.py$|/test_\\1.py|')\" --no-header -q ;; esac 2>/dev/null || true",
   "timeout": 60
 }
 ```
@@ -327,7 +343,7 @@ FULL_PATTERN="$BASE_PATTERNS|$LOCK_PATTERNS"
 ```json
 {
   "type": "command",
-  "command": "cd \"$(dirname \"$CLAUDE_FILE_PATH\")\" && go test ./... -count=1 -short 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.go) cd \"$(dirname \"$CLAUDE_FILE_PATH\")\" && go test ./... -count=1 -short ;; esac 2>/dev/null || true",
   "timeout": 60
 }
 ```
@@ -338,7 +354,7 @@ FULL_PATTERN="$BASE_PATTERNS|$LOCK_PATTERNS"
 ```json
 {
   "type": "command",
-  "command": "cargo test --quiet 2>/dev/null || true",
+  "command": "case \"$CLAUDE_FILE_PATH\" in *.rs) cargo test --quiet ;; esac 2>/dev/null || true",
   "timeout": 120
 }
 ```

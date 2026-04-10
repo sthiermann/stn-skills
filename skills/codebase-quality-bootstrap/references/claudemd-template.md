@@ -148,7 +148,7 @@ Minimum required rules:
 ### Enterprise Mandates
 
 - **Current APIs exclusively.** Use current, officially recommended APIs and language idioms for all code.
-- **Clean-slate architecture.** Build every component as current state -- no migration scripts, compatibility layers, or transition logic.
+- **Clean-slate architecture.** Build every component as current state -- no compatibility layers or transition logic. Standard forward-only database migrations (Drizzle, Alembic, Flyway, etc.) are compliant.
 - **State-of-the-art practices.** Apply current best practices consistently to every component in the codebase.
 - **Forward-only development.** Write code for the current version only -- no backward compatibility shims, version checks, or legacy adapters.
 - **Unified codebase.** Maintain one canonical implementation -- no "old/new/legacy" labeling or parallel code paths.

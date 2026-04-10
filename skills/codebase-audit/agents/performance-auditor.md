@@ -123,19 +123,19 @@ Every finding MUST include:
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | SQL query inside `for` loop — N+1 pattern with N=users.length |
+| **High** | Very likely correct. Minimal false positive risk. | Synchronous file read (`readFileSync`) in Express request handler blocking event loop |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unbounded `SELECT *` query with no pagination on table with 500K+ rows |
+| **Low** | Possible issue, requires runtime verification to confirm. | String concatenation in tight loop where `StringBuilder`/`join()` would reduce allocations |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Add `.includes()` to existing Prisma query |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Replace synchronous I/O call with async equivalent |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Add pagination to unbounded query endpoints |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Redesign data access layer to eliminate N+1 patterns across module |
 
 | Risk | Criteria |
 |------|----------|

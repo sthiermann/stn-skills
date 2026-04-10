@@ -38,6 +38,7 @@ Use DETECTED_STACK to select the appropriate patterns, APIs, and idioms for each
 - Verify that OS command construction uses safe APIs (subprocess lists, execFile) and never concatenates user input into shell strings
 - Verify that LDAP, XPath, and XML queries bind user input through framework-provided parameterization
 - Verify that template engines run in sandboxed or restricted mode, preventing server-side template injection
+- **Mass assignment / over-posting**: Request body fields that map directly to database model fields including privileged attributes (`role`, `isAdmin`, `permissions`, `verified`, `balance`). Verify that the application uses explicit allowlists (strong parameters, DTO pick/omit, Zod schemas selecting specific fields) rather than passing the entire request body to the ORM. Frameworks to check: Rails `params.permit()`, Django serializer `fields`, Express/Fastify manual field selection or Zod schemas, Spring `@JsonIgnoreProperties`.
 
 ### A04 - Insecure Design
 
@@ -139,19 +140,19 @@ Findings without file:line evidence are invalid and must be excluded from the re
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key in source code, SQL string concatenation with user input |
+| **High** | Very likely correct. Minimal false positive risk. | Missing rate limiting on authentication endpoint, CORS wildcard in production config |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | User input rendered as raw HTML — may be sanitized by middleware not visible in this file |
+| **Low** | Possible issue, requires runtime verification to confirm. | Session cookie missing `SameSite` attribute — framework may set it by default |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Add `HttpOnly` flag to cookie configuration |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Replace raw SQL query with parameterized query |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Add CSRF protection to all form-handling endpoints |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Implement rate limiting across all public API endpoints |
 
 | Risk | Criteria |
 |------|----------|

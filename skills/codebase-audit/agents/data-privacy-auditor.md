@@ -19,7 +19,7 @@ Adapt all checks to the detected stack. PII handling patterns differ by framewor
 
 Verify that log statements do not include personally identifiable information.
 
-- Identify log calls (logger.info, console.log, print, log.Printf, slog, etc.) whose arguments include variables named or typed as PII: email, name, phone, address, ssn, social_security, credit_card, card_number, ip_address, date_of_birth, passport, national_id
+- Identify log calls (logger.info, console.log, print, log.Printf, slog, etc.) whose arguments include variables named or typed as PII: email, name, phone, address, ssn, social_security, credit_card, card_number, ip_address, date_of_birth, passport, national_id, aadhaar, cpf, nric, bsn, pps_number, tax_id, tin, iban, swift, bank_account, biometric, fingerprint, face_id, voiceprint
 - Identify structured log fields that contain user data objects serialized in full (entire user record logged instead of just the user ID)
 - Check that error log messages do not interpolate request bodies or form data containing user input
 - Verify that log sanitization or masking is applied to PII fields before they reach any log sink
@@ -121,19 +121,19 @@ Every finding MUST include:
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | User email and IP address logged in plaintext at INFO level in request handler |
+| **High** | Very likely correct. Minimal false positive risk. | API response includes `password_hash` field — not filtered from user serialization |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | User-agent string stored in analytics table with no retention policy defined |
+| **Low** | Possible issue, requires runtime verification to confirm. | Debug logging includes full request body which may contain PII depending on endpoint |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Remove PII field from log statement |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Add field filter to user API serialization |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Implement data retention policy with automated cleanup |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Redesign logging pipeline to redact PII across all handlers |
 
 | Risk | Criteria |
 |------|----------|

@@ -159,19 +159,19 @@ Every finding must include:
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Public API endpoint `/api/users` has zero test files and zero test references |
+| **High** | Very likely correct. Minimal false positive risk. | Error handling branch in payment processor has no test exercising the catch path |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Integration test mocks the database — may miss schema drift in production |
+| **Low** | Possible issue, requires runtime verification to confirm. | Edge case for empty input array not explicitly tested, may be covered by framework default |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Add missing assertion to existing test |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Write unit test for untested utility function |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Add integration tests for untested API endpoint suite |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Build test infrastructure for currently untestable module |
 
 | Risk | Criteria |
 |------|----------|

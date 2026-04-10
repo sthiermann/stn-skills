@@ -30,9 +30,9 @@ Each finding arrives in this structure:
 2. Select findings for verification using these rules:
    - **All Critical findings** — mandatory, no exceptions.
    - **All High findings** — mandatory, no exceptions.
-   - **At least 30% of Medium findings** — randomly distributed across domains.
-   - **At least 15% of Low findings** — randomly distributed across domains.
-   - If a domain produced fewer than 5 findings total, verify all of them.
+   - **At least 30% of Medium findings, up to a maximum of 25 per domain** — randomly distributed across domains.
+   - **At least 15% of Low findings, up to a maximum of 15 per domain** — randomly distributed across domains.
+   - If a domain produced 5 or fewer findings total, verify all of them.
 3. Record the sample set size and composition before proceeding.
 
 ### Step 2: Verify Each Sampled Finding

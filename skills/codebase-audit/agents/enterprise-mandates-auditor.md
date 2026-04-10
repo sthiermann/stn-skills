@@ -19,7 +19,7 @@ Read `{{PROJECT_RULES}}` before beginning. Extract any mandates defined there. F
 
 Scan the codebase for violations of each mandate. For each mandate, the patterns listed are starting points — adapt to the detected stack.
 
-### Mandate 1: Current APIs Only
+### Mandate 1: Current APIs Exclusively
 
 All code uses current, officially recommended APIs. Every function call, import, and library usage reflects the latest stable API surface.
 
@@ -30,19 +30,21 @@ All code uses current, officially recommended APIs. Every function call, import,
 - Language features that have been replaced by modern equivalents (e.g., old-style string formatting where f-strings or template literals are standard)
 - Framework patterns that the framework's current documentation explicitly discourages
 
-### Mandate 2: Clean-Slate System
+### Mandate 2: Clean-Slate Architecture
 
 The codebase operates as a system built from scratch. It contains no artifacts of incremental change.
 
 **Scan for:**
-- Database migration files or migration runner configurations (any `migrations/` directories, Alembic, Flyway, Liquibase, ActiveRecord migration files, Knex migrations)
 - Schema versioning tables or version tracking logic in application code
 - Transition adapters, compatibility shims, or bridge modules between old and new implementations
 - Fallback logic that routes between two implementations based on feature flags or version checks
 - Data transformation scripts that convert between schema versions
 - Conditional logic that checks "if old format, convert to new format"
+- Database migration files that contain schema downgrades, rollback logic, or backward-compatibility transformations
 
-### Mandate 3: State-of-the-Art
+**Important nuance — database migrations:** Standard forward-only database migrations (Alembic, Flyway, Drizzle, Liquibase, ActiveRecord, Knex, Django migrations) are a legitimate, recommended schema management pattern. They are a finding ONLY when they contain: (a) schema downgrades or rollback logic, (b) version branching or backward-compatibility transformations between schema versions, or (c) the project rules explicitly prohibit migration files. Standard `migrations/` directories with forward-only migration files are compliant with this mandate.
+
+### Mandate 3: State-of-the-Art Practices
 
 Every component applies current best practices, modern language idioms, and recognized enterprise architecture principles for its technology.
 
@@ -53,7 +55,7 @@ Every component applies current best practices, modern language idioms, and reco
 - Configuration patterns that ignore the framework's recommended approach (e.g., XML config where annotation-based config is standard)
 - Testing patterns that use outdated assertion styles or test runners when modern alternatives are the documented standard
 
-### Mandate 4: Forward-Only
+### Mandate 4: Forward-Only Development
 
 Code contains no backward compatibility mechanisms. The system supports exactly one version of every interface, protocol, and data format.
 
@@ -75,9 +77,9 @@ Nothing is labeled as transitional. Every component is simply the current implem
 - TODO/FIXME comments referencing removal of old code, completion of migration, or cleanup of temporary implementations
 - Feature flags that toggle between old and new implementations
 - Documentation that references "the old way" vs. "the new way"
-- **Legitimate use whitelist**: The words "new", "old", "legacy", "v2" are not violations when they are part of domain terminology (e.g., `NewUserOnboarding` as a feature name, `LegacyGUID` as a domain type representing a genuinely legacy identifier format, `OAuth2` as a protocol name). Only flag these when they indicate a code-level separation between old and new implementations of the same functionality.
+- **Legitimate use whitelist**: The words "new", "old", "legacy", "v2" are not violations when they are part of domain terminology (e.g., `NewUserOnboarding` as a feature name, `LegacyGUID` as a domain type representing a genuinely legacy identifier format, `OAuth2` as a protocol name). Also not violations: `new` as a language constructor keyword (Java/JS/TS/C++ `new Object()`), `next`/`previous` as navigation or iteration terms (`nextPage`, `previousCursor`, `nextNode`), `updated`/`original` as timestamp or comparison fields (`updatedAt`, `lastUpdated`, `originalValue` in diff contexts), `deprecated` as a language annotation/decorator (`@Deprecated`, `@deprecated`). Only flag these words when they indicate a code-level separation between old and new implementations of the same functionality.
 
-### Mandate 6: Full Rewrite Approach
+### Mandate 6: Complete Implementations
 
 The codebase reflects a complete, coherent design rather than incremental patching over a prior system.
 
@@ -119,19 +121,19 @@ If no custom mandates are defined, report: "No custom mandates detected in proje
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | `UserServiceV2` class exists alongside `UserService` — parallel implementations of same interface |
+| **High** | Very likely correct. Minimal false positive risk. | Migration file contains schema downgrade logic with backward-compatibility transforms |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Feature flag `USE_NEW_AUTH` toggles between two authentication implementations |
+| **Low** | Possible issue, requires runtime verification to confirm. | Comment references "the old API" but surrounding code appears current |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Remove `V2` suffix from class name |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Delete migration rollback logic from 2 migration files |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Consolidate parallel service implementations |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Remove feature flag system toggling between old and new auth |
 
 | Risk | Criteria |
 |------|----------|
@@ -167,13 +169,13 @@ After scanning all mandates, produce this summary table:
 ```markdown
 | # | Mandate | Status | Violations | Evidence Summary |
 |---|---------|--------|------------|-----------------|
-| 1 | Current APIs Only | PASS / FAIL | count | brief summary or "all APIs current" |
-| 2 | Clean-Slate System | PASS / FAIL | count | brief summary or "no migration artifacts" |
-| 3 | State-of-the-Art | PASS / FAIL | count | brief summary or "modern patterns throughout" |
-| 4 | Forward-Only | PASS / FAIL | count | brief summary or "no backward compatibility code" |
-| 5 | Unified Codebase | PASS / FAIL | count | brief summary or "no transitional naming" |
-| 6 | Full Rewrite Approach | PASS / FAIL | count | brief summary or "consistent design throughout" |
-| 7 | Zero Legacy Assumptions | PASS / FAIL | count | brief summary or "all assumptions explicit" |
+| 1 | Current APIs exclusively | PASS / FAIL | count | brief summary or "all APIs current" |
+| 2 | Clean-slate architecture | PASS / FAIL | count | brief summary or "no migration artifacts" |
+| 3 | State-of-the-art practices | PASS / FAIL | count | brief summary or "modern patterns throughout" |
+| 4 | Forward-only development | PASS / FAIL | count | brief summary or "no backward compatibility code" |
+| 5 | Unified codebase | PASS / FAIL | count | brief summary or "no transitional naming" |
+| 6 | Complete implementations | PASS / FAIL | count | brief summary or "consistent design throughout" |
+| 7 | Zero legacy assumptions | PASS / FAIL | count | brief summary or "all assumptions explicit" |
 ```
 
 **Overall Mandate Compliance: [X/7 PASS]**

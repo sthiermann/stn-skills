@@ -162,12 +162,12 @@ When your project defines quality mandates in `CLAUDE.md`, the audit enforces th
 
 | # | Mandate | Target State |
 |---|---------|-------------|
-| 1 | **Current APIs** | All code uses current, officially recommended APIs and language idioms |
-| 2 | **Clean-slate system** | No migration scripts, compatibility layers, or transition logic |
-| 3 | **State-of-the-art** | Current best practices applied consistently to every component |
-| 4 | **Forward-only** | No backward compatibility shims, version checks, or legacy adapters |
+| 1 | **Current APIs exclusively** | All code uses current, officially recommended APIs and language idioms |
+| 2 | **Clean-slate architecture** | No migration scripts, compatibility layers, or transition logic |
+| 3 | **State-of-the-art practices** | Current best practices applied consistently to every component |
+| 4 | **Forward-only development** | No backward compatibility shims, version checks, or legacy adapters |
 | 5 | **Unified codebase** | No "old/new/legacy" labeling — everything is the current state |
-| 6 | **Full rewrite** | No partial patches preserving outdated structures |
+| 6 | **Complete implementations** | No partial patches preserving outdated structures |
 | 7 | **Zero legacy assumptions** | No assumptions about pre-existing users, data, or state |
 
 The audit produces a PASS/FAIL compliance matrix for each mandate with cited evidence.

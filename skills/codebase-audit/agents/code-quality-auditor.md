@@ -162,19 +162,19 @@ Verify that public API methods within the same module or class use consistent pa
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Function with cyclomatic complexity 47 and 6 levels of nesting |
+| **High** | Very likely correct. Minimal false positive risk. | 200-line method performing validation, transformation, persistence, and notification |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Three nearly identical helper functions that differ only in the entity type processed |
+| **Low** | Possible issue, requires runtime verification to confirm. | Variable named `data` in a context where `userProfile` would be more descriptive |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Extract magic number to named constant |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Split method into 2-3 focused functions |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Refactor god class into single-responsibility classes |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Redesign deeply nested control flow across module |
 
 | Risk | Criteria |
 |------|----------|

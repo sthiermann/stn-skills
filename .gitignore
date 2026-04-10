@@ -1,1 +1,16 @@
 .claude/
+CLAUDE.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Node (for local tooling)
+node_modules/

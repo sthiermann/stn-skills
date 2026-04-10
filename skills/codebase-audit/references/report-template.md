@@ -23,6 +23,7 @@ Use this exact structure for the final audit report. Replace all placeholders wi
   1. {{TOP_PRIORITY_1}}
   2. {{TOP_PRIORITY_2}}
   3. {{TOP_PRIORITY_3}}
+- **Deploy recommendation:** {{BLOCK_DEPLOY | DEPLOY_WITH_CAUTION | SHIP_IT}}
 
 ---
 
@@ -30,12 +31,12 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 
 | # | Mandate | Status | Violations | Evidence |
 |---|---------|--------|------------|----------|
-| 1 | Current APIs and idioms only | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
-| 2 | Clean-slate system (no migration/compat logic) | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
-| 3 | State-of-the-art standards | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
-| 4 | Forward-only (no backward compatibility) | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
-| 5 | Unified codebase (no old/new labeling) | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
-| 6 | Full rewrite approach | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
+| 1 | Current APIs exclusively | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
+| 2 | Clean-slate architecture | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
+| 3 | State-of-the-art practices | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
+| 4 | Forward-only development | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
+| 5 | Unified codebase | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
+| 6 | Complete implementations | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
 | 7 | Zero legacy assumptions | {{PASS/FAIL}} | {{COUNT}} | {{EVIDENCE_REF}} |
 
 ---

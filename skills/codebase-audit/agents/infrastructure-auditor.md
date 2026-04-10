@@ -154,19 +154,19 @@ Every finding must include:
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Docker container runs as root with no USER directive in Dockerfile |
+| **High** | Very likely correct. Minimal false positive risk. | CI pipeline has no caching — full dependency install on every run, 12-minute builds |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Environment variable `DATABASE_URL` has no validation, defaults to empty string |
+| **Low** | Possible issue, requires runtime verification to confirm. | Docker health check interval at 30s may be too infrequent for fast-restart scenarios |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Add USER directive to Dockerfile |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Add caching step to CI pipeline |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Restructure environment variable handling with validation |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Rewrite multi-stage Dockerfile with security hardening |
 
 | Risk | Criteria |
 |------|----------|

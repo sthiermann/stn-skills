@@ -5,12 +5,16 @@
 **Professional Claude Code skill suite by Sven Thiermann**
 
 <p>
-  <img src="https://img.shields.io/badge/version-2.4.0-blue?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.5.0-blue?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/skills-2-brightgreen?style=flat-square" alt="Skills">
 </p>
 
+[What's new in v2.5.0](CHANGELOG.md)
+
 </div>
+
+Requires [Claude Code](https://claude.ai/code) installed.
 
 A curated collection of high-quality Claude Code skills for professional software engineering workflows. Each skill is independently usable, thoroughly documented, and built to enterprise standards.
 
@@ -92,24 +96,7 @@ stn-skills/
 
 ## Contributing
 
-Contributions are welcome — whether improving existing skills or proposing new ones.
-
-**Improving an existing skill:**
-1. Fork the repository
-2. Make your changes in the relevant `skills/` directory
-3. Ensure all changes follow the skill's canonical format (see its `SKILL.md`)
-4. Submit a pull request with a clear description
-
-**Proposing a new skill:**
-1. Open an issue describing the skill's purpose and scope
-2. Each skill lives in its own `skills/{skill-name}/` directory
-3. Every skill needs: `SKILL.md` (prompt), `README.md` (documentation)
-4. Follow existing patterns for agent structure and finding formats
-
-**Guidelines:**
-- Skills use universal principles, not language-specific rules
-- Every skill must be independently usable
-- Documentation is as important as the prompt
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on improving existing skills or proposing new ones.
 
 ---
 

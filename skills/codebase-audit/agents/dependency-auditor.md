@@ -118,19 +118,19 @@ If a checklist area has zero findings, state explicitly: "No issues found for [a
 
 | Level | Criteria | Example |
 |-------|----------|---------|
-| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | Hardcoded API key, SQL string concatenation with user input |
-| **High** | Very likely correct. Minimal false positive risk. | Unused function with zero references across entire codebase |
-| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | Unused export that might be consumed externally |
-| **Low** | Possible issue, requires runtime verification to confirm. | Potential race condition depending on request timing |
+| **Confirmed** | Statically verifiable with certainty. The evidence alone proves the finding. | `lodash@3.10.1` with known prototype pollution CVE-2019-10744 |
+| **High** | Very likely correct. Minimal false positive risk. | `express@3.x` — 4 major versions behind current, no longer receives security patches |
+| **Medium** | Probably correct, but framework conventions or runtime behavior could invalidate. | `moment` listed in dependencies but no import found across entire codebase |
+| **Low** | Possible issue, requires runtime verification to confirm. | `axios@0.27` — one minor version behind, no known vulnerabilities |
 
 ### Effort and Risk Estimates
 
 | Effort | Criteria |
 |--------|----------|
-| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. |
-| **Small** | Localized change in 1-2 files. Under 2 hours. |
-| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. |
-| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. |
+| **Trivial** | Single-line change, drop-in replacement, delete unused code. Under 30 minutes. Example: Update patch version in package.json |
+| **Small** | Localized change in 1-2 files. Under 2 hours. Example: Update minor version with breaking API change in 1-2 call sites |
+| **Medium** | Changes spanning multiple files or requiring testing. Under 1 day. Example: Remove unused dependency and its transitive deps |
+| **Large** | Architectural change, cross-module refactoring, or requires design decisions. Over 1 day. Example: Migrate from deprecated library to recommended replacement |
 
 | Risk | Criteria |
 |------|----------|
