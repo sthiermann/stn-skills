@@ -98,10 +98,11 @@ Or: `Build this feature` | `Implement end-to-end` | `Full pipeline`
 ### Individual skills
 
 ```
-/stn-skills:brainstorming          # Explore and design
-/stn-skills:plan-writing           # Create implementation plan
-/stn-skills:plan-execution         # Execute plan with verification
-/stn-skills:codebase-audit         # Audit existing code
+/stn-skills:brainstorming                # Explore and design
+/stn-skills:plan-writing                 # Create implementation plan
+/stn-skills:pipeline-handoff-validator   # Validate artifacts between phases
+/stn-skills:plan-execution              # Execute plan with verification
+/stn-skills:codebase-audit              # Audit existing code
 /stn-skills:codebase-quality-bootstrap  # Set up quality standards
 ```
 
@@ -184,18 +185,20 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 | Directory | Contents |
 |-----------|----------|
 | `.claude-plugin/` | `plugin.json` (metadata) · `marketplace.json` (marketplace registration) |
-| `commands/` | 6 slash command entry points (one `.md` per skill) |
-| `skills/` | 6 skill implementations (see below) |
+| `commands/` | 7 slash command entry points (one `.md` per skill) |
+| `skills/` | 7 skill implementations (see below) |
+| `evals/` | Eval framework for activation and structure testing |
 
-Each skill contains: `SKILL.md` (orchestrator prompt) · `README.md` (documentation) · `agents/` (subagent prompts) · `references/` (loaded on-demand)
+Each skill contains: `SKILL.md` (orchestrator prompt) · `README.md` (documentation) · `banner.svg` · `agents/` (subagent prompts) · `references/` (loaded on-demand)
 
 | Skill | Phases | Agents | References |
 |-------|--------|--------|------------|
+| `build-feature` | 3 macro-phases | — | — |
 | `brainstorming` | 6 phases, 4 gates | 5 | 4 |
 | `plan-writing` | 6 phases, 4 gates | 4 | 3 |
+| `pipeline-handoff-validator` | 2 validation modes | — | 1 |
 | `plan-execution` | 7 phases, 3 gates | 5 | 7 |
-| `build-feature` | 3 macro-phases | — | — |
-| `codebase-audit` | 5 phases, 3 gates | 17 | 2 |
+| `codebase-audit` | 5 phases, 3 gates | 17 | 4 |
 | `codebase-quality-bootstrap` | 4 phases, 3 gates | 6 | 3 |
 
 ---
