@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.0.0] - 2026-04-12
+
+### Added
+- **Brainstorming skill** — 6-phase structured design exploration with 5 cognitive lenses (Inversion, Stakeholder, Constraint Removal, Temporal, Simplification), weighted 7-criteria decision matrix, 11-type adversarial reasoning flaw taxonomy, and adaptive depth (Focused/Standard/Deep). Produces validated design specifications.
+- **Plan-Writing skill** — 6-phase DAG-based task decomposition with zero-placeholder enforcement (40+ prohibited patterns), complete code in every step, 7-check adversarial verification, Plan Quality Score (0-100, threshold 90+), and end-to-end traceability matrices.
+- **Plan-Execution skill** — 7-phase checkpoint-verified execution with 3-stage sequential review (spec compliance → code quality → integration), 3-check drift detection, dual-threshold circuit breakers, Reflect-Retry-Escalate protocol, structured task handoff, post-execution cleanup, and Execution Fidelity Score.
+- **Build-Feature meta-skill** — end-to-end pipeline chaining brainstorming → plan-writing → plan-execution with all gates preserved.
+- Cross-cutting Modernization Guard in every agent prompt
+- Token-efficient progressive disclosure architecture (SKILL.md max 400 lines, agent prompts max 200 lines, reference files max 150 lines)
+- KV-cache optimized agent prompt structure (stable prefixes, deterministic ordering)
+
 ## [2.5.0] - 2026-04-10
 
 ### Added

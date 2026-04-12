@@ -1,7 +1,7 @@
 {
   "name": "stn-skills",
-  "description": "Professional Claude Code skill suite by Sven Thiermann. Includes: codebase audit (13-domain evidence-based repository audit with auto-fix) and codebase quality bootstrap (CLAUDE.md + hooks generator for zero-finding audit compliance).",
-  "version": "2.5.0",
+  "description": "Professional Claude Code skill suite by Sven Thiermann. Includes: codebase audit (13-domain evidence-based repository audit), codebase quality bootstrap (CLAUDE.md + hooks generator), brainstorming (multi-lens design exploration), plan-writing (DAG-based zero-placeholder plans), plan-execution (checkpoint-verified execution with fidelity scoring), and build-feature (end-to-end pipeline).",
+  "version": "3.0.0",
   "author": {
     "name": "Sven Thiermann"
   },
@@ -27,6 +27,15 @@
     "data-privacy",
     "owasp",
     "universal",
-    "technology-agnostic"
+    "technology-agnostic",
+    "brainstorming",
+    "planning",
+    "execution",
+    "dag",
+    "traceability",
+    "drift-detection",
+    "circuit-breaker",
+    "checkpoint",
+    "fidelity-score"
   ]
 }
