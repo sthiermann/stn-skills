@@ -138,6 +138,16 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 | {{CATEGORY}} | {{COUNT}} | {{TRIVIAL_ITEMS_OR_DASH}} |
 {{END_FOR_EACH}}
 
+### Pipeline Escalation Candidates
+
+Findings marked `[PIPELINE]` benefit from structured design exploration (`/stn-skills:brainstorming`) or verified multi-step execution (`/stn-skills:plan-writing`) rather than direct surgical fixes.
+
+| Finding | Title | Effort | Risk | Reason for Escalation |
+|---------|-------|--------|------|-----------------------|
+{{FOR_EACH_PIPELINE_FINDING}}
+| F{{ID}} [PIPELINE] | {{TITLE}} | {{EFFORT}} | {{RISK}} | {{ESCALATION_REASON}} |
+{{END_FOR_EACH}}
+
 ---
 
 ## Evidence Index

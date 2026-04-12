@@ -10,13 +10,17 @@
   <img src="https://img.shields.io/badge/invoke-stn--skills:plan--execution-black?style=flat-square" alt="Invoke">
 </p>
 
-Part of [stn-skills](https://github.com/sthiermann/stn-skills) v3.0.0
+Part of [stn-skills](https://github.com/sthiermann/stn-skills) v3.1.0
 
 </div>
 
-Execute implementation plans with absolute fidelity. Fresh subagent per task. Three-stage review before every commit. Drift detection after every implementation. Circuit breakers that stop before damage spreads. Post-execution cleanup that leaves the codebase cleaner than it was found.
+Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Accepts plans from plan-writing. Use `/stn-skills:build-feature` for the full pipeline.
 
-**The user never needs to manually check if work was done correctly.** Every claim is backed by fresh verification evidence. Every acceptance criterion is independently verified. The completion report proves it.
+Execute implementation plans with absolute fidelity. Fresh subagent per task with mandatory context refresh. Three-stage review before every commit by independent reviewer agents. Drift detection after every implementation. Circuit breakers that stop before damage spreads. Post-execution cleanup that leaves the codebase cleaner than it was found.
+
+**The user never needs to manually check if work was done correctly.** Every claim is backed by fresh verification evidence. Every acceptance criterion is independently verified. The completion report proves it. Research shows that separating generators from reviewers and verifying at every step prevents the 20-27% quality degradation observed in unchecked multi-turn generation.
+
+**Typical duration:** ~2-5 min per task (implementation + 3-stage review + checkpoint)
 
 ---
 

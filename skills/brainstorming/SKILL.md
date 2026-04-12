@@ -18,6 +18,8 @@ description: >-
 
 Structured exploration that converts ambiguous requests into validated design specs. Surfaces assumptions, generates genuinely distinct approaches through multi-lens cognitive frameworks, scores them against weighted criteria, stress-tests the winner through adversarial review, and produces a spec document ready for plan-writing.
 
+This skill implements tree-structured exploration — generating multiple distinct approaches in parallel (branching), evaluating each through weighted criteria (scoring), and pruning via adversarial review (selection). Research shows tree-structured search with execution feedback at each node consistently outperforms single-path linear generation for complex design problems.
+
 **Core principle:** Every design decision requires explored alternatives. Assumptions without confirmation are landmines.
 
 **Announce:** "I'm using the brainstorming skill to explore this problem systematically before implementation."

@@ -181,6 +181,8 @@ This anchors the subagent to its bounded task. Without it, agents drift.
 - Prior handoff: {from previous task, per references/task-handoff-template.md}
 ```
 
+**CONTEXT FRESHNESS:** For every task after T1, the orchestrator MUST re-read all files in the task's scope before building the context package. Plans describe expected state; actual state may have diverged due to prior task adaptations or drift-accepted deviations. Pass current file content, not plan-time content.
+
 **Dispatch** to `agents/task-implementer.md` as a fresh subagent.
 
 **On return**, read the structured status report. Expected codes per `references/status-codes.md`:
@@ -265,6 +267,8 @@ Triggered only when a task returns BLOCKED after all retry attempts.
 ### Phase 4: Post-Execution Cleanup
 
 **Purpose:** Guarantee zero development artifacts, zero deprecated code, and zero legacy patterns remain after execution. This phase is what ensures the codebase is cleaner AFTER execution than before.
+
+**Step 0: Full context refresh.** Before scanning for cleanup items, read the COMPLETE final state of every modified file (not just the diff). Incremental reviews during Phase 3 see changes in isolation. The cleanup scan sees the final integrated result — it catches issues that emerge only in combination of multiple task changes.
 
 Scan ALL files modified during execution (`git diff --name-only {starting_sha}..HEAD`) for:
 

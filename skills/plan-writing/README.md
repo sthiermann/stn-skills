@@ -14,7 +14,11 @@ Atomic tasks. Complete code. DAG execution. Adversarial verification.
 
 </div>
 
-A Claude Code skill that transforms requirements into implementation plans so detailed that execution is mechanical. Every task is 2-5 minutes, every step has complete code, and the entire plan is adversarially verified before delivery.
+Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Accepts design specs from brainstorming and produces plans for plan-execution. Use `/stn-skills:build-feature` for the full pipeline.
+
+A Claude Code skill that transforms requirements into implementation plans so detailed that execution is mechanical. Every task is 2-5 minutes, every step has complete code, and the entire plan is adversarially verified before delivery. Zero-placeholder enforcement ensures plans are complete before execution begins — addressing the measured 20-27% quality degradation in multi-turn generation without per-step verification.
+
+**Typical duration:** Small (1-3 tasks): 5-10 min | Medium (4-8 tasks): 10-20 min | Large (9+ tasks): 20-35 min
 
 ---
 

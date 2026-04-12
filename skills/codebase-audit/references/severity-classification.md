@@ -80,6 +80,8 @@ Every finding includes remediation effort and risk estimates:
 | **Moderate** | Changes behavior but in predictable ways. Requires testing to verify. |
 | **High** | Could break existing functionality, affects shared interfaces, or changes security-sensitive code paths. |
 
+**Pipeline escalation candidates:** Findings with Effort ∈ {Medium, Large}, Risk = High, or domain = ARCH are tagged `[PIPELINE]` in the remediation roadmap. These findings benefit from structured design exploration (`/stn-skills:brainstorming`) or verified multi-step execution (`/stn-skills:plan-writing`) rather than direct surgical fixes. The user decides at GATE 3 whether to quick-fix or escalate.
+
 ## Domain Code Reference
 
 | Code | Domain | Typical Severity Range |

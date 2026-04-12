@@ -14,7 +14,9 @@
 
 </div>
 
-A Claude Code skill that dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Optionally, it fixes the findings directly in your code — surgically, with verification.
+A Claude Code skill that dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Simple findings are fixed directly with surgical precision. Complex findings — architectural violations, large-scale refactoring, design decisions — are escalated to the brainstorming → plan-writing → plan-execution pipeline via a structured remediation brief.
+
+**Typical duration:** 15-30 min for a medium repository (50-500 files)
 
 ---
 
@@ -72,7 +74,22 @@ graph LR
 | **Gate 2** | You review the verified findings | Challenge or investigate any finding before the report |
 | **Phase 4** | Structured report with remediation roadmap | Every finding has a stable ID (F1, F2, ...) for selection |
 | **Gate 3** | You choose what to fix — or skip entirely | Select by ID, severity, domain, or module. No code changes without your say. |
-| **Phase 5** | Fixes applied surgically, then verified | Bottom-up edits, test suite run, regression detection |
+| **Phase 5** | Quick fixes applied surgically; complex findings generate pipeline brief | Bottom-up edits + test suite OR remediation brief for brainstorming/plan-writing |
+
+---
+
+## Pipeline Escalation
+
+Not all findings can be fixed with surgical edits. Architectural violations, large-scale deprecated pattern replacements, and findings requiring design decisions benefit from the full brainstorming → plan-writing → plan-execution pipeline.
+
+At Gate 3, findings are classified into two remediation tiers:
+
+| Tier | Criteria | Action |
+|------|----------|--------|
+| **Quick Fix** | Effort ∈ {Trivial, Small}, Risk ∈ {Safe, Moderate} | Direct remediation — applied and verified in Phase 5 |
+| **Pipeline** `[PIPELINE]` | Effort ∈ {Medium, Large}, Risk = High, or domain = ARCH | Generates a remediation brief for `/stn-skills:brainstorming` or `/stn-skills:plan-writing` |
+
+The remediation brief contains the problem statement, constraints, scope boundaries, success criteria, and finding references — designed as direct input for the brainstorming or plan-writing skill's Phase 1.
 
 ---
 

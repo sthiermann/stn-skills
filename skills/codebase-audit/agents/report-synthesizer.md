@@ -89,6 +89,30 @@ Build a prioritized action plan using effort and risk estimates from each findin
 
 **Total effort estimation:** Sum the individual effort estimates into a range (e.g., "3-5 days for all Critical+High, 1-2 weeks for full remediation"). This gives the team a planning baseline.
 
+**Pipeline Escalation Candidates:**
+
+After building the roadmap, identify findings that are too complex for direct surgical fixes. Tag findings as `[PIPELINE]` when they meet any of these criteria:
+- Effort is Medium or Large
+- Risk is High
+- Domain is ARCH (architectural changes inherently require design decisions)
+- Finding's remediation requires multi-file refactoring or design decisions
+
+Add a subsection at the end of the Remediation Roadmap:
+
+```markdown
+### Pipeline Escalation Candidates
+
+Findings marked [PIPELINE] benefit from structured design exploration
+(`/stn-skills:brainstorming`) or verified multi-step execution
+(`/stn-skills:plan-writing`) rather than direct surgical fixes.
+
+| Finding | Title | Reason for Escalation |
+|---------|-------|-----------------------|
+| F{{ID}} [PIPELINE] | {{TITLE}} | {{Effort=Large / Risk=High / ARCH domain / requires design decision}} |
+```
+
+This pre-classification helps users at GATE 3 decide between quick-fix and pipeline remediation.
+
 ### Step 7: Compile Evidence Index
 
 Build a reference table mapping every finding to its source evidence:

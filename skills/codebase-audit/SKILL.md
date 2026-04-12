@@ -373,9 +373,19 @@ When CLAUDE.md or project rules define non-negotiable mandates, the enterprise-m
 
 **Phase 5 is entirely optional.** The audit is complete after Phase 4. No code is modified unless the user explicitly requests it.
 
+**Two-tier classification** — before presenting findings, classify each into a remediation tier:
+
+| Tier | Criteria | Action |
+|------|----------|--------|
+| **Quick Fix** | Effort ∈ {Trivial, Small} AND Risk ∈ {Safe, Moderate} | Direct remediation via `remediation-executor` agent |
+| **Pipeline Candidate** `[PIPELINE]` | Effort ∈ {Medium, Large} OR Risk = High OR domain = ARCH | Recommend escalation to brainstorming/plan-writing pipeline |
+
+Pipeline candidates are findings that require design decisions, span many files, or involve architectural refactoring. Direct surgical fixes cannot adequately address them — they benefit from structured design exploration and verified multi-step execution.
+
 Present to the user:
 - All findings numbered as F1..FN (IDs from the Phase 4 report)
 - Findings grouped by file path, showing which files have multiple findings
+- Each finding annotated with its tier: `[QUICK FIX]` or `[PIPELINE]`
 - Quick-select options: `all` | `critical+high` | `domain:SEC` | `module:auth` | `F1,F3,F7`
 
 **Conflict detection** — before presenting the selection prompt, proactively scan for:
@@ -391,10 +401,21 @@ Conflicts detected:
 - F12 depends on F5 — if you select F12, F5 will be included automatically
 ```
 
-Ask: **"The audit is complete. Would you like me to fix any of these findings? Specify by ID, severity, domain, or module — or 'skip' to keep the report only."**
+Present remediation options:
+```
+Remediation options:
+  Quick fix:           F1, F3, F9 [QUICK FIX] — surgical fixes, applied directly
+  Pipeline escalation: F4, F7     [PIPELINE]  — generates a remediation brief for
+                       brainstorming or plan-writing (design decisions / multi-file refactoring)
+  Mix:                 select individual findings for either path
+  Skip:                report only, no changes
+```
+
+Ask: **"The audit is complete. Would you like me to fix any of these findings? Quick-fix findings are applied directly. Pipeline findings generate a remediation brief for `/stn-skills:brainstorming` or `/stn-skills:plan-writing`. Specify by ID, severity, domain, or module — or 'skip' to keep the report only."**
 
 - **`skip` or any declination = audit ends here.** No files are modified. The report stands as the deliverable.
 - Only an explicit selection of findings proceeds to Phase 5.
+- The user may override tier classification: assign a `[PIPELINE]` finding to quick fix or vice versa.
 - If the user selects findings with detected conflicts, explain each conflict and ask which approach to prefer before proceeding.
 - If the user selects a finding that has dependencies, automatically include the dependency and inform the user.
 - **No files are modified without explicit user approval.**
@@ -405,7 +426,64 @@ Proceed only after the user confirms the final selection.
 
 ### Phase 5: Remediation Execution
 
-After the user selects findings at GATE 3, execute the fixes in three steps: plan batches, dispatch remediation agents, and verify results.
+After the user selects findings at GATE 3, execute the fixes. Findings are split into two tracks based on their tier classification.
+
+**Step 0: Generate Pipeline Remediation Brief (if applicable)**
+
+If any selected findings are assigned to the `[PIPELINE]` tier, generate a **remediation brief** before proceeding with quick fixes. Save the brief to `docs/audit-remediation-brief-YYYY-MM-DD.md`.
+
+The remediation brief contains:
+
+```markdown
+# Audit Remediation Brief — {{REPO_NAME}}
+
+**Generated:** {{DATE}}
+**Source audit:** Codebase Audit Report
+
+## Problem Statement
+{{Synthesize the selected PIPELINE findings into a coherent problem description.
+Group related findings into themes (e.g., "authentication architecture", "deprecated
+pattern migration"). For each theme, describe: what is wrong, why it matters, and
+what the target state should be.}}
+
+## Constraints
+- **Tech stack:** {{DETECTED_STACK}}
+- **Project rules:** {{PROJECT_RULES summary}}
+- **Enterprise mandates:** {{Relevant mandates from the compliance matrix}}
+
+## Scope Boundaries
+- **Files in scope:** {{List all files cited by the PIPELINE findings}}
+- **Modules affected:** {{List affected modules/directories}}
+- **Files explicitly out of scope:** {{Files NOT cited by any selected finding}}
+
+## Success Criteria
+{{For each PIPELINE finding, convert its Remediation field into a testable criterion:}}
+- [ ] F{{ID}}: {{Remediation converted to acceptance criterion}}
+
+## Finding References
+| Finding | Domain | Severity | Confidence | Effort | Risk |
+|---------|--------|----------|------------|--------|------|
+{{FOR_EACH_PIPELINE_FINDING}}
+| F{{ID}} | {{DOMAIN}} | {{SEVERITY}} | {{CONFIDENCE}} | {{EFFORT}} | {{RISK}} |
+{{END_FOR_EACH}}
+
+## Repository Context
+{{Relevant output from Phase 1 reconnaissance: tech stack details, module structure,
+project rules that apply to the affected areas.}}
+```
+
+After saving the brief, inform the user:
+```
+Pipeline remediation brief saved to docs/audit-remediation-brief-YYYY-MM-DD.md
+
+To address these findings through structured design and execution:
+  /stn-skills:brainstorming   — when findings require design decisions or architectural exploration
+  /stn-skills:plan-writing    — when the approach is known but execution spans many files
+
+The brief is designed as direct input for either skill's Phase 1.
+```
+
+If ALL selected findings are `[PIPELINE]` tier, Phase 5 ends here. If a mix of quick-fix and pipeline findings was selected, proceed with quick fixes below.
 
 **Step 1: Plan Remediation Batches**
 
@@ -460,3 +538,4 @@ Present to the user:
 - Regressions introduced (count, list, details)
 - Test suite status (before vs. after, which tests changed state)
 - Files modified (full list with line counts changed)
+- Pipeline escalation (if applicable): brief location, recommended next skill, finding IDs deferred to pipeline

@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.1.0] - 2026-04-12
+
+### Added
+- **Pipeline escalation for complex audit findings** — codebase-audit GATE 3 now classifies findings into Quick Fix (direct remediation) and Pipeline `[PIPELINE]` (generates structured remediation brief for brainstorming or plan-writing). Complex findings — architectural violations, large-scale refactoring, design decisions — are handled through the full design-to-delivery pipeline instead of surgical fixes.
+- **Context refresh mandate** in plan-execution — orchestrator re-reads all scope files before every task dispatch; task-implementer reads current file state instead of relying on plan-authored snapshots. Prevents plan staleness across multi-task execution.
+- **Full context refresh in post-execution cleanup** — Phase 4 reads complete final state of every modified file before scanning, catching issues that emerge only in combination of multiple task changes.
+- **TDD safeguard** in task-implementer — flags concern when plan orders implementation before tests, prioritizes test-first execution.
+- **Research-backed methodology documentation** — root README now includes evidence table linking each design principle to measured outcomes (12-18% correctness improvement from planning, 20-27% degradation prevention from per-step verification, etc.).
+- **Duration estimates** across all skills and READMEs.
+- **Pipeline context callouts** in all individual skill READMEs linking to the full pipeline.
+- **Tree-structured search documentation** in brainstorming SKILL.md connecting multi-lens exploration to research on tree-structured generation.
+- **Pipeline Escalation Candidates** subsection in audit report template and report-synthesizer with `[PIPELINE]` tagging.
+
+### Changed
+- Root README "What Makes This Different" section expanded from collapsed `<details>` to visible headers for brainstorming, plan-writing, plan-execution, and codebase-audit differentiators.
+- Root README pipeline diagram now shows codebase-audit → pipeline escalation flow alongside the main pipeline.
+- Available Skills table now includes "Typical Duration" column.
+- Codebase-audit README adds Pipeline Escalation section explaining two-tier remediation.
+- Severity classification reference adds pipeline escalation criteria note.
+
 ## [3.0.0] - 2026-04-12
 
 ### Added

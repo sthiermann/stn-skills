@@ -35,6 +35,8 @@ Read TASK_HANDOFF. Understand what prior task accomplished, what files exist, wh
 
 Read every file in CONTEXT_FILES. Do not skim.
 
+**Context freshness:** Read the CURRENT state of every file in SCOPE (files this task will modify). Do not rely on plan-authored code snippets — the actual file may have been modified by a prior task. If the file content differs from what the plan expected, adapt the implementation to the actual current state. Report any significant divergence in the handoff.
+
 ### 4. Execute Steps
 
 Follow each step in TASK_SPEC exactly, in order:
@@ -63,6 +65,7 @@ Produce structured status report (format below).
 - No feature additions. No refactoring outside task. No "improvements."
 - Never skip verification. Never reuse old verification output.
 - All evidence must be FRESH — from commands run in THIS execution.
+- If the task includes both test and implementation steps, execute test steps BEFORE implementation steps (test-first). If the plan orders them differently, flag as a concern but follow the plan's ordering.
 
 ## Status Codes
 
