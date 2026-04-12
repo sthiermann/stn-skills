@@ -29,9 +29,11 @@ NO SHORTCUTS. NO SKIPPED GATES. NO UNVERIFIED CLAIMS.
 ```mermaid
 graph TD
     M1["Macro-Phase 1: Design\n(brainstorming)\n6 phases, 4 gates"] --> T1["docs/specs/YYYY-MM-DD-topic-design.md"]
-    T1 --> M2["Macro-Phase 2: Plan\n(plan-writing)\n6 phases, 4 gates"]
+    T1 --> V1{"Handoff\nValidator\n(Mode A)"}
+    V1 -->|validated| M2["Macro-Phase 2: Plan\n(plan-writing)\n6 phases, 4 gates"]
     M2 --> T2[".plan/plan-YYYYMMDD-slug.md"]
-    T2 --> M3["Macro-Phase 3: Execute\n(plan-execution)\n7 phases, 3 gates"]
+    T2 --> V2{"Handoff\nValidator\n(Mode B)"}
+    V2 -->|validated| M3["Macro-Phase 3: Execute\n(plan-execution)\n7 phases, 3 gates"]
     M3 --> Done(("Completion Report\n+ Fidelity Score"))
 
     T1 -.->|"user may exit"| E1(("Design complete"))
@@ -39,11 +41,13 @@ graph TD
 
     classDef macro fill:#2563eb,stroke:#1d4ed8,color:#fff,font-weight:bold
     classDef artifact fill:#16a34a,stroke:#15803d,color:#fff
+    classDef validator fill:#d97706,stroke:#b45309,color:#fff,font-weight:bold
     classDef done fill:#7c3aed,stroke:#6d28d9,color:#fff
     classDef exit fill:#6b7280,stroke:#4b5563,color:#fff
 
     class M1,M2,M3 macro
     class T1,T2 artifact
+    class V1,V2 validator
     class Done done
     class E1,E2 exit
 ```

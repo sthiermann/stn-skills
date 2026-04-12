@@ -41,13 +41,17 @@ stn-skills closes these gaps with evidence-backed structure at every stage. Ever
 
 ```mermaid
 graph LR
-    A["Brainstorming<br/><i>6 phases, 4 gates</i>"] -->|design spec| B["Plan Writing<br/><i>6 phases, 4 gates</i>"]
-    B -->|implementation plan| C["Plan Execution<br/><i>7 phases, 3 gates</i>"]
+    A["Brainstorming<br/><i>6 phases, 4 gates</i>"] -->|design spec| V1{"Handoff<br/>Validator"}
+    V1 -->|validated| B["Plan Writing<br/><i>6 phases, 4 gates</i>"]
+    B -->|implementation plan| V2{"Handoff<br/>Validator"}
+    V2 -->|validated| C["Plan Execution<br/><i>7 phases, 3 gates</i>"]
     C -->|completion report| D(("Verified<br/>Feature"))
     E["Codebase Audit<br/><i>13 domains, 3 gates</i>"] -->|"complex findings<br/>[PIPELINE]"| A
 
     style A fill:#2563eb,stroke:#1d4ed8,color:#fff
+    style V1 fill:#d97706,stroke:#b45309,color:#fff
     style B fill:#7c3aed,stroke:#6d28d9,color:#fff
+    style V2 fill:#d97706,stroke:#b45309,color:#fff
     style C fill:#059669,stroke:#047857,color:#fff
     style D fill:#16a34a,stroke:#15803d,color:#fff
     style E fill:#dc2626,stroke:#b91c1c,color:#fff

@@ -46,14 +46,18 @@ Or use natural language: `Build this feature` | `Implement end-to-end` | `Full p
 
 ```mermaid
 graph LR
-    M1["Design\n6 phases\n4 gates"] -->|"spec file"| M2["Plan\n6 phases\n4 gates"]
-    M2 -->|"plan file"| M3["Execute\n7 phases\n3 gates"]
+    M1["Design\n6 phases\n4 gates"] -->|"spec file"| V1{"Validate"}
+    V1 --> M2["Plan\n6 phases\n4 gates"]
+    M2 -->|"plan file"| V2{"Validate"}
+    V2 --> M3["Execute\n7 phases\n3 gates"]
     M3 --> Done(("Done\n+ Fidelity Score"))
 
     classDef macro fill:#2563eb,stroke:#1d4ed8,color:#fff,font-weight:bold
+    classDef validator fill:#d97706,stroke:#b45309,color:#fff,font-weight:bold
     classDef done fill:#7c3aed,stroke:#6d28d9,color:#fff,font-weight:bold
 
     class M1,M2,M3 macro
+    class V1,V2 validator
     class Done done
 ```
 
