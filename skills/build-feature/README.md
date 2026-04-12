@@ -14,6 +14,8 @@ Brainstorm. Plan. Execute. One command.
 
 </div>
 
+Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Orchestrates the full design-to-delivery workflow. Use individual skills for targeted work.
+
 A Claude Code meta-orchestrator skill that chains brainstorming, plan-writing, and plan-execution into a single pipeline. Takes a feature idea from initial exploration through DAG-based planning to verified, committed code — with user gates at every transition. Combines three research-backed techniques in one workflow: multi-perspective design exploration, complete-before-execution planning, and independently verified implementation.
 
 **Typical duration:** 30-60 min for a medium-complexity feature (3-5 tasks)

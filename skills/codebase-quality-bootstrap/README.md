@@ -14,7 +14,9 @@
 
 </div>
 
-A Claude Code skill that analyzes a repository's tech stack, dispatches 6 specialized analyzer agents in parallel, and generates a production-grade CLAUDE.md with `.claude/settings.json` hooks — all aligned with the 13 codebase-audit domains. The preventive counterpart to codebase-audit: bootstrap first, then audit with zero findings.
+Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. The preventive counterpart to codebase-audit. Use `/stn-skills:build-feature` for the full pipeline.
+
+A Claude Code skill for automated quality configuration that analyzes a repository's tech stack, dispatches 6 specialized analyzer agents in parallel, and generates a production-grade CLAUDE.md with `.claude/settings.json` hooks — all aligned with the 13 codebase-audit domains. Bootstrap first, then audit with zero findings.
 
 **Typical duration:** 5-10 min for initial bootstrap | 3-5 min for re-runs
 

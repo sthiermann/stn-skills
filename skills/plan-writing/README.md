@@ -32,7 +32,7 @@ A Claude Code skill that transforms requirements into implementation plans so de
 
 ---
 
-## How to Invoke
+## Quick Start
 
 ```
 /stn-skills:plan-writing
@@ -75,7 +75,7 @@ graph LR
 |--------|----------|
 | Plan document | `.plan/plan-{YYYYMMDD}-{slug}.md` |
 | Task DAG | Mermaid flowchart embedded in plan |
-| Traceability matrix | R(N) -> T(M) -> S(K) -> verification |
+| Traceability matrix | Requirement → Task → Step → Verification (full chain) |
 | Quality score | Composite 0-100 across 5 dimensions |
 
 ---

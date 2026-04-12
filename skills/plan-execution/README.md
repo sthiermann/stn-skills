@@ -7,10 +7,8 @@
 <p>
   <img src="https://img.shields.io/badge/phases-7-blue?style=flat-square" alt="Phases">
   <img src="https://img.shields.io/badge/review_stages-3-purple?style=flat-square" alt="Review Stages">
-  <img src="https://img.shields.io/badge/invoke-stn--skills:plan--execution-black?style=flat-square" alt="Invoke">
+  <img src="https://img.shields.io/badge/invoke-stn--skills:plan--execution-blue?style=flat-square" alt="Invoke">
 </p>
-
-Part of [stn-skills](https://github.com/sthiermann/stn-skills) v3.1.0
 
 </div>
 
@@ -60,8 +58,8 @@ graph TD
     G2 --> P6["Phase 6: Completion Report"]
     P6 --> G3{"GATE 3: Accept"}
 
-    classDef phase fill:#059669,stroke:#047857,color:#fff
-    classDef gate fill:#d97706,stroke:#b45309,color:#fff
+    classDef phase fill:#2563eb,stroke:#1d4ed8,color:#fff,font-weight:bold
+    classDef gate fill:#d97706,stroke:#b45309,color:#fff,font-weight:bold
     class P1,P2,P3,P4,P5,P6 phase
     class G1,G2,G3 gate
 ```
@@ -121,8 +119,3 @@ Quantitative measure of execution quality (0-100):
 | Circuit breaker RED | Hard stop. Checkpoint preserved. User must intervene |
 | Session interrupted | State file enables resume from last checkpoint in new session |
 
----
-
-## License
-
-MIT -- Sven Thiermann

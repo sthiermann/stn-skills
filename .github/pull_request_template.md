@@ -2,7 +2,7 @@
 <!-- What does this PR change and why? -->
 
 ## Skill affected
-<!-- codebase-audit / codebase-quality-bootstrap / both / new skill -->
+<!-- brainstorming / plan-writing / plan-execution / build-feature / codebase-audit / codebase-quality-bootstrap / multiple / new skill -->
 
 ## Checklist
 - [ ] SKILL.md updated (if behavior changed)
