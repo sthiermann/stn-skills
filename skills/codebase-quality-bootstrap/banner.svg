@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" width="1200" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="50%" style="stop-color:#1e293b"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d97706"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e3a5f" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="200" fill="url(#bg)"/>
+  <rect width="1200" height="200" fill="url(#grid)"/>
+  <rect x="0" y="196" width="1200" height="4" fill="url(#accent)"/>
+
+  <!-- Gear icons -->
+  <g opacity="0.2" transform="translate(195, 82)">
+    <circle cx="14" cy="14" r="6" fill="none" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="14" cy="14" r="12" fill="none" stroke="#d97706" stroke-width="1" stroke-dasharray="4,4"/>
+  </g>
+  <g opacity="0.15" transform="translate(245, 95)">
+    <circle cx="10" cy="10" r="4" fill="none" stroke="#f59e0b" stroke-width="1.2"/>
+    <circle cx="10" cy="10" r="9" fill="none" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="3,3"/>
+  </g>
+  <g opacity="0.18" transform="translate(950, 85)">
+    <circle cx="14" cy="14" r="6" fill="none" stroke="#d97706" stroke-width="1.5"/>
+    <circle cx="14" cy="14" r="12" fill="none" stroke="#d97706" stroke-width="1" stroke-dasharray="4,4"/>
+  </g>
+  <g opacity="0.13" transform="translate(995, 98)">
+    <circle cx="8" cy="8" r="3" fill="none" stroke="#f59e0b" stroke-width="1"/>
+    <circle cx="8" cy="8" r="7" fill="none" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="2,2"/>
+  </g>
+
+  <!-- stn-skills label -->
+  <text x="600" y="60" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#475569" text-anchor="middle" letter-spacing="2">STN-SKILLS</text>
+
+  <!-- Title -->
+  <text x="600" y="105" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" fill="#f8fafc" text-anchor="middle" letter-spacing="-1">Quality Bootstrap</text>
+
+  <!-- Tagline -->
+  <text x="600" y="145" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle">Production-grade standards from day one — prevent findings before they happen</text>
+</svg>

@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.svg" alt="Codebase Audit — 13-domain evidence-based audits" width="100%">
+
 # Codebase Audit
 
 **Evidence-based repository audits for Claude Code**
@@ -7,16 +9,16 @@
 13 domains. Parallel agents. Independently verified findings. Optional auto-fix.
 
 <p>
-  <img src="https://img.shields.io/badge/audit_domains-13-orange?style=flat-square" alt="Domains">
-  <img src="https://img.shields.io/badge/phases-5_with_3_gates-purple?style=flat-square" alt="Phases">
-  <img src="https://img.shields.io/badge/invoke-stn--skills:codebase--audit-blue?style=flat-square" alt="Invoke">
+  <img src="https://img.shields.io/badge/audit_domains-13-orange?style=flat-square" alt="13 Audit Domains">
+  <img src="https://img.shields.io/badge/phases-5_with_3_gates-purple?style=flat-square" alt="5 Phases with 3 Gates">
+  <img src="https://img.shields.io/badge/invoke-stn--skills:codebase--audit-blue?style=flat-square" alt="Invoke: stn-skills:codebase-audit">
 </p>
 
 </div>
 
-A Claude Code skill for comprehensive, technology-agnostic code auditing that dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Simple findings are fixed directly with surgical precision. Complex findings — architectural violations, large-scale refactoring, design decisions — are escalated to the brainstorming → plan-writing → plan-execution pipeline via a structured remediation brief.
-
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Audit findings can be escalated to brainstorming and plan-writing for structured remediation. Use `/stn-skills:build-feature` for the full pipeline.
+
+A Claude Code skill for comprehensive, technology-agnostic code auditing. Dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Simple findings are fixed directly with surgical precision. Complex findings — architectural violations, large-scale refactoring, design decisions — are escalated to the brainstorming → plan-writing → plan-execution pipeline via a structured remediation brief.
 
 **Typical duration:** 15–30 min for a medium repository (50–500 files)
 

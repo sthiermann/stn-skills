@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.svg" alt="Plan Writing — Zero-ambiguity implementation plans" width="100%">
+
 # Plan Writing
 
 **Zero-ambiguity implementation plans for Claude Code**
@@ -7,28 +9,30 @@
 Atomic tasks. Complete code. DAG execution. Adversarial verification.
 
 <p>
-  <img src="https://img.shields.io/badge/phases-6_with_4_gates-purple?style=flat-square" alt="Phases">
-  <img src="https://img.shields.io/badge/plan_quality-score_90+-green?style=flat-square" alt="Quality">
-  <img src="https://img.shields.io/badge/invoke-stn--skills:plan--writing-blue?style=flat-square" alt="Invoke">
+  <img src="https://img.shields.io/badge/phases-6_with_4_gates-purple?style=flat-square" alt="6 Phases with 4 Gates">
+  <img src="https://img.shields.io/badge/plan_quality-score_90+-green?style=flat-square" alt="Plan Quality Score 90+">
+  <img src="https://img.shields.io/badge/invoke-stn--skills:plan--writing-blue?style=flat-square" alt="Invoke: stn-skills:plan-writing">
 </p>
 
 </div>
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Accepts design specs from brainstorming and produces plans for plan-execution. Use `/stn-skills:build-feature` for the full pipeline.
 
-A Claude Code skill that transforms requirements into implementation plans so detailed that execution is mechanical. Every task is 2-5 minutes, every step has complete code, and the entire plan is adversarially verified before delivery. Zero-placeholder enforcement ensures plans are complete before execution begins — addressing the measured 20-27% quality degradation in multi-turn generation without per-step verification.
+A Claude Code skill that transforms requirements into implementation plans so detailed that execution becomes mechanical. Every task takes 2–5 minutes, every step contains complete code, and the entire plan is adversarially verified before delivery. Zero-placeholder enforcement rejects 40+ lazy shortcut patterns — no `...`, no `similar to above`, no `TODO` — ensuring plans are genuinely complete before execution begins.
 
-**Typical duration:** Small (1-3 tasks): 5-10 min | Medium (4-8 tasks): 10-20 min | Large (9+ tasks): 20-35 min
+Research measures 20–27% quality degradation in multi-turn generation without per-step verification. Complete plans prevent that.
+
+**Typical duration:** Small (1–3 tasks): 5–10 min | Medium (4–8 tasks): 10–20 min | Large (9+ tasks): 20–35 min
 
 ---
 
 ## What It Does
 
-- Extracts and numbers requirements with testable assertions from any input (design spec, brainstorm output, direct request)
-- Decomposes work into a DAG of atomic tasks with explicit dependencies, parallel wave grouping, and TDD enforcement
-- Authors every step with complete code and commands -- zero placeholders, zero ellipsis, zero "similar to above"
-- Runs 7 adversarial verification checks and computes a Plan Quality Score (must be 90+ to pass)
-- Delivers a single plan document with Mermaid DAG, traceability matrix, risk assessment, and rollback per task
+- **Requirement extraction** — numbers requirements with testable assertions from any input (design spec, brainstorm output, direct request)
+- **DAG decomposition** — atomic tasks with explicit dependencies, parallel wave grouping, and TDD enforcement
+- **Complete step authoring** — every step with complete code and commands — zero placeholders, zero ellipsis, zero "similar to above"
+- **Adversarial verification** — 7 checks computing a Plan Quality Score (must be 90+ to pass)
+- **Single deliverable** — plan document with Mermaid DAG, traceability matrix, risk assessment, and rollback per task
 
 ---
 
@@ -42,7 +46,7 @@ Or use natural language: `Write a plan for this feature` | `Create an implementa
 
 ---
 
-## Workflow
+## How It Works
 
 ```mermaid
 graph LR

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" width="1200" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="50%" style="stop-color:#1e293b"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e3a5f" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="200" fill="url(#bg)"/>
+  <rect width="1200" height="200" fill="url(#grid)"/>
+  <rect x="0" y="196" width="1200" height="4" fill="url(#accent)"/>
+
+  <!-- DAG nodes -->
+  <circle cx="195" cy="85" r="5" fill="#7c3aed" opacity="0.3"/>
+  <circle cx="240" cy="95" r="5" fill="#7c3aed" opacity="0.25"/>
+  <circle cx="220" cy="115" r="5" fill="#8b5cf6" opacity="0.2"/>
+  <circle cx="260" cy="110" r="5" fill="#8b5cf6" opacity="0.25"/>
+  <line x1="200" y1="87" x2="235" y2="93" stroke="#7c3aed" stroke-width="1" opacity="0.2"/>
+  <line x1="200" y1="88" x2="217" y2="112" stroke="#7c3aed" stroke-width="1" opacity="0.18"/>
+  <line x1="243" y1="98" x2="257" y2="107" stroke="#8b5cf6" stroke-width="1" opacity="0.2"/>
+  <line x1="223" y1="117" x2="255" y2="112" stroke="#8b5cf6" stroke-width="1" opacity="0.15"/>
+
+  <circle cx="940" cy="90" r="5" fill="#7c3aed" opacity="0.25"/>
+  <circle cx="980" cy="80" r="5" fill="#8b5cf6" opacity="0.2"/>
+  <circle cx="975" cy="110" r="5" fill="#7c3aed" opacity="0.22"/>
+  <circle cx="1010" cy="95" r="5" fill="#8b5cf6" opacity="0.2"/>
+  <line x1="945" y1="91" x2="972" y2="108" stroke="#7c3aed" stroke-width="1" opacity="0.18"/>
+  <line x1="943" y1="89" x2="976" y2="82" stroke="#8b5cf6" stroke-width="1" opacity="0.15"/>
+  <line x1="980" y1="82" x2="1006" y2="93" stroke="#8b5cf6" stroke-width="1" opacity="0.18"/>
+
+  <!-- stn-skills label -->
+  <text x="600" y="60" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#475569" text-anchor="middle" letter-spacing="2">STN-SKILLS</text>
+
+  <!-- Title -->
+  <text x="600" y="105" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" fill="#f8fafc" text-anchor="middle" letter-spacing="-1">Plan Writing</text>
+
+  <!-- Tagline -->
+  <text x="600" y="145" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle">Zero-ambiguity implementation plans — every step complete before execution begins</text>
+</svg>

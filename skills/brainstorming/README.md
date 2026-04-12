@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.svg" alt="Brainstorming — Structured design exploration" width="100%">
+
 # Brainstorming
 
 **Structured design exploration for Claude Code**
@@ -7,18 +9,20 @@
 Multi-lens analysis. Adversarial review. Validated design specs.
 
 <p>
-  <img src="https://img.shields.io/badge/phases-6_with_4_gates-purple?style=flat-square" alt="Phases">
-  <img src="https://img.shields.io/badge/cognitive_lenses-5-orange?style=flat-square" alt="Lenses">
-  <img src="https://img.shields.io/badge/invoke-stn--skills:brainstorming-blue?style=flat-square" alt="Invoke">
+  <img src="https://img.shields.io/badge/phases-6_with_4_gates-purple?style=flat-square" alt="6 Phases with 4 Gates">
+  <img src="https://img.shields.io/badge/cognitive_lenses-5-orange?style=flat-square" alt="5 Cognitive Lenses">
+  <img src="https://img.shields.io/badge/invoke-stn--skills:brainstorming-blue?style=flat-square" alt="Invoke: stn-skills:brainstorming">
 </p>
 
 </div>
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Produces design specs that feed directly into plan-writing. Use `/stn-skills:build-feature` for the full design-to-delivery pipeline.
 
-A Claude Code skill for structured design exploration that transforms vague requests into validated design specifications. Surfaces assumptions, explores genuinely distinct approaches through cognitive frameworks, scores them against weighted criteria, stress-tests the winner, and produces a spec ready for plan-writing. Research shows that exploring multiple approaches before implementation yields 12–18% higher correctness than single-path generation.
+A Claude Code skill for structured design exploration that transforms vague requests into validated design specifications. Instead of jumping straight to code, it surfaces hidden assumptions, explores genuinely distinct approaches through 5 cognitive lenses, scores them against a weighted decision matrix, and stress-tests the winner through adversarial review before producing a spec ready for plan-writing.
 
-**Typical duration:** Focused: 5-8 min | Standard: 10-15 min | Deep: 15-25 min
+Research shows that exploring multiple approaches before implementation yields 12–18% higher correctness than single-path generation.
+
+**Typical duration:** Focused: 5–8 min | Standard: 10–15 min | Deep: 15–25 min
 
 ---
 

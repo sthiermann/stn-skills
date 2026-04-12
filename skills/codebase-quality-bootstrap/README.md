@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.svg" alt="Quality Bootstrap — Production-grade standards from day one" width="100%">
+
 # Codebase Quality Bootstrap
 
 **Zero-finding audit compliance for Claude Code**
@@ -7,18 +9,18 @@
 6 analyzers. 13 audit domains. Tech-stack-specific rules. Automated hooks.
 
 <p>
-  <img src="https://img.shields.io/badge/audit_domains-13-orange?style=flat-square" alt="Domains">
-  <img src="https://img.shields.io/badge/phases-4_with_3_gates-purple?style=flat-square" alt="Phases">
-  <img src="https://img.shields.io/badge/invoke-stn--skills:codebase--quality--bootstrap-blue?style=flat-square" alt="Invoke">
+  <img src="https://img.shields.io/badge/audit_domains-13-orange?style=flat-square" alt="13 Audit Domains">
+  <img src="https://img.shields.io/badge/phases-4_with_3_gates-purple?style=flat-square" alt="4 Phases with 3 Gates">
+  <img src="https://img.shields.io/badge/invoke-stn--skills:codebase--quality--bootstrap-blue?style=flat-square" alt="Invoke: stn-skills:codebase-quality-bootstrap">
 </p>
 
 </div>
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. The preventive counterpart to codebase-audit. Use `/stn-skills:build-feature` for the full pipeline.
 
-A Claude Code skill for automated quality configuration that analyzes a repository's tech stack, dispatches 6 specialized analyzer agents in parallel, and generates a production-grade CLAUDE.md with `.claude/settings.json` hooks — all aligned with the 13 codebase-audit domains. Bootstrap first, then audit with zero findings.
+A Claude Code skill for automated quality configuration. Analyzes a repository's tech stack, dispatches 6 specialized analyzer agents in parallel, and generates a production-grade CLAUDE.md with `.claude/settings.json` hooks — all aligned with the 13 codebase-audit domains. Bootstrap first, then audit with zero findings.
 
-**Typical duration:** 5-10 min for initial bootstrap | 3-5 min for re-runs
+**Typical duration:** 5–10 min for initial bootstrap | 3–5 min for re-runs
 
 ---
 

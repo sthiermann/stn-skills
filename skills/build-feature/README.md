@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="banner.svg" alt="Build Feature — End-to-end pipeline" width="100%">
+
 # Build Feature
 
 **End-to-end design-to-delivery pipeline for Claude Code**
@@ -7,26 +9,26 @@
 Brainstorm. Plan. Execute. One command.
 
 <p>
-  <img src="https://img.shields.io/badge/macro--phases-3-purple?style=flat-square" alt="Macro-Phases">
-  <img src="https://img.shields.io/badge/total_gates-11-orange?style=flat-square" alt="Gates">
-  <img src="https://img.shields.io/badge/invoke-stn--skills:build--feature-blue?style=flat-square" alt="Invoke">
+  <img src="https://img.shields.io/badge/macro--phases-3-purple?style=flat-square" alt="3 Macro-Phases">
+  <img src="https://img.shields.io/badge/total_gates-11-orange?style=flat-square" alt="11 Gates">
+  <img src="https://img.shields.io/badge/invoke-stn--skills:build--feature-blue?style=flat-square" alt="Invoke: stn-skills:build-feature">
 </p>
 
 </div>
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Orchestrates the full design-to-delivery workflow. Use individual skills for targeted work.
 
-A Claude Code meta-orchestrator skill that chains brainstorming, plan-writing, and plan-execution into a single pipeline. Takes a feature idea from initial exploration through DAG-based planning to verified, committed code — with user gates at every transition. Combines three research-backed techniques in one workflow: multi-perspective design exploration, complete-before-execution planning, and independently verified implementation.
+A Claude Code meta-orchestrator skill that chains brainstorming, plan-writing, and plan-execution into a single pipeline. Takes a feature idea from initial exploration through DAG-based planning to verified, committed code — with user gates at every transition. One command, three research-backed techniques: multi-perspective design exploration, complete-before-execution planning, and independently verified implementation.
 
-**Typical duration:** 30-60 min for a medium-complexity feature (3-5 tasks)
+**Typical duration:** 30–60 min for a medium-complexity feature (3–5 tasks)
 
 ---
 
 ## What It Does
 
-- **Design** -- runs the full brainstorming workflow (6 phases, 4 gates) to produce a validated design spec
-- **Plan** -- feeds the spec into plan-writing (6 phases, 4 gates) to produce a zero-ambiguity implementation plan
-- **Execute** -- feeds the plan into plan-execution (7 phases, 3 gates) to deliver verified code with a fidelity score
+- **Design** — runs the full brainstorming workflow (6 phases, 4 gates) to produce a validated design spec
+- **Plan** — feeds the spec into plan-writing (6 phases, 4 gates) to produce a zero-ambiguity implementation plan
+- **Execute** — feeds the plan into plan-execution (7 phases, 3 gates) to deliver verified code with a fidelity score
 
 ---
 
@@ -65,7 +67,7 @@ graph LR
 | Plan | DAG-based implementation plan | `.plan/plan-{YYYYMMDD}-{slug}.md` |
 | Execute | Completion report + fidelity score | Printed to session |
 
-All artifacts persist on disk. The pipeline is resumable -- if a session ends after Design, start Plan in a new session by pointing to the spec file.
+All artifacts persist on disk. The pipeline is resumable — if a session ends after Design, start Plan in a new session by pointing to the spec file.
 
 ---
 

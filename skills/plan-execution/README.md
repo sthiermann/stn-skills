@@ -1,13 +1,15 @@
 <div align="center">
 
+<img src="banner.svg" alt="Plan Execution — Verified implementation" width="100%">
+
 # Plan Execution
 
 **Verified implementation — every task checked, every claim proven**
 
 <p>
-  <img src="https://img.shields.io/badge/phases-7-blue?style=flat-square" alt="Phases">
-  <img src="https://img.shields.io/badge/review_stages-3-purple?style=flat-square" alt="Review Stages">
-  <img src="https://img.shields.io/badge/invoke-stn--skills:plan--execution-blue?style=flat-square" alt="Invoke">
+  <img src="https://img.shields.io/badge/phases-7-blue?style=flat-square" alt="7 Phases">
+  <img src="https://img.shields.io/badge/review_stages-3-purple?style=flat-square" alt="3 Review Stages">
+  <img src="https://img.shields.io/badge/invoke-stn--skills:plan--execution-blue?style=flat-square" alt="Invoke: stn-skills:plan-execution">
 </p>
 
 </div>
@@ -16,9 +18,11 @@ Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Acc
 
 Execute implementation plans with absolute fidelity. Fresh subagent per task with mandatory context refresh. Three-stage review before every commit by independent reviewer agents. Drift detection after every implementation. Circuit breakers that stop before damage spreads. Post-execution cleanup that leaves the codebase cleaner than it was found.
 
-**The user never needs to manually check if work was done correctly.** Every claim is backed by fresh verification evidence. Every acceptance criterion is independently verified. The completion report proves it. Research shows that separating generators from reviewers and verifying at every step prevents the 20-27% quality degradation observed in unchecked multi-turn generation.
+**The user never needs to manually check if work was done correctly.** Every claim is backed by fresh verification evidence. Every acceptance criterion is independently verified. The completion report proves it.
 
-**Typical duration:** ~2-5 min per task (implementation + 3-stage review + checkpoint)
+Research shows that separating generators from reviewers and verifying at every step prevents the 20–27% quality degradation observed in unchecked multi-turn generation.
+
+**Typical duration:** ~2–5 min per task (implementation + 3-stage review + checkpoint)
 
 ---
 
@@ -26,10 +30,10 @@ Execute implementation plans with absolute fidelity. Fresh subagent per task wit
 
 - **Checkpoint-based execution** — atomic git commit per task, revertible to any checkpoint
 - **Drift detection** — 3 checks (scope, content, overreach) after every implementation catch deviations early
-- **Three-stage review** — spec compliance → code quality → integration, each a separate reviewer agent that reads the actual diff
+- **Three-stage review** — spec compliance → code quality → integration, each a separate reviewer agent reading the actual diff
 - **Reflect-Retry-Escalate** — structured self-reflection on failure, model escalation, best-candidate tracking
 - **Post-execution cleanup** — removes debug artifacts, dead code, deprecated patterns, unused imports
-- **Modernization guarantee** — every file touched is left using current APIs and best practices. Legacy patterns are replaced, not preserved.
+- **Modernization guarantee** — every file touched uses current APIs and best practices; legacy patterns are replaced, not preserved
 
 ---
 
