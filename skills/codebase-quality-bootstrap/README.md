@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="banner.svg" alt="Quality Bootstrap — Production-grade standards from day one" width="100%">
+<img src="banner.svg" alt="Codebase Quality Bootstrap — Production-grade standards from day one" width="100%">
 
 # Codebase Quality Bootstrap
 
