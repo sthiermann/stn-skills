@@ -6,16 +6,16 @@
   "plugins": [
     {
       "name": "stn-skills",
-      "description": "Professional Claude Code skill suite by Sven Thiermann. 7 skills: codebase audit, quality bootstrap, brainstorming, plan-writing, plan-execution, build-feature pipeline, and pipeline-handoff-validator.",
+      "description": "Professional Claude Code skill suite by Sven Thiermann. 7 skills: build-feature pipeline, brainstorming, plan-writing, handoff-validator, plan-execution, codebase-audit, and quality-bootstrap.",
       "source": "./",
       "skills": [
-        "./skills/codebase-audit",
-        "./skills/codebase-quality-bootstrap",
+        "./skills/build-feature",
         "./skills/brainstorming",
         "./skills/plan-writing",
+        "./skills/pipeline-handoff-validator",
         "./skills/plan-execution",
-        "./skills/build-feature",
-        "./skills/pipeline-handoff-validator"
+        "./skills/codebase-audit",
+        "./skills/codebase-quality-bootstrap"
       ]
     }
   ]
