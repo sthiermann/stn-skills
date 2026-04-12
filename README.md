@@ -65,13 +65,13 @@ Each skill works independently or as part of the pipeline. Use `/stn-skills:buil
 
 | Skill | Invoke | Description | Typical Duration |
 |-------|--------|-------------|-----------------|
+| **Build Feature** | `stn-skills:build-feature` | End-to-end pipeline: brainstorming → plan-writing → plan-execution in one workflow. | 30–90 min |
 | **Brainstorming** | `stn-skills:brainstorming` | Multi-lens design exploration with adversarial review. Transforms vague requests into validated design specs. | 5–25 min |
 | **Plan Writing** | `stn-skills:plan-writing` | DAG-based task decomposition with zero placeholders. Every step has complete code, verification, and rollback. | 5–35 min |
+| **Handoff Validator** | `stn-skills:pipeline-handoff-validator` | Validates design specs and plans at pipeline boundaries before the next phase consumes them. | 1–3 min |
 | **Plan Execution** | `stn-skills:plan-execution` | Checkpoint-verified execution with drift detection, 3-stage review, circuit breakers, and fidelity scoring. | ~3 min/task |
-| **Build Feature** | `stn-skills:build-feature` | End-to-end pipeline: brainstorming → plan-writing → plan-execution in one workflow. | 30–90 min |
 | **Codebase Audit** | `stn-skills:codebase-audit` | 13-domain evidence-based repository audit with confidence scoring, optional auto-fix, and pipeline escalation for complex findings. | 15–45 min |
 | **Quality Bootstrap** | `stn-skills:codebase-quality-bootstrap` | Generates production-grade CLAUDE.md and hooks aligned with all 13 audit domains. | 5–15 min |
-| **Handoff Validator** | `stn-skills:pipeline-handoff-validator` | Validates design specs and plans at pipeline boundaries before the next phase consumes them. | 1–3 min |
 
 ---
 
