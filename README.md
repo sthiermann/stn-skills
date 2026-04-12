@@ -10,13 +10,13 @@ A professional Claude Code skill suite for the complete software engineering lif
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-3.1.0-blue?style=flat-square" alt="Version 3.1.0">
+  <img src="https://img.shields.io/badge/version-3.2.0-blue?style=flat-square" alt="Version 3.2.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
-  <img src="https://img.shields.io/badge/skills-6-brightgreen?style=flat-square" alt="6 Skills">
+  <img src="https://img.shields.io/badge/skills-7-brightgreen?style=flat-square" alt="7 Skills">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v3.1.0](CHANGELOG.md)
+[What's new in v3.2.0](CHANGELOG.md)
 
 </div>
 
@@ -67,6 +67,7 @@ Each skill works independently or as part of the pipeline. Use `/stn-skills:buil
 | **Build Feature** | `stn-skills:build-feature` | End-to-end pipeline: brainstorming → plan-writing → plan-execution in one workflow. | 30–90 min |
 | **Codebase Audit** | `stn-skills:codebase-audit` | 13-domain evidence-based repository audit with confidence scoring, optional auto-fix, and pipeline escalation for complex findings. | 15–45 min |
 | **Quality Bootstrap** | `stn-skills:codebase-quality-bootstrap` | Generates production-grade CLAUDE.md and hooks aligned with all 13 audit domains. | 5–15 min |
+| **Handoff Validator** | `stn-skills:pipeline-handoff-validator` | Validates design specs and plans at pipeline boundaries before the next phase consumes them. | 1–3 min |
 
 ---
 

@@ -1,0 +1,6 @@
+# Prompts that should activate the codebase-audit skill
+Audit this repository for issues
+Review the repo for code health
+Run a security scan on this codebase
+Find dead code in this project
+Check the code quality across the project

@@ -12,5 +12,8 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Eval results (generated)
+evals/results/
+
 # Node (for local tooling)
 node_modules/

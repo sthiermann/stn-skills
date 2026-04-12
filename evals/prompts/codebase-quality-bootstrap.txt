@@ -1,0 +1,5 @@
+# Prompts that should activate the codebase-quality-bootstrap skill
+Bootstrap the quality standards for this project
+Generate a CLAUDE.md for this repository
+Set up development standards and hooks
+Configure quality gates for this project

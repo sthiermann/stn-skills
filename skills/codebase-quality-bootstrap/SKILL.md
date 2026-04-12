@@ -1,15 +1,9 @@
 ---
 name: codebase-quality-bootstrap
 description: >-
-  Bootstrap or update a project's CLAUDE.md and .claude/settings.json hooks
-  to enforce highest development standards aligned with all 13 codebase-audit
-  domains. Works with any programming language and framework.
-  Use when setting up a new project, onboarding to Claude Code, establishing
-  quality gates, generating CLAUDE.md, configuring development standards,
-  or preparing a repository for zero-finding audit compliance.
-  Triggers on "bootstrap", "set up standards", "generate CLAUDE.md",
-  "configure quality", "set up hooks", "development standards", or any
-  request to establish project-wide coding rules.
+  Invoke to generate or update CLAUDE.md and hooks for all 13 audit domains.
+  Covers tech-stack detection, standards generation, hook configuration.
+  Triggers: "bootstrap", "set up standards", "generate CLAUDE.md".
 ---
 
 # Codebase Quality Bootstrap
@@ -122,7 +116,7 @@ If ANY standard section from the template does NOT exist in the existing CLAUDE.
 - The 7 Enterprise Mandates override the line budget — they are mandatory content that cannot be condensed, omitted, or represented by similar content in other sections
 - A "Design Philosophy" or similar section that partially covers mandate themes does NOT satisfy this requirement — the explicit `### Enterprise Mandates` section with all 7 verbatim mandates must exist
 
-**CRITICAL: Brownfield does NOT mean "skip".** Even if the existing CLAUDE.md appears comprehensive, ALWAYS run the full 4-phase workflow. The skill must verify that ALL of the following are present and correctly formatted:
+**Brownfield projects run the full workflow.** Even if the existing CLAUDE.md appears comprehensive, run all 4 phases. The skill verifies that all of the following are present and correctly formatted:
 
 1. **Enterprise Mandates** — All 7 mandates present, positively framed, with bold-header format
 2. **Current APIs / state-of-the-art** — Explicit rules requiring current patterns, prohibiting deprecated code
@@ -132,9 +126,9 @@ If ANY standard section from the template does NOT exist in the existing CLAUDE.
 6. **Enforcement callout** — "These standards cover all code changes. Critical rules are enforced by hooks."
 7. **Development Standards parent section** — All rules nested under `## Development Standards` with H3 subsections
 
-If ANY of these are missing or incorrectly formatted, the CLAUDE.md is NOT production-grade and MUST be updated. "Looks comprehensive" is not the same as "meets enterprise mandates."
+If any of these are missing or incorrectly formatted, the CLAUDE.md requires updates. "Looks comprehensive" is not the same as "meets enterprise mandates."
 
-**The skill NEVER outputs "no changes needed."** At minimum, it verifies and reports compliance with all 7 checks above. If all pass, it reports specific compliance status at GATE 2 instead of skipping.
+**Always complete the verification checklist.** Minimum output: compliance report with all 7 mandatory checks verified. If all pass, report specific compliance status at GATE 2.
 
 **3. Read existing `.claude/settings.json`** — Detect current hooks and permissions.
 
@@ -202,6 +196,7 @@ Dispatch 6 specialized analyzer subagents in parallel. Each analyzer reads its p
 - Test framework: [DETECTED_TEST_FRAMEWORK with config and patterns]
 - Concurrency: [HAS_CONCURRENCY + detected model or "none"]
 - Directory structure: [DIR_STRUCTURE with module purposes]
+- Audit domain alignment: references/audit-domain-alignment.md
 - Instruction: Read your analyzer prompt at agents/[name].md
 ```
 
@@ -265,7 +260,7 @@ Follow the template structure from `references/claudemd-template.md`:
 ```
 
 **Enterprise Mandates injection (unconditional):**
-The `### Enterprise Mandates` section with all 7 mandates MUST appear in the final output regardless of:
+The `### Enterprise Mandates` section with all 7 mandates appears in the final output regardless of:
 - Whether the existing CLAUDE.md already has similar content in other sections (e.g., "Design Philosophy", "Code Conventions")
 - Whether the line budget would be exceeded
 - Whether the user's existing rules cover similar ground
@@ -310,7 +305,7 @@ Brownfield hook merging:
 - For conflicts (same event type + overlapping matcher regex): present both at GATE 2
 - Never silently overwrite existing hooks
 
-**3. Mandatory pre-preview check (NEVER skip):**
+**3. Mandatory pre-preview check:**
 Before preparing the preview, verify the assembled CLAUDE.md passes all three checks:
 1. Does it contain `### Enterprise Mandates` as a heading? If NO → INSERT the complete section from code-quality-analyzer output at its canonical position under `## Development Standards`
 2. Does the Enterprise Mandates section contain exactly 7 bullet points starting with bold text matching the canonical mandates? If NO → REPLACE with the canonical 7 mandates from `agents/code-quality-analyzer.md`
@@ -399,7 +394,7 @@ When the skill is re-run on a previously bootstrapped project:
 | "We don't need hooks, discipline is enough" | Hooks enforce deterministically. Discipline fails under pressure. |
 | "Existing CLAUDE.md is good enough" | "Good enough" is not enterprise-grade. Check all 7 mandatory items. If any missing, it needs updating. |
 | "CLAUDE.md already looks comprehensive" | Looking comprehensive is not the same as having the enterprise mandates, bold-header format, and enforcement callout. Always verify. |
-| "No changes needed" | The skill NEVER skips. At minimum verify and report compliance with all mandatory checks. |
+| "No changes needed" | Always verify and report compliance with all mandatory checks. Verification is the minimum output. |
 | "250 lines is too limiting" | Instruction bloat causes Claude to ignore rules. Concise standards are followed. |
 | "We'll set up standards after the first sprint" | First sprint sets the patterns. Bad patterns compound. |
 | "This framework is too niche for specific rules" | Read the detected framework. Every stack has specific idioms. Write those. |
@@ -432,7 +427,7 @@ If you catch yourself doing any of these, STOP and return to the relevant phase:
 
 Before completing at GATE 3, verify:
 
-**Mandatory items (NEVER skip):**
+**Mandatory items:**
 - [ ] All 7 Enterprise Mandates present, positively framed, with bold-header format
 - [ ] "Current APIs exclusively" mandate present (prohibits deprecated code)
 - [ ] "State-of-the-art practices" mandate present (requires current best practices)

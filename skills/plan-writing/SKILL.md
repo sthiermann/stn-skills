@@ -1,15 +1,9 @@
 ---
 name: plan-writing
 description: >-
-  Create comprehensive, zero-ambiguity implementation plans structured as
-  Directed Acyclic Graphs of atomic tasks. Each task is 2-5 minutes with
-  complete code and commands (no placeholders), verification per step,
-  risk assessment, and rollback strategy. Plans are so detailed that
-  execution is mechanical. Works with any programming language and framework.
-  Use when translating design specs or requirements into executable plans.
-  Triggers on "write a plan", "create implementation plan", "plan this",
-  "break this down", "how should I implement", or any request for actionable
-  work breakdown.
+  Invoke when specs or requirements need decomposition into executable tasks.
+  Covers DAG-based planning with zero placeholders, verification, and rollback.
+  Triggers: "write a plan", "plan this", "break this down".
 ---
 
 # Plan Writing
@@ -105,6 +99,15 @@ graph TD
     class G1,G2,G3,G4 gate
     class Done done
 ```
+
+**Agent dispatch table:**
+
+| # | Agent | Phase | Purpose |
+|---|-------|-------|---------|
+| 1 | `agents/codebase-cartographer.md` | Phase 2 | Maps existing files, exports, types, integration points |
+| 2 | `agents/task-decomposer.md` | Phase 3 | Breaks requirements into atomic tasks with DAG and wave plan |
+| 3 | `agents/step-author.md` | Phase 4 | Authors complete steps per task with full code |
+| 4 | `agents/plan-verifier.md` | Phase 5 | Adversarial 7-check verification with Plan Quality Score |
 
 ---
 
@@ -258,6 +261,63 @@ Author complete steps for every task. Dispatch `step-author` subagents in parall
 - **Medium:** Dispatch 2-3 step-author agents in parallel.
 - **Large:** Dispatch one step-author per cluster of 2-4 related tasks.
 
+<details>
+<summary>Example: Complete task demonstrating zero-placeholder standard</summary>
+
+```markdown
+### Task T2: Add rate limiting middleware
+
+- **ID:** T2
+- **Depends on:** T1 (Express app setup)
+- **Blocks:** T3 (API endpoint tests)
+- **Files read:** `src/app.ts`, `package.json`
+- **Files modified:** `src/middleware/rate-limiter.ts` (CREATE), `src/app.ts` (MODIFY)
+- **Estimated:** 4 min
+- **Risk:** Low — isolated middleware, no existing logic affected
+- **Parallel group:** Wave 2
+
+**Steps:**
+
+1. `read_file` — Read `src/app.ts` to confirm Express setup from T1
+2. `write_code` — CREATE `src/middleware/rate-limiter.ts`:
+   ```typescript
+   import rateLimit from 'express-rate-limit';
+   export const apiLimiter = rateLimit({
+     windowMs: 15 * 60 * 1000,
+     max: 100,
+     standardHeaders: true,
+     legacyHeaders: false,
+     message: { error: 'Too many requests, try again later' },
+   });
+   ```
+3. `write_code` — CREATE `src/middleware/__tests__/rate-limiter.test.ts`:
+   ```typescript
+   import request from 'supertest';
+   import express from 'express';
+   import { apiLimiter } from '../rate-limiter';
+
+   const app = express();
+   app.use(apiLimiter);
+   app.get('/test', (_, res) => res.json({ ok: true }));
+
+   test('allows requests under limit', async () => {
+     const res = await request(app).get('/test');
+     expect(res.status).toBe(200);
+   });
+   ```
+4. `run_command` — `npx jest src/middleware/__tests__/rate-limiter.test.ts`
+5. `verify_output` — Expect: `Tests: 1 passed`. If unexpected: check import paths, verify express-rate-limit installed in T1.
+6. `write_code` — MODIFY `src/app.ts` — add import and middleware registration (complete diff with 3 context lines)
+7. `run_command` — `npx jest --forceExit`
+8. `verify_output` — Expect: all tests pass including T1 tests. If unexpected: check middleware ordering in app.ts.
+
+**Rollback:** `git checkout -- src/middleware/ src/app.ts`
+```
+
+Note: Every `write_code` step shows full file content (CREATE) or complete diff (MODIFY). No "similar to above", no "add appropriate tests", no `...` abbreviations.
+
+</details>
+
 ---
 
 ### Phase 5: Adversarial Verification
@@ -295,6 +355,18 @@ Dispatch the `agents/plan-verifier.md` subagent with the complete plan.
 | Convention compliance | 10% |
 
 If score < 90: return to Phase 4 with specific defect list. Step authors fix cited defects. Re-verify. Maximum 2 rework cycles before escalating to user.
+
+**Visible output requirement:** The plan-verifier presents a structured results table to the orchestrator, which displays it to the user at GATE 3:
+
+| # | Check | Result | Details |
+|---|-------|--------|---------|
+| 1 | Requirements coverage | PASS/FAIL | R1→T1→S3→S5, R2→T2→S2→S4, ... |
+| 2 | Placeholder scan | PASS/FAIL | 0 found (or: 3 found in T2.S4, T3.S1, T5.S2) |
+| 3 | Signature consistency | PASS/FAIL | 0 conflicts (or: `createUser` differs T1.S3 vs T3.S5) |
+| 4 | DAG integrity | PASS/FAIL | No cycles, no parallel file conflicts |
+| 5 | Convention compliance | PASS/FAIL | All code follows CLAUDE.md rules |
+| 6 | Rollback feasibility | PASS/FAIL | All rollbacks target correct files |
+| 7 | Traceability | PASS/FAIL | Full chain verified, 0 orphan tasks |
 
 ---
 

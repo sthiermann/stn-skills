@@ -1,15 +1,9 @@
 ---
 name: plan-execution
 description: >-
-  Execute implementation plans with absolute fidelity using checkpoint-based
-  recovery, drift detection, three-stage review, circuit breakers, and
-  reflect-retry-escalate protocol. Produces formal completion report with
-  end-to-end traceability and Execution Fidelity Score.
-  Works with any programming language and framework.
-  Use when you have a written plan to execute step by step.
-  Triggers on "execute plan", "run this plan", "implement this plan",
-  "carry out the implementation", or any request to execute a structured
-  plan document.
+  Invoke to execute a written implementation plan with checkpoint recovery.
+  Covers drift detection, three-stage review, and circuit breakers.
+  Triggers: "execute plan", "run this plan", "implement this plan".
 ---
 
 # Plan Execution
@@ -223,6 +217,26 @@ Run sequentially. Each stage is a separate subagent dispatch. All three must PAS
 **Stage 3 -- Integration:** Only dispatch if Stage 2 passes. Only for tasks with cross-task dependencies. Dispatch `agents/integration-reviewer.md` with the current task's diff, files modified by prior tasks, and current state of shared files. Checks import resolution, type consistency, and API contract adherence.
 
 Any stage FAIL → return to implementer with specific feedback from the reviewer. Increment review failure counters. On retry, include the reviewer's feedback in the implementer context.
+
+<details>
+<summary>Example: Stage 1 Spec Compliance review output</summary>
+
+```
+Task T3 — Spec Compliance Review
+
+| Criterion | Verdict | Evidence from diff |
+|-----------|---------|-------------------|
+| Rate limiter returns 429 on excess | PASS | rate-limiter.ts:8 — `message: { error: 'Too many requests' }` + test at line 14 asserts 429 |
+| Window resets after 15 minutes | PASS | rate-limiter.ts:4 — `windowMs: 15 * 60 * 1000` |
+| Middleware registered before routes | PASS | app.ts:12 — `app.use(apiLimiter)` appears before `app.use('/api', router)` at line 15 |
+| Standard headers included | PASS | rate-limiter.ts:6 — `standardHeaders: true` |
+
+Result: PASS (4/4 criteria met with diff evidence)
+```
+
+Each criterion maps to a specific line in the git diff — not the implementer's claim, but independently verified by reading the actual changes.
+
+</details>
 
 #### Step 3.5: Circuit Breaker
 

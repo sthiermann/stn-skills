@@ -1,13 +1,10 @@
 ---
 name: build-feature
 description: >-
-  End-to-end feature pipeline: brainstorming, plan-writing, and plan-execution
-  in a single workflow. Chains design exploration, DAG-based planning, and
-  verified execution with gates at every transition. User confirms only at
-  gates — everything else runs automatically.
-  Use when building a complete feature from scratch.
-  Triggers on "build feature", "build this", "implement end-to-end",
-  "full pipeline", or any request for complete design-to-delivery workflow.
+  Invoke for end-to-end feature delivery from idea to verified code.
+  Chains brainstorming, plan-writing, and plan-execution with gates
+  at every transition. Triggers: "build feature", "build this",
+  "implement end-to-end", "full pipeline".
 ---
 
 # Build Feature
@@ -81,6 +78,10 @@ After GATE 4 (Final Spec Approval), ask the user:
 
 If the user stops, the pipeline ends. The design spec is on disk and can be used independently with `/stn-skills:plan-writing` in a future session.
 
+### Handoff Validation: Design → Plan
+
+Before starting Macro-Phase 2, run `skills/pipeline-handoff-validator/SKILL.md` **Mode A** on the design spec file. Present the Handoff Compliance Table. If gaps are found, offer to return to brainstorming or proceed with acknowledged gaps.
+
 ---
 
 ## Macro-Phase 2: Plan (Plan-Writing)
@@ -99,6 +100,10 @@ After GATE 4 (Final Plan Approval), ask the user:
 > "Plan saved to `{path}`. Continue to execution, or stop here?"
 
 If the user stops, the pipeline ends. Both spec and plan are on disk. Resume execution later with `/stn-skills:plan-execution` pointing to the plan file.
+
+### Handoff Validation: Plan → Execution
+
+Before starting Macro-Phase 3, run `skills/pipeline-handoff-validator/SKILL.md` **Mode B** on the plan file. Present the Handoff Compliance Table. If gaps are found, offer to return to plan-writing or proceed with acknowledged gaps.
 
 ---
 

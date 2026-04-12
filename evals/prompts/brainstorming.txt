@@ -1,0 +1,6 @@
+# Prompts that should activate the brainstorming skill
+I want to brainstorm how to add a notification system
+Design the architecture for a new payment module
+What are the options for implementing search?
+Explore different approaches for the caching layer
+How should we build the authentication flow?

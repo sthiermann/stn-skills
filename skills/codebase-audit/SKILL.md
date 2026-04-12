@@ -1,16 +1,9 @@
 ---
 name: codebase-audit
 description: >-
-  Comprehensive, technology-agnostic repository audit for security vulnerabilities,
-  dead code, deprecated patterns, documentation staleness, architecture compliance,
-  and code quality. Works with any programming language and framework.
-  Use when auditing a repository, preparing for production, performing periodic
-  code health checks, or assessing technical debt. Triggers on "audit",
-  "review the repo", "code health", "security scan", "find dead code",
-  "clean up", "quality check", or any repository-wide analysis request.
-  Use this skill whenever the user wants to review an entire codebase,
-  even if they only mention one specific concern like security or dead code —
-  the full audit covers all dimensions.
+  Invoke for repository-wide analysis — even for one concern, all 13 domains
+  run. Covers security, quality, architecture, testing, and more.
+  Triggers: "audit", "review the repo", "code health", "security scan".
 ---
 
 # Codebase Audit
@@ -186,6 +179,16 @@ The verifier's mandate:
 4. Mark each finding: **Verified** / **False Positive** / **Needs Context**
 5. Remove all False Positives from the findings set
 
+**Visible output requirement:** The findings-verifier presents a structured sampling table:
+
+| Finding ID | Domain | Severity | Verdict | Detail |
+|------------|--------|----------|---------|--------|
+| F1 | SEC | Critical | Verified | SQL injection confirmed at db.ts:42 |
+| F5 | DEAD | Medium | False Positive | Function is referenced via dynamic import |
+| ... (all sampled findings) |
+
+This table is displayed at GATE 2 as part of the Verification Statistics. Verification without this table is incomplete.
+
 **Re-dispatch threshold:** If any single domain has a false positive rate above 25%, re-dispatch that domain's auditor with a stricter prompt emphasizing evidence requirements. This happens automatically — the verifier identifies which domains need re-audit.
 
 ---
@@ -306,66 +309,15 @@ If you catch yourself or an auditor:
 
 ## Finding Suppression
 
-Teams can suppress known false positives or intentional patterns by adding suppression comments directly in source code. The findings verifier respects these annotations and excludes matching findings from the report.
+Teams can suppress known false positives using in-code comments. Full syntax, examples, and rules: `references/finding-suppression.md`
 
-**Suppression syntax** (language-agnostic — use the comment style of the file's language):
-
-```
-// audit-suppress: DOMAIN           — suppress all findings of this domain for the next line
-// audit-suppress: DOMAIN: reason   — suppress with documented justification (recommended)
-// audit-suppress: SEC,PERF         — suppress multiple domains
-// audit-suppress: *                — suppress all audit findings for the next line
-```
-
-Examples:
-```python
-# audit-suppress: DEAD: intentionally unused — reserved for plugin API
-def on_plugin_load(ctx):
-    pass
-```
-
-```java
-// audit-suppress: SEC: CSRF not applicable — internal microservice, no browser clients
-@PostMapping("/internal/sync")
-public void syncData(@RequestBody SyncRequest req) { ... }
-```
-
-**Block suppression** for multi-line constructs:
-```
-// audit-suppress-start: DOMAIN: reason
-... suppressed code block ...
-// audit-suppress-end
-```
-
-Block suppression applies to all lines between the start and end markers. The same restrictions as single-line suppression apply: Critical findings with Confirmed confidence can never be suppressed. The domain code and reason are required on the start marker.
-
-**Rules:**
-- Suppression applies only to the **next line** after the comment (not the whole file)
-- Suppression comments must include the domain code — bare `audit-suppress` without a domain is ignored
-- The `reason` field is optional but strongly recommended — suppressions without reasons are flagged as Low findings by the enterprise-mandates auditor
-- Suppressions are reported in the audit methodology section: count of suppressed findings per domain
-- Suppressions do **not** hide Critical security findings with Confirmed confidence — these are always reported regardless of suppression
-
-During **Phase 3 (Verification)**, the findings verifier:
-1. For each finding, checks whether a suppression comment exists at the cited file:line
-2. If a matching suppression is found, marks the finding as **Suppressed** (not False Positive — suppression is intentional, not an error)
-3. Records all suppressions in the verification output for transparency
+Quick reference: `// audit-suppress: DOMAIN: reason` on the line above. Critical+Confirmed findings cannot be suppressed.
 
 ---
 
 ## Enterprise Mandate Compliance
 
-When CLAUDE.md or project rules define non-negotiable mandates, the enterprise-mandates-auditor evaluates compliance. The standard mandates (configurable per project):
-
-| Mandate | Target state |
-|---------|-------------|
-| **Current APIs exclusively** | All code uses current, officially recommended APIs and language idioms |
-| **Clean-slate architecture** | The codebase operates without migration scripts, transition logic, or compatibility layers |
-| **State-of-the-art practices** | Every component applies current best practices for its technology |
-| **Forward-only development** | Code contains no backward compatibility shims, version checks, or legacy adapters |
-| **Unified codebase** | No code is labeled "new", "old", "legacy", or "replaced" — everything is the current state |
-| **Complete implementations** | No partial patches, minimal diffs, or preservation of outdated structures |
-| **Zero legacy assumptions** | No code assumes pre-existing users, data, schemas, or runtime dependencies |
+The enterprise-mandates-auditor evaluates compliance with 7 non-negotiable mandates (Current APIs, Clean-slate architecture, State-of-the-art practices, Forward-only development, Unified codebase, Complete implementations, Zero legacy assumptions). Full details: `references/enterprise-mandate-compliance.md`
 
 ---
 

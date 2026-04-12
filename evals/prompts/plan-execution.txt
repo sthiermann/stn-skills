@@ -1,0 +1,5 @@
+# Prompts that should activate the plan-execution skill
+Execute the implementation plan at .plan/plan-20260412-search.md
+Run this plan step by step
+Implement this plan with verification
+Carry out the implementation plan we created

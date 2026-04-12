@@ -1,0 +1,6 @@
+# Prompts that should activate the plan-writing skill
+Write a plan for implementing the search feature
+Create an implementation plan from this design spec
+Break down this feature into tasks
+Plan this refactoring step by step
+How should I implement the API endpoints from the spec?

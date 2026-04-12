@@ -1,0 +1,4 @@
+# Prompts that should activate the build-feature skill
+Build a complete user profile feature from scratch
+Implement end-to-end the payment processing system
+Run the full pipeline for the notification feature

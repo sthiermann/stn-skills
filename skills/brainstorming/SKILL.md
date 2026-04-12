@@ -1,15 +1,9 @@
 ---
 name: brainstorming
 description: >-
-  Structured creative exploration that transforms vague requests into precise,
-  validated design specifications. Uses multi-lens cognitive frameworks,
-  assumption surfacing, weighted decision matrices, risk pre-assessment,
-  and adversarial self-review. Produces a design spec document that feeds
-  directly into plan-writing.
-  Use before any creative work — creating features, building components,
-  adding functionality, or modifying behavior. Triggers on "brainstorm",
-  "design this", "explore approaches", "think through", "what are the options",
-  "how should we build", or any request to explore solutions before implementation.
+  Invoke for feature design, approach exploration, or architectural decisions.
+  Covers multi-lens analysis, weighted evaluation, adversarial review.
+  Triggers: "brainstorm", "design", "explore approaches", "how should we build".
 ---
 
 # Brainstorming
@@ -252,6 +246,24 @@ The evaluator scores each surviving approach against 7 weighted criteria using t
 
 Every score requires a one-sentence justification. Scores without justification are invalid.
 
+<details>
+<summary>Example: Decision matrix for "Add user notification system"</summary>
+
+| Criterion (Weight) | A: WebSocket Push | B: Polling + SSE | C: Third-party Service |
+|---|---|---|---|
+| Complexity (18%) | 7 — Requires connection lifecycle mgmt | 5 — Two simple mechanisms combined | 3 — External dependency but less code |
+| Time-to-ship (13%) | 5 — Socket infra setup takes time | 7 — Both patterns well-known in team | 8 — SDK integration only |
+| Risk (18%) | 6 — Scaling WebSockets at load is proven | 7 — Graceful degradation built in | 4 — Vendor lock-in, outage dependency |
+| Extensibility (13%) | 8 — Bidirectional, supports future features | 5 — One-directional only | 6 — Limited to vendor capabilities |
+| Alignment (13%) | 4 — No existing WebSocket usage in project | 8 — Matches current REST-based patterns | 3 — New vendor dependency pattern |
+| Maintainability (13%) | 5 — Connection state adds complexity | 7 — Stateless, easy to debug | 6 — Vendor docs required |
+| Modernity (12%) | 8 — Current best practice for real-time | 6 — Adequate but not optimal for RT | 7 — Managed service, auto-updated |
+
+**Weighted totals:** A: 6.22 | B: 6.43 | C: 5.10
+**Recommendation:** Approach B (Polling + SSE) — best alignment with existing patterns and lowest risk.
+
+</details>
+
 **Risk pre-assessment.** For each approach, identify top 3 risks: specific risk, likelihood (H/M/L), impact (H/M/L), and mitigation strategy. Answer: "What happens if this approach fails halfway through?"
 
 **Tie-breaking:** If two approaches score within 5% weighted total, risk breaks the tie (lower risk wins). If risk is also tied, complexity breaks the tie (lower complexity wins).
@@ -297,6 +309,16 @@ Each finding is classified:
 - **Blocker** — must resolve before spec. Loop back, address the flaw, re-submit.
 - **Warning** — must address during implementation.
 - **Note** — awareness item.
+
+**Visible output requirement:** The adversarial-reviewer presents a structured flaw assessment table:
+
+| Flaw Type | Verdict | Classification | Detail |
+|-----------|---------|---------------|--------|
+| Legacy_Pattern | Clean/Finding | — / Blocker/Warning/Note | [evidence or "no legacy patterns detected"] |
+| Assumptions_Unchecked | Clean/Finding | ... | ... |
+| ... (all checked types per complexity class) |
+
+This table is displayed to the user before proceeding. Findings without this table are incomplete.
 
 **Blocker resolution loop:** If blockers are found, present them to the user, resolve each one (modify the approach, add constraints, or change scope), then re-dispatch the adversarial reviewer on the updated approach. Repeat until zero blockers remain.
 

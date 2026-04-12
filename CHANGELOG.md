@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.2.0] - 2026-04-12
+
+### Added
+- **Pipeline Handoff Validator skill** — New skill that validates artifacts at pipeline boundaries before the next phase consumes them. Two modes: Mode A validates design specs before plan-writing (6 contract checks), Mode B validates plans before plan-execution (7 contract checks). Produces structured Handoff Compliance Tables. Integrated into build-feature between macro-phases.
+- **Eval framework** — New `evals/` directory with structure validation (`eval-structure.sh`) and activation testing (`eval-activation.sh`) scripts. Includes prompt files for all skills and a runner that produces timestamped reports.
+- **Concrete examples** in pipeline skills — Decision matrix example in brainstorming, complete task example in plan-writing, spec compliance review example in plan-execution. Anchors expected output quality.
+- **Visible verification output requirements** — Structured result tables mandated for plan-writing Phase 5 (7-check table), brainstorming Phase 4 (flaw assessment table), and codebase-audit Phase 3 (sampling table). Prevents verification step skipping.
+- **Agent dispatch table** in plan-writing — Formal table listing all 4 agents with phases and purposes, consistent with other skills.
+- **Audit domain alignment reference** now documented in codebase-quality-bootstrap context package.
+
+### Changed
+- **All skill descriptions** rewritten to trigger-focused format (`Invoke for [trigger]. Covers [scope].`) for improved activation rates. Based on research showing directive descriptions achieve higher activation.
+- **All command descriptions** updated to match trigger-focused format.
+- **codebase-audit** trimmed from 541 to 495 lines — Finding Suppression and Enterprise Mandate Compliance moved to reference files. Under Anthropic's 500-line recommendation.
+- **codebase-quality-bootstrap** — Softened aggressive emphasis language (`CRITICAL:`, `NEVER`, `MUST`) to normal instructions per Claude 4.6 best practices (reduces overtriggering).
+- **build-feature** — Now invokes pipeline-handoff-validator between macro-phases for artifact contract validation.
+- **Version** bumped to 3.2.0.
+
+### Fixed
+- Missing `audit-domain-alignment.md` reference in codebase-quality-bootstrap context package (used by all 6 analyzer agents but undocumented).
+- Incomplete dispatch table in plan-writing (only showed 2 of 4 agents in table format).
+
 ## [3.1.0] - 2026-04-12
 
 ### Added

@@ -1,7 +1,7 @@
 {
   "name": "stn-skills",
-  "description": "Professional Claude Code skill suite by Sven Thiermann. Includes: codebase audit (13-domain evidence-based repository audit), codebase quality bootstrap (CLAUDE.md + hooks generator), brainstorming (multi-lens design exploration), plan-writing (DAG-based zero-placeholder plans), plan-execution (checkpoint-verified execution with fidelity scoring), and build-feature (end-to-end pipeline).",
-  "version": "3.1.0",
+  "description": "Professional Claude Code skill suite by Sven Thiermann. Includes: codebase audit (13-domain evidence-based repository audit), codebase quality bootstrap (CLAUDE.md + hooks generator), brainstorming (multi-lens design exploration), plan-writing (DAG-based zero-placeholder plans), plan-execution (checkpoint-verified execution with fidelity scoring), build-feature (end-to-end pipeline), and pipeline-handoff-validator (artifact contract validation).",
+  "version": "3.2.0",
   "author": {
     "name": "Sven Thiermann"
   },
@@ -36,6 +36,8 @@
     "drift-detection",
     "circuit-breaker",
     "checkpoint",
-    "fidelity-score"
+    "fidelity-score",
+    "handoff-validation",
+    "pipeline-contracts"
   ]
 }

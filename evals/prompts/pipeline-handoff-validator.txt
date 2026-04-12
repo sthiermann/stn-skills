@@ -1,0 +1,4 @@
+# Prompts that should activate the pipeline-handoff-validator skill
+Validate this design spec before I start planning
+Check the plan document is ready for execution
+Verify the handoff artifact at docs/specs/2026-04-12-auth-design.md
