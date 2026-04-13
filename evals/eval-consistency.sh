@@ -437,6 +437,33 @@ fi
 
 echo ""
 
+# ── C-20/C-21: Skill chaining declarations ──
+
+echo "--- C-20/C-21: Skill chaining declarations ---"
+
+for chain_pair in "brainstorming:plan-writing" "plan-writing:plan-execution"; do
+  source_skill="${chain_pair%%:*}"
+  target_skill="${chain_pair%:*}"
+  target_skill="${chain_pair##*:}"
+  skill_file="${SKILLS_DIR}/${source_skill}/SKILL.md"
+
+  if [[ -f "$skill_file" ]]; then
+    if head -15 "$skill_file" | grep -q "CHAINS TO ${target_skill}"; then
+      pass_check "C-20 Description chains ${source_skill} → ${target_skill}"
+    else
+      fail_check "C-20 Description missing CHAINS TO ${target_skill} in ${source_skill}"
+    fi
+
+    if grep -q "## Mandatory Skill Chain" "$skill_file"; then
+      pass_check "C-21 Mandatory Skill Chain section present: ${source_skill}"
+    else
+      fail_check "C-21 Mandatory Skill Chain section missing: ${source_skill}"
+    fi
+  fi
+done
+
+echo ""
+
 # ── C-29: Activation prompt file coverage ──
 
 echo "--- C-29: Activation prompt coverage ---"

@@ -11,6 +11,8 @@ Canonical output for plan-writing skill. Plan-execution skill consumes this stru
 **Complexity:** {Small | Medium | Large}
 **Plan Quality Score:** {0-100}
 
+> **Execution:** Use `/stn-skills:plan-execution` to execute this plan with checkpoint recovery, drift detection, and verification.
+
 ---
 
 ## Requirements
@@ -121,7 +123,6 @@ After each wave: `git add {files} && git commit -m "plan checkpoint: wave {N}"`
 ````
 
 ## Field Definitions
-
 | Field | Required | Format | Notes |
 |---|---|---|---|
 | Title | Yes | Noun phrase | Describes deliverable, not process |
@@ -147,5 +148,4 @@ After each wave: `git add {files} && git commit -m "plan checkpoint: wave {N}"`
 4. DAG has no cycles (topological sort succeeds)
 5. No task exceeds 5 min / 3 files
 6. Placeholder detector returns zero matches
-7. Rollback commands reference only `files_modified` entries
-8. Recovery points cover every wave boundary
+7. Rollback commands reference only `files_modified` entries; recovery points cover every wave boundary

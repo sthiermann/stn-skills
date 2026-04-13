@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.5.0] - 2026-04-13
+
+### Added
+- **Three-layer chaining defense** — Skill chaining instructions now appear at three context-stable locations: skill description (survives context compression), Mandatory Skill Chain section (near top of skill), and strengthened Transition section (at decision point). Prevents Claude from starting the next pipeline phase without invoking the skill.
+- **Artefakt-embedded chaining** — Plan and design spec templates now include a header line pointing to the next pipeline skill, so chaining info is visible whenever the artifact is read.
+- **Anti-rationalization entries** — Common Rationalizations tables in brainstorming and plan-writing now include entries for "I can just start executing/planning directly".
+- **Chaining validation evals** — New checks C-20 (CHAINS TO in description) and C-21 (Mandatory Skill Chain section) in eval-consistency.sh.
+
+### Changed
+- **Skill descriptions** for brainstorming and plan-writing now include `CHAINS TO [next-skill] — MUST invoke via Skill tool` in YAML frontmatter.
+- **Eval trigger format check** fixed — eval-structure.sh now checks for `Triggers:` keyword (matching current description format) instead of obsolete `Invoke` keyword.
+- **Build-feature transitions** aligned with strengthened MANDATORY language from sub-skills.
+- **Version** bumped to 3.5.0.
+
+### Fixed
+- **README version badge** updated from 3.3.0 to 3.5.0.
+- **CHANGELOG gap** — Added missing v3.4.0 entry.
+
+## [3.4.0] - 2026-04-13
+
+### Changed
+- **All skill descriptions** rewritten for stronger discovery and priority — clearer trigger keywords, more specific scope declarations, better alignment with how Claude Code surfaces skills in the system prompt.
+- **Version** bumped to 3.4.0.
+
 ## [3.3.0] - 2026-04-13
 
 ### Added

@@ -10,13 +10,13 @@ A professional Claude Code skill suite for the complete software engineering lif
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-3.3.0-blue?style=flat-square" alt="Version 3.3.0">
+  <img src="https://img.shields.io/badge/version-3.5.0-blue?style=flat-square" alt="Version 3.5.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-7-brightgreen?style=flat-square" alt="7 Skills">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v3.3.0](CHANGELOG.md)
+[What's new in v3.5.0](CHANGELOG.md)
 
 </div>
 

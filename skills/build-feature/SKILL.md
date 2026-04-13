@@ -76,11 +76,14 @@ This makes every macro-phase independently resumable. If a session ends after De
 
 **Error handling:** If adversarial review finds Blockers (Phase 4), resolve them within brainstorming — do NOT escalate to build-feature level. The brainstorming SKILL.md defines its own blocker resolution loop.
 
+MANDATORY: After GATE 4, invoke the next skill via the Skill tool. Do NOT start planning without it.
+
 After GATE 4 (Final Spec Approval), use AskUserQuestion:
 - Question: "Design spec saved to `{path}`. Continue to plan-writing, or stop here?"
 - Options: ["Continue to plan-writing", "Stop here"]
 
-If the user stops, the pipeline ends. The design spec is on disk and can be used independently with `/stn-skills:plan-writing` in a future session.
+**On "Continue to plan-writing":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-writing", args: "{spec_file_path}")`
+**On "Stop here":** The pipeline ends. The design spec is on disk and can be used independently with `/stn-skills:plan-writing` in a future session.
 
 ### Handoff Validation: Design → Plan
 
@@ -99,11 +102,14 @@ Before starting Macro-Phase 2, run `skills/pipeline-handoff-validator/SKILL.md` 
 
 **Error handling:** If Plan Quality Score < 90 after 2 rework cycles (Phase 5), present remaining defects to user at GATE 3. User decides: accept with known gaps, or stop pipeline.
 
+MANDATORY: After GATE 4, invoke the next skill via the Skill tool. Do NOT start executing without it.
+
 After GATE 4 (Final Plan Approval), use AskUserQuestion:
 - Question: "Plan saved to `{path}`. Continue to execution, or stop here?"
 - Options: ["Continue to execution", "Stop here"]
 
-If the user stops, the pipeline ends. Both spec and plan are on disk. Resume execution later with `/stn-skills:plan-execution` pointing to the plan file.
+**On "Continue to execution":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-execution", args: "{plan_file_path}")`
+**On "Stop here":** The pipeline ends. Both spec and plan are on disk. Resume execution later with `/stn-skills:plan-execution` pointing to the plan file.
 
 ### Handoff Validation: Plan → Execution
 

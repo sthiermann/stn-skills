@@ -8,6 +8,8 @@
 **Complexity:** {{Focused | Standard | Deep}}
 **Status:** Approved
 
+> **Next step:** Use `/stn-skills:plan-writing` to decompose this spec into an executable implementation plan.
+
 ---
 
 ## Problem Statement

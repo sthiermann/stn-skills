@@ -4,7 +4,8 @@ description: >-
   Use before any feature design, approach exploration, or architectural decision.
   Required before plan-writing. Dispatches parallel subagents for multi-lens
   analysis, weighted scoring, and adversarial stress-testing. Produces validated
-  design specs. Triggers: "brainstorm", "design", "explore approaches",
+  design specs. CHAINS TO plan-writing on completion — MUST invoke via Skill tool.
+  Triggers: "brainstorm", "design", "explore approaches",
   "how should we build".
 ---
 
@@ -19,6 +20,16 @@ This skill implements tree-structured exploration — generating multiple distin
 **Core principle:** Every design decision requires explored alternatives. Assumptions without confirmation are landmines.
 
 **Announce:** "I'm using the brainstorming skill to explore this problem systematically before implementation."
+
+## Mandatory Skill Chain
+
+When this skill completes (Phase 6 + user approval at Transition gate):
+- **Next skill:** `stn-skills:plan-writing`
+- **Invocation:** `Skill(skill: "stn-skills:plan-writing", args: "{spec_file_path}")`
+- **Gate:** User chooses "Continue" or "Stop" via AskUserQuestion at the Transition section
+
+Starting plan-writing work without invoking the Skill tool is a pipeline violation.
+Never proceed to planning activities by "just doing it" — the Skill tool loads the full plan-writing workflow.
 
 ## The Iron Law
 
@@ -372,6 +383,8 @@ The file name uses the current date and a kebab-case topic derived from the prob
 
 ## Transition: Design Complete
 
+MANDATORY: Invoke the next skill via the Skill tool. Do NOT start planning without it.
+
 **Terminal state: The next pipeline step is `/stn-skills:plan-writing`.**
 
 Use AskUserQuestion:
@@ -380,6 +393,8 @@ Use AskUserQuestion:
 
 **On "Continue to plan-writing":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-writing", args: "{spec_file_path}")`
 **On "Stop here":** End. Inform user: resume later with `/stn-skills:plan-writing`.
+
+If you find yourself about to decompose tasks or write a plan without having invoked the Skill tool — STOP. That is the pipeline violation described in the Mandatory Skill Chain section above.
 
 ---
 
@@ -411,3 +426,4 @@ If you catch yourself:
 | "The user approved it, so assumptions are fine" | User approval of the problem statement does not confirm individual assumptions. Each must be addressed explicitly. |
 | "I'll note the risks in the spec and move on" | Unmitigated risks in the spec become unmitigated risks in production. Every risk needs a mitigation action. |
 | "Weights don't matter for obvious choices" | Default weights encode specific trade-off preferences. Making them visible prevents hidden bias. |
+| "I can just start writing the plan from here" | NO. Invoke plan-writing via the Skill tool. Planning without it loses DAG decomposition, zero-placeholder enforcement, adversarial verification, and rollback planning. |

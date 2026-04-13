@@ -4,7 +4,8 @@ description: >-
   Use when a design spec or requirements need decomposition into executable
   tasks, before writing any code. DAG-based task decomposition with zero
   placeholders, complete code in every step, adversarial verification, and
-  rollback planning. Triggers: "write a plan", "plan this", "break this down".
+  rollback planning. CHAINS TO plan-execution on completion — MUST invoke via Skill tool.
+  Triggers: "write a plan", "plan this", "break this down".
 ---
 
 # Plan Writing
@@ -16,6 +17,16 @@ Transform requirements, design specs, or brainstorm outputs into zero-ambiguity 
 **Core principle:** Every step contains complete code or complete commands. If a human must think during execution, the plan failed.
 
 **Announce:** "I'm using the plan-writing skill to create a comprehensive implementation plan."
+
+## Mandatory Skill Chain
+
+When this skill completes (GATE 4 approval + Transition gate):
+- **Next skill:** `stn-skills:plan-execution`
+- **Invocation:** `Skill(skill: "stn-skills:plan-execution", args: "{plan_file_path}")`
+- **Gate:** User chooses "Continue" or "Stop" via AskUserQuestion at the Transition section
+
+Starting execution without invoking the Skill tool is a pipeline violation.
+Never proceed to implement tasks by "just doing it" — the Skill tool loads checkpoint recovery, drift detection, and verification.
 
 ## The Iron Laws
 
@@ -435,6 +446,8 @@ Present the plan summary:
 
 ## Transition: Plan Complete
 
+MANDATORY: Invoke the next skill via the Skill tool. Do NOT start executing tasks without it.
+
 **Terminal state: The next pipeline step is `/stn-skills:plan-execution`.**
 
 Use AskUserQuestion:
@@ -443,6 +456,8 @@ Use AskUserQuestion:
 
 **On "Continue to plan-execution":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-execution", args: "{plan_file_path}")`
 **On "Stop here":** End. Inform user: resume later with `/stn-skills:plan-execution`.
+
+If you find yourself about to write implementation code without having invoked the Skill tool — STOP. That is the pipeline violation described in the Mandatory Skill Chain section above.
 
 ---
 
@@ -476,3 +491,4 @@ If you catch yourself or an agent:
 | "I'll finalize the details during execution" | Plans that defer decisions to execution are lists, not plans. |
 | "The DAG is simple enough to keep in my head" | Draw it. If you cannot draw it, the dependencies are not clear. |
 | "Risk assessment is speculative anyway" | Speculative risk identification prevents concrete failures. Name the failure mode. |
+| "I can just start executing the plan directly" | NO. Invoke plan-execution via the Skill tool. Executing without it loses checkpoint recovery, drift detection, circuit breakers, and verification evidence. |

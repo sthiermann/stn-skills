@@ -105,10 +105,10 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   done
 done
 
-# 7. Description format check: should contain "Invoke" (stn-skills format)
+# 7. Description format check: should contain "Triggers:" (stn-skills format)
 for skill_file in "$SKILLS_DIR"/*/SKILL.md; do
   skill_name=$(basename "$(dirname "$skill_file")")
-  if head -10 "$skill_file" | grep -q 'Invoke'; then
+  if head -15 "$skill_file" | grep -q 'Triggers:'; then
     pass_check "Description uses trigger format: $skill_name"
   else
     fail_check "Description uses trigger format: $skill_name"
