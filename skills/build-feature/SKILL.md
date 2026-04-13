@@ -1,10 +1,10 @@
 ---
 name: build-feature
 description: >-
-  Invoke for end-to-end feature delivery from idea to verified code.
-  Chains brainstorming, plan-writing, and plan-execution with gates
-  at every transition. Triggers: "build feature", "build this",
-  "implement end-to-end", "full pipeline".
+  Use for end-to-end feature delivery from idea to verified code. Orchestrates
+  brainstorming, plan-writing, and plan-execution with validated handoffs and
+  11 gates. No shortcuts, no skipped gates, no unverified claims.
+  Triggers: "build feature", "build this", "implement end-to-end", "full pipeline".
 ---
 
 # Build Feature

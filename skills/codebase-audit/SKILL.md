@@ -1,9 +1,11 @@
 ---
 name: codebase-audit
 description: >-
-  Invoke for repository-wide analysis — even for one concern, all 13 domains
-  run. Covers security, quality, architecture, testing, and more.
-  Triggers: "audit", "review the repo", "code health", "security scan".
+  Use when auditing a repository for production readiness, security, or code
+  health. Dispatches up to 13 specialized auditor subagents in parallel with
+  file:line evidence for every finding. Technology-agnostic, works with any
+  language and framework. Triggers: "audit", "review the repo", "code health",
+  "security scan".
 ---
 
 # Codebase Audit

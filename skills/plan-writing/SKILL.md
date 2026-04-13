@@ -1,9 +1,10 @@
 ---
 name: plan-writing
 description: >-
-  Invoke when specs or requirements need decomposition into executable tasks.
-  Covers DAG-based planning with zero placeholders, verification, and rollback.
-  Triggers: "write a plan", "plan this", "break this down".
+  Use when a design spec or requirements need decomposition into executable
+  tasks, before writing any code. DAG-based task decomposition with zero
+  placeholders, complete code in every step, adversarial verification, and
+  rollback planning. Triggers: "write a plan", "plan this", "break this down".
 ---
 
 # Plan Writing

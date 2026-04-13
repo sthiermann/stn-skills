@@ -1,9 +1,11 @@
 ---
 name: brainstorming
 description: >-
-  Invoke for feature design, approach exploration, or architectural decisions.
-  Covers multi-lens analysis, weighted evaluation, adversarial review.
-  Triggers: "brainstorm", "design", "explore approaches", "how should we build".
+  Use before any feature design, approach exploration, or architectural decision.
+  Required before plan-writing. Dispatches parallel subagents for multi-lens
+  analysis, weighted scoring, and adversarial stress-testing. Produces validated
+  design specs. Triggers: "brainstorm", "design", "explore approaches",
+  "how should we build".
 ---
 
 # Brainstorming

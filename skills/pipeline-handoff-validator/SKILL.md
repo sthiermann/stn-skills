@@ -1,8 +1,9 @@
 ---
 name: pipeline-handoff-validator
 description: >-
-  Invoke between pipeline phases to validate handoff artifacts.
-  Covers design-spec completeness and plan-document integrity.
+  Use between pipeline phases to validate handoff artifacts against contracts.
+  Catches incomplete specs, ambiguous criteria, and plan defects before they
+  propagate downstream. Invoked automatically by build-feature at every boundary.
   Triggers: "validate handoff", "check the spec", "verify the plan".
 ---
 

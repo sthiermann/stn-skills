@@ -1,9 +1,10 @@
 ---
 name: plan-execution
 description: >-
-  Invoke to execute a written implementation plan with checkpoint recovery.
-  Covers drift detection, three-stage review, and circuit breakers.
-  Triggers: "execute plan", "run this plan", "implement this plan".
+  Use when executing a written implementation plan with verification at every
+  step. Checkpoint-based recovery, drift detection, three-stage review, circuit
+  breakers, and execution fidelity scoring. Every completion claim requires
+  fresh evidence. Triggers: "execute plan", "run this plan", "implement this plan".
 ---
 
 # Plan Execution

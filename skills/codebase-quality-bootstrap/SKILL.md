@@ -1,9 +1,10 @@
 ---
 name: codebase-quality-bootstrap
 description: >-
-  Invoke to generate or update CLAUDE.md and hooks for all 13 audit domains.
-  Covers tech-stack detection, standards generation, hook configuration.
-  Triggers: "bootstrap", "set up standards", "generate CLAUDE.md".
+  Use when setting up or updating project quality standards. Generates
+  tech-stack-specific CLAUDE.md and hooks aligned with all 13 audit domains.
+  Preventive counterpart to codebase-audit — bootstrapped projects produce zero
+  audit findings. Triggers: "bootstrap", "set up standards", "generate CLAUDE.md".
 ---
 
 # Codebase Quality Bootstrap
