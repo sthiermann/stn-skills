@@ -117,7 +117,7 @@ Before generating any approach, understand the problem completely.
 
 **1. Codebase reconnaissance.** Scan for relevant code, patterns, dependencies, and constraints. Identify tech stack, architectural patterns, and existing conventions that any solution must respect.
 
-**2. Structured interview.** Ask questions ONE AT A TIME. Maximum 6 questions total. Each question targets a specific gap in understanding. Do not batch questions — wait for the answer before asking the next.
+**2. Structured interview.** Ask questions ONE AT A TIME. Maximum 6 questions total. Each question targets a specific gap in understanding. Do not batch questions — wait for the answer before asking the next. Use the AskUserQuestion tool for each question with category-appropriate options. The user can always select "Other" for free-text answers.
 
 Question categories:
 - **Intent** — What outcome does the user want?
@@ -157,9 +157,11 @@ Present to the user:
 - Scope boundaries (Always Do / Ask First / Never Do)
 - Success criteria (testable outcomes)
 
-Ask: **"Confirm this problem statement, assumptions, and scope — or correct anything before I explore approaches."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Confirm this problem statement, assumptions, and scope — or correct anything before I explore approaches."
+- Options: ["Confirmed", "Corrections needed"]
 
-The user must explicitly confirm or deny each unverified assumption. Proceeding with unaddressed assumptions violates the Iron Law.
+**Do not proceed until the user responds.** The user must explicitly confirm or deny each unverified assumption. Proceeding with unaddressed assumptions violates the Iron Law.
 
 ---
 
@@ -208,9 +210,11 @@ Present to the user:
 - Newly surfaced assumptions (if any) requiring confirmation
 - Lens insights that challenged initial framing
 
-Ask: **"Review these approaches. Confirm new assumptions, eliminate any non-starters, or request deeper exploration of a specific direction."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Review these approaches. Confirm new assumptions, eliminate any non-starters, or request deeper exploration of a specific direction."
+- Options: ["Approaches confirmed", "Eliminate non-starters", "Explore specific direction deeper"]
 
-The user may eliminate approaches, surface new constraints, or request additional exploration. Non-starters are removed before evaluation.
+**Do not proceed until the user responds.** The user may eliminate approaches, surface new constraints, or request additional exploration. Non-starters are removed before evaluation.
 
 ---
 
@@ -278,9 +282,11 @@ Present to the user:
 - Recommended approach with reasoning
 - Runner-up with specific trade-off comparison
 
-Ask: **"Select an approach, or adjust the criteria weights and I'll re-score."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Select an approach, or adjust the criteria weights and I'll re-score."
+- Options: list the surviving approaches by name as options (max 4), plus "Adjust weights"
 
-The user may adjust weights (must still sum to 100%, minimum 5% per criterion), override the recommendation, or request a hybrid of approaches.
+**Do not proceed until the user responds.** The user may adjust weights (must still sum to 100%, minimum 5% per criterion), override the recommendation, or request a hybrid of approaches.
 
 ---
 
@@ -346,9 +352,11 @@ Every acceptance criterion must include an exact verification method (command, t
 
 Present the complete design spec to the user.
 
-Ask: **"Review this design spec. Approve to save, or request changes."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Review this design spec. Approve to save, or request changes."
+- Options: ["Approve and save", "Request changes"]
 
-Changes loop back to the relevant phase. The spec is not saved until the user explicitly approves.
+**Do not proceed until the user responds.** Changes loop back to the relevant phase. The spec is not saved until the user explicitly approves.
 
 ---
 
@@ -357,6 +365,19 @@ Changes loop back to the relevant phase. The spec is not saved until the user ex
 Save the approved spec to `docs/specs/YYYY-MM-DD-<topic>-design.md` using the format from `references/design-spec-template.md`.
 
 The file name uses the current date and a kebab-case topic derived from the problem statement. If `docs/specs/` does not exist, create it.
+
+---
+
+## Transition: Design Complete
+
+**Terminal state: The next pipeline step is `/stn-skills:plan-writing`.**
+
+Use AskUserQuestion:
+- Question: "Design spec saved to `{path}`. Continue to plan-writing, or stop here?"
+- Options: ["Continue to plan-writing", "Stop here"]
+
+**On "Continue to plan-writing":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-writing", args: "{spec_file_path}")`
+**On "Stop here":** End. Inform user: resume later with `/stn-skills:plan-writing`.
 
 ---
 

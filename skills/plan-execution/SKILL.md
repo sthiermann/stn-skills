@@ -123,9 +123,11 @@ Present to the user:
 - Baseline test results
 - Any tasks missing acceptance criteria (these block execution)
 
-Ask: **"Confirm this execution plan, or adjust task order/scope before I begin."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Confirm this execution plan, or adjust task order/scope before I begin."
+- Options: ["Confirmed — begin execution", "Adjust task order or scope"]
 
-Proceed only after user confirmation.
+**Do not proceed until the user responds. After confirmation, proceed immediately to Phase 2. Do not ask "Should I start?", "Which task first?", or similar.**
 
 ---
 
@@ -249,7 +251,7 @@ Check thresholds per `references/circuit-breaker-thresholds.md`:
 | Consecutive BLOCKED (same task) | 1 | 2 |
 | MAJOR_DRIFT count | 2 | 3 |
 
-**GREEN**: proceed. **YELLOW**: pause, present to user, resume on approval. **RED**: hard stop, commit checkpoint, require user intervention.
+**GREEN**: proceed. **YELLOW**: pause. Present metrics and current task context to the user, then use AskUserQuestion — Question: "Circuit breaker YELLOW — {metric} at threshold. Continue or abort?" Options: ["Continue execution", "Abort and checkpoint"]. After confirmation, resume immediately. **RED**: hard stop, commit checkpoint, require user intervention via AskUserQuestion — Question: "Circuit breaker RED — execution halted. How to proceed?" Options: ["Adjust scope and retry", "Abort execution"].
 
 #### Step 3.6: Checkpoint
 
@@ -273,7 +275,7 @@ Execute per `references/checkpoint-protocol.md`:
 Triggered only when a task returns BLOCKED after all retry attempts.
 
 1. Present the blocked task, failure history, and impact on downstream tasks.
-2. Offer options: skip task, replan remaining tasks, abort execution.
+2. Use AskUserQuestion — Question: "Task {ID} blocked after all retries. How to proceed?" Options: ["Skip task", "Replan remaining tasks", "Abort execution"]. After selection, execute the chosen option immediately.
 3. If user approves replanning, rebuild execution order for remaining tasks, re-validate DAG, and resume from next executable task.
 
 ---
@@ -363,7 +365,11 @@ Present to the user:
 - Execution Fidelity Score breakdown
 - Overall verdict: **PASS** or **GAPS_FOUND**
 
-Ask: **"Review the completion verification. Accept, or identify gaps to address?"**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Review the completion verification. Accept, or identify gaps to address?"
+- Options: ["Accept", "Identify gaps to address"]
+
+**Do not proceed until the user responds. After acceptance, proceed immediately to GATE 3.**
 
 If GAPS_FOUND, return to Phase 3 for targeted rework on specific tasks.
 
@@ -392,7 +398,11 @@ Generate formal report per `references/completion-report-template.md`. Sections:
 
 Present the completion report.
 
-Ask: **"Accept this execution as complete, or identify items requiring rework?"**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Accept this execution as complete, or identify items requiring rework?"
+- Options: ["Accept as complete", "Items need rework"]
+
+**Do not proceed until the user responds.**
 
 - Accept → proceed to Phase 7.
 - Reject → return to Phase 3 for specified rework tasks.
@@ -409,6 +419,19 @@ Write final state to `.claude/plan-execution-state.json` with:
 - Timestamp
 
 This enables resumption if the session ends mid-execution. On resume, read state file, verify checkpoint SHAs exist, and continue from last completed task.
+
+---
+
+## Transition: Execution Complete
+
+**Terminal state: The feature is implemented and verified.**
+
+Use AskUserQuestion:
+- Question: "Execution complete with Fidelity Score {score}/100. Run a codebase audit to verify code quality, or finish here?"
+- Options: ["Run codebase audit", "Finish here"]
+
+**On "Run codebase audit":** Invoke the Skill tool: `Skill(skill: "stn-skills:codebase-audit")`
+**On "Finish here":** End. Inform user: run `/stn-skills:codebase-audit` anytime to verify.
 
 ---
 
@@ -442,3 +465,9 @@ If you catch yourself:
 | "The circuit breaker is too aggressive, I can push through" | Circuit breakers exist because repeated failure without intervention produces compounding damage. Respect the thresholds. |
 | "Replanning slows us down, just force this task through" | Forcing a blocked task produces broken code that downstream tasks inherit. Replan or skip. |
 | "The test was passing earlier, it probably still passes" | "Probably" is not evidence. Run the command. Capture the output. Now. |
+
+---
+
+## Rules
+
+1. **No passive asking** — After a gate confirmation, execution continues immediately. Do not ask "Should I start?", "Which task first?", "Ready to proceed?", or similar. The plan defines the order. Execute it.

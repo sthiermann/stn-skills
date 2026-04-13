@@ -48,7 +48,7 @@ Validates a design spec before plan-writing consumes it.
 
 | # | Check | What it validates | Pass condition |
 |---|-------|------------------|----------------|
-| A1 | **Structure** | Spec follows `references/design-spec-template.md` | All required sections present: Problem Statement, Success Criteria, Scope Boundaries, Selected Approach, Acceptance Criteria, Risk Register |
+| A1 | **Structure** | Spec follows `skills/brainstorming/references/design-spec-template.md` | All required sections present: Problem Statement, Success Criteria, Scope Boundaries, Selected Approach, Acceptance Criteria, Risk Register |
 | A2 | **Testable criteria** | Every acceptance criterion has a verification method | Each criterion contains a concrete assertion (not vague goals like "should be fast") |
 | A3 | **Scope boundaries** | Always/Ask First/Never table is defined | Table exists with at least 1 entry in each column |
 | A4 | **Risk coverage** | Selected approach has documented risks | At least 1 risk with likelihood, impact, and mitigation |
@@ -76,12 +76,12 @@ Validates a plan document before plan-execution consumes it.
 
 | # | Check | What it validates | Pass condition |
 |---|-------|------------------|----------------|
-| B1 | **Structure** | Plan follows `references/plan-document-template.md` | All required sections present: Metadata, Requirements, File Structure, Tasks, DAG, Waves |
+| B1 | **Structure** | Plan follows `skills/plan-writing/references/plan-document-template.md` | All required sections present: Metadata, Requirements, File Structure, Tasks, DAG, Waves |
 | B2 | **Quality score** | Plan passed adversarial verification | Plan Quality Score documented and >= 90 |
 | B3 | **Rollback blocks** | Every task has a rollback strategy | Each task contains a rollback block with specific commands |
 | B4 | **DAG integrity** | No circular dependencies | Mermaid graph parseable, no cycles in dependency chain |
 | B5 | **File structure** | Lock-In table present | File Structure Lock-In table exists with Action column (CREATE/MODIFY) |
-| B6 | **Zero placeholders** | No placeholder patterns in code blocks | Scan all code blocks against `placeholder-detector-rules.md` patterns: zero matches |
+| B6 | **Zero placeholders** | No placeholder patterns in code blocks | Scan all code blocks against `skills/plan-writing/references/placeholder-detector-rules.md` patterns: zero matches |
 | B7 | **Requirements traced** | Every requirement maps to at least one task | Traceability matrix present with R(N) → T(M) mappings, no orphans |
 
 **Procedure:**

@@ -76,9 +76,9 @@ This makes every macro-phase independently resumable. If a session ends after De
 
 **Error handling:** If adversarial review finds Blockers (Phase 4), resolve them within brainstorming — do NOT escalate to build-feature level. The brainstorming SKILL.md defines its own blocker resolution loop.
 
-After GATE 4 (Final Spec Approval), ask the user:
-
-> "Design spec saved to `{path}`. Continue to plan-writing, or stop here?"
+After GATE 4 (Final Spec Approval), use AskUserQuestion:
+- Question: "Design spec saved to `{path}`. Continue to plan-writing, or stop here?"
+- Options: ["Continue to plan-writing", "Stop here"]
 
 If the user stops, the pipeline ends. The design spec is on disk and can be used independently with `/stn-skills:plan-writing` in a future session.
 
@@ -99,9 +99,9 @@ Before starting Macro-Phase 2, run `skills/pipeline-handoff-validator/SKILL.md` 
 
 **Error handling:** If Plan Quality Score < 90 after 2 rework cycles (Phase 5), present remaining defects to user at GATE 3. User decides: accept with known gaps, or stop pipeline.
 
-After GATE 4 (Final Plan Approval), ask the user:
-
-> "Plan saved to `{path}`. Continue to execution, or stop here?"
+After GATE 4 (Final Plan Approval), use AskUserQuestion:
+- Question: "Plan saved to `{path}`. Continue to execution, or stop here?"
+- Options: ["Continue to execution", "Stop here"]
 
 If the user stops, the pipeline ends. Both spec and plan are on disk. Resume execution later with `/stn-skills:plan-execution` pointing to the plan file.
 
@@ -132,3 +132,30 @@ Before starting Macro-Phase 3, run `skills/pipeline-handoff-validator/SKILL.md` 
 4. **File-based handoff** — Macro-Phase 1 output file → Macro-Phase 2 input. Macro-Phase 2 output file → Macro-Phase 3 input. Read the file path from the previous macro-phase's final output.
 5. **Error containment** — Errors within a sub-skill are handled by that sub-skill's own mechanisms (blocker loops, rework cycles, circuit breakers). Only escalate to user when the sub-skill's error handling is exhausted.
 6. **Resumable** — If a session ends mid-pipeline, resume by invoking the appropriate individual skill with the last artifact path. After Design: `/stn-skills:plan-writing` with spec path. After Plan: `/stn-skills:plan-execution` with plan path.
+
+---
+
+## Red Flags — STOP and Correct
+
+If you catch yourself:
+- Skipping the handoff validator between macro-phases
+- Combining brainstorming and plan-writing into a single step
+- Starting plan-execution without a plan file on disk
+- Proceeding past a sub-skill gate without user confirmation
+- Passing in-memory context instead of reading the artifact file
+- Skipping macro-phases ("the user knows what they want, skip to execution")
+
+**ALL of these mean: STOP. The pipeline exists because shortcuts produce failures.**
+
+---
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "The user already has a clear idea, skip brainstorming" | Clear ideas still have unexplored alternatives and hidden assumptions. Use Focused complexity. |
+| "The spec is simple, skip handoff validation" | Simple specs with missing acceptance criteria produce the most rework during execution. |
+| "I can plan and execute simultaneously" | Simultaneous planning and execution eliminates the verification gate that catches plan defects. |
+| "Handoff validation is redundant after GATE 4 approval" | User approval validates direction. Contract validation checks completeness. Different concerns. |
+| "This is a small feature, the full pipeline is overkill" | Small features through the full pipeline take 30 minutes. Small features debugged after skipping gates take hours. |
+| "I'll remember the spec details, no need to read the file" | Memory drifts. The file is the contract. Read it. |

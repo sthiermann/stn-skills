@@ -122,5 +122,55 @@ else
   fail_check "plugin.json exists"
 fi
 
+# 9. All agent files under 200 lines
+for skill_dir in "$SKILLS_DIR"/*/; do
+  skill_name=$(basename "$skill_dir")
+  [[ -d "${skill_dir}agents" ]] || continue
+  for agent_file in "${skill_dir}agents/"*.md; do
+    [[ -f "$agent_file" ]] || continue
+    agent_name=$(basename "$agent_file")
+    line_count=$(wc -l < "$agent_file" | tr -d ' ')
+    if [[ "$line_count" -le 200 ]]; then
+      pass_check "Agent under 200 lines: ${skill_name}/${agent_name} ($line_count)"
+    else
+      fail_check "Agent under 200 lines: ${skill_name}/${agent_name} ($line_count)"
+    fi
+  done
+done
+
+# 10. All reference files under 150 lines
+for skill_dir in "$SKILLS_DIR"/*/; do
+  skill_name=$(basename "$skill_dir")
+  [[ -d "${skill_dir}references" ]] || continue
+  for ref_file in "${skill_dir}references/"*.md; do
+    [[ -f "$ref_file" ]] || continue
+    ref_name=$(basename "$ref_file")
+    line_count=$(wc -l < "$ref_file" | tr -d ' ')
+    if [[ "$line_count" -le 150 ]]; then
+      pass_check "Reference under 150 lines: ${skill_name}/${ref_name} ($line_count)"
+    else
+      fail_check "Reference under 150 lines: ${skill_name}/${ref_name} ($line_count)"
+    fi
+  done
+done
+
+# 11. Each skill directory has README.md
+for skill in brainstorming plan-writing plan-execution build-feature codebase-audit codebase-quality-bootstrap pipeline-handoff-validator; do
+  if [[ -f "${SKILLS_DIR}/${skill}/README.md" ]]; then
+    pass_check "README.md exists: $skill"
+  else
+    fail_check "README.md exists: $skill"
+  fi
+done
+
+# 12. Each skill directory has banner.svg
+for skill in brainstorming plan-writing plan-execution build-feature codebase-audit codebase-quality-bootstrap pipeline-handoff-validator; do
+  if [[ -f "${SKILLS_DIR}/${skill}/banner.svg" ]]; then
+    pass_check "banner.svg exists: $skill"
+  else
+    fail_check "banner.svg exists: $skill"
+  fi
+done
+
 echo ""
 echo "Structure: ${pass} passed, ${fail} failed"

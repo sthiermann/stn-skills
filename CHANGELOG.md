@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.3.0] - 2026-04-13
+
+### Added
+- **Skill chaining** — brainstorming, plan-writing, and plan-execution now declare their follow-up skill in a `## Transition` section with explicit Skill tool invocation. After completion, the user is offered to continue to the next pipeline step via AskUserQuestion. On "continue", the follow-up skill is invoked automatically.
+- **AskUserQuestion integration** — All 24 user-facing interaction points across 6 skills (gates, interviews, circuit breakers, transitions) now instruct the agent to use the AskUserQuestion tool instead of inline text. Provides structured options for every gate.
+- **Anti-passivity rule** in plan-execution — New rule: "After a gate confirmation, execution continues immediately. Do not ask 'Should I start?', 'Which task first?', or similar." Eliminates passive re-asking after gate approvals.
+- **Eval: consistency checks** (`evals/eval-consistency.sh`) — 30 new cross-reference validations: agent/reference file existence, phase/gate counts vs README, Modernization Mandate presence, decision matrix weight sums, score dimension sums, audit domain coverage, plugin.json consistency, activation prompt coverage, handoff validator path resolution.
+- **Eval: quality metrics** (`evals/eval-quality-metrics.sh`) — Quality dashboard with SKILL.md/agent/reference line counts, progressive disclosure ratios, cross-skill reference sharing map, total markdown line count.
+- **Eval: extended structure checks** — Agent ≤200-line and reference ≤150-line enforcement, README.md and banner.svg existence checks per skill.
+- **Red Flags and Common Rationalizations** sections added to build-feature SKILL.md — Previously the only skill missing these standard sections.
+
+### Changed
+- **All gate interactions** across brainstorming (4 gates + interview), plan-writing (4 gates), plan-execution (3 gates + 2 inline pauses), build-feature (2 transitions), codebase-audit (3 gates), and codebase-quality-bootstrap (2 gates) rewritten to Gate Protocol Format with AskUserQuestion instructions.
+- **5 codebase-audit agents** trimmed to ≤200 lines: architecture-auditor, code-quality-auditor, infrastructure-auditor, security-auditor, test-coverage-auditor. All functional content preserved.
+- **5 reference files** trimmed to ≤150 lines: report-template, audit-domain-alignment, claudemd-template, hooks-catalog, plan-document-template. All template sections and fields preserved.
+- **Version** bumped to 3.3.0.
+
+### Fixed
+- **Ambiguous reference paths** in pipeline-handoff-validator — `references/design-spec-template.md` and `references/plan-document-template.md` now use full cross-skill paths (`skills/brainstorming/references/...`, `skills/plan-writing/references/...`).
+- **codebase-audit SKILL.md** exceeded 500-line limit after AskUserQuestion integration — compacted gate blocks to inline format, back to 491 lines.
+
 ## [3.2.0] - 2026-04-12
 
 ### Added

@@ -1,28 +1,23 @@
 # Audit Report Template
 
-Use this exact structure for the final audit report. Replace all placeholders with actual data. Every finding receives a stable ID (F1, F2, ...) assigned in order of appearance (Critical first, then High, Medium, Low). These IDs are used for GATE 3 remediation selection.
+Use this exact structure. Replace all placeholders with actual data. Findings receive stable IDs (F1, F2, ...) in severity order (Critical, High, Medium, Low), used for GATE 3 remediation selection.
 
 ---
 
 ```markdown
 # Codebase Audit Report — {{REPO_NAME}}
 
-**Date:** {{DATE}}
-**Tech Stack:** {{DETECTED_STACK}}
-**Scope:** {{AUDITED_MODULES}}
-**Audit Domains:** {{DOMAINS_AUDITED}}
+**Date:** {{DATE}}  |  **Tech Stack:** {{DETECTED_STACK}}
+**Scope:** {{AUDITED_MODULES}}  |  **Audit Domains:** {{DOMAINS_AUDITED}}
 
 ---
 
 ## Executive Summary
 
 - **Total findings:** {{TOTAL}} ({{CRITICAL}} Critical, {{HIGH}} High, {{MEDIUM}} Medium, {{LOW}} Low)
-- **Verification:** {{VERIFIED_COUNT}} findings verified, {{FP_COUNT}} false positives removed ({{FP_RATE}}%)
+- **Verification:** {{VERIFIED_COUNT}} verified, {{FP_COUNT}} false positives removed ({{FP_RATE}}%)
 - **Domains re-audited:** {{RE_AUDIT_LIST or "none"}}
-- **Top priorities:**
-  1. {{TOP_PRIORITY_1}}
-  2. {{TOP_PRIORITY_2}}
-  3. {{TOP_PRIORITY_3}}
+- **Top priorities:** 1) {{TOP_PRIORITY_1}}  2) {{TOP_PRIORITY_2}}  3) {{TOP_PRIORITY_3}}
 - **Deploy recommendation:** {{BLOCK_DEPLOY | DEPLOY_WITH_CAUTION | SHIP_IT}}
 
 ---
@@ -44,59 +39,43 @@ Use this exact structure for the final audit report. Replace all placeholders wi
 ## Findings by Severity
 
 ### Critical (fix immediately)
-
 {{FOR_EACH_CRITICAL_FINDING}}
-
 **F{{ID}} [CRITICAL] {{DOMAIN_CODE}}: {{TITLE}}**
-- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
-- **Confidence:** {{CONFIDENCE}}
+- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}` | **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
 - **Remediation:** {{SPECIFIC_ACTION_WITH_CODE_EXAMPLE}}
 - **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
-
 {{END_FOR_EACH}}
 
 ### High (fix this sprint)
-
 {{FOR_EACH_HIGH_FINDING}}
-
 **F{{ID}} [HIGH] {{DOMAIN_CODE}}: {{TITLE}}**
-- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
-- **Confidence:** {{CONFIDENCE}}
+- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}` | **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
 - **Remediation:** {{SPECIFIC_ACTION_WITH_CODE_EXAMPLE}}
 - **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
-
 {{END_FOR_EACH}}
 
 ### Medium (fix this cycle)
-
 {{FOR_EACH_MEDIUM_FINDING}}
-
 **F{{ID}} [MEDIUM] {{DOMAIN_CODE}}: {{TITLE}}**
-- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
-- **Confidence:** {{CONFIDENCE}}
+- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}` | **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{WHAT_HAPPENS_IF_NOT_FIXED}}
 - **Remediation:** {{SPECIFIC_ACTION_WITH_CODE_EXAMPLE}}
 - **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
-
 {{END_FOR_EACH}}
 
 ### Low (track)
-
 {{FOR_EACH_LOW_FINDING}}
-
 **F{{ID}} [LOW] {{DOMAIN_CODE}}: {{TITLE}}**
-- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}`
-- **Confidence:** {{CONFIDENCE}}
+- **File:** `{{FILE_PATH}}:{{LINE_RANGE}}` | **Confidence:** {{CONFIDENCE}}
 - **Evidence:** {{CODE_SNIPPET_OR_DESCRIPTION}}
 - **Impact:** {{IMPACT}}
 - **Remediation:** {{SUGGESTED_IMPROVEMENT}}
 - **Effort:** {{EFFORT}} | **Risk:** {{RISK}}
-
 {{END_FOR_EACH}}
 
 ---
@@ -152,7 +131,6 @@ Findings marked `[PIPELINE]` benefit from structured design exploration (`/stn-s
 
 ## Evidence Index
 
-### By Domain
 {{FOR_EACH_DOMAIN}}
 #### {{DOMAIN_NAME}} ({{FINDING_COUNT}} findings)
 - `{{FILE_PATH}}:{{LINE}}` — F{{ID}} {{BRIEF_DESCRIPTION}}
@@ -162,11 +140,7 @@ Findings marked `[PIPELINE]` benefit from structured design exploration (`/stn-s
 
 ## Audit Methodology & Verification Statistics
 
-- **Domains audited:** {{DOMAIN_LIST}}
-- **Files examined:** {{FILE_COUNT}} source files across {{MODULE_COUNT}} modules
-- **Findings before verification:** {{PRE_VERIFICATION_COUNT}}
-- **Findings after verification:** {{TOTAL}}
-- **False positives removed:** {{FP_COUNT}} ({{FP_RATE}}%)
-- **Findings suppressed:** {{SUPPRESSED_COUNT}} ({{SUPPRESSED_PER_DOMAIN}})
-- **Domains re-audited:** {{RE_AUDIT_LIST or "none"}}
+- **Domains audited:** {{DOMAIN_LIST}} | **Files examined:** {{FILE_COUNT}} across {{MODULE_COUNT}} modules
+- **Pre-verification:** {{PRE_VERIFICATION_COUNT}} | **Post-verification:** {{TOTAL}} | **FP removed:** {{FP_COUNT}} ({{FP_RATE}}%)
+- **Suppressed:** {{SUPPRESSED_COUNT}} ({{SUPPRESSED_PER_DOMAIN}}) | **Re-audited:** {{RE_AUDIT_LIST or "none"}}
 ```

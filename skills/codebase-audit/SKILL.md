@@ -120,9 +120,7 @@ Present to the user:
 - Module structure (if multi-module)
 - Proposed audit domains (all 13 by default)
 
-Ask: **"Confirm this scope, or specify which domains to audit and which modules to focus on."**
-
-Proceed only after user confirmation. Assumptions about scope lead to wasted work.
+**Present all content above first.** Then use AskUserQuestion — Question: "Confirm this scope, or specify which domains to audit and which modules to focus on." Options: ["Confirm all 13 domains", "Select specific domains"]. **Do not proceed until the user responds.** Assumptions about scope lead to wasted work.
 
 ---
 
@@ -220,7 +218,7 @@ Present to the user:
 - **Deploy with caution**: High findings in non-critical paths, or Critical with Medium confidence
 - **Ship it**: No Critical or High findings, or all are Low confidence
 
-Ask: **"These are the verified findings. Proceed to full report, or investigate any area deeper?"**
+**Present all content above first.** Then use AskUserQuestion — Question: "These are the verified findings. Proceed to full report, or investigate any area deeper?" Options: ["Proceed to full report", "Investigate specific area deeper"]. **Do not proceed until the user responds.**
 
 ---
 
@@ -363,7 +361,7 @@ Remediation options:
   Skip:                report only, no changes
 ```
 
-Ask: **"The audit is complete. Would you like me to fix any of these findings? Quick-fix findings are applied directly. Pipeline findings generate a remediation brief for `/stn-skills:brainstorming` or `/stn-skills:plan-writing`. Specify by ID, severity, domain, or module — or 'skip' to keep the report only."**
+**Present all content above first.** Then use AskUserQuestion — Question: "The audit is complete. How would you like to proceed with these findings?" Options: ["Apply quick-fixes", "Generate pipeline remediation briefs", "Select specific findings", "Skip — keep report only"]. **Do not proceed until the user responds.** If "Select specific findings", use a follow-up AskUserQuestion or accept free-text for specific IDs, severity, domain, or module selections.
 
 - **`skip` or any declination = audit ends here.** No files are modified. The report stands as the deliverable.
 - Only an explicit selection of findings proceeds to Phase 5.

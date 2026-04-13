@@ -151,9 +151,11 @@ Present to the user:
 - Complexity classification
 - Estimated task count and total duration range
 
-Ask: **"Confirm these requirements and scope, or adjust before I proceed."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Confirm these requirements and scope, or adjust before I proceed."
+- Options: ["Confirmed", "Adjust requirements or scope"]
 
-Proceed only after user confirmation. Misunderstood requirements produce wasted plans.
+**Do not proceed until the user responds.** Misunderstood requirements produce wasted plans.
 
 ---
 
@@ -227,7 +229,11 @@ Present to the user:
 - Requirements coverage matrix (every R(N) -> T(M) mapping)
 - Any gaps or risks flagged by the decomposer
 
-Ask: **"Review the task breakdown and dependencies. Confirm, or adjust tasks before I author steps."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Review the task breakdown and dependencies. Confirm, or adjust tasks before I author steps."
+- Options: ["Confirmed", "Adjust tasks"]
+
+**Do not proceed until the user responds.**
 
 ---
 
@@ -378,9 +384,15 @@ Present to the user:
 - Defect count and details (if any remain after rework)
 - Traceability matrix
 
-If score >= 90: **"Verification passed with score {N}/100. Proceed to plan assembly?"**
+If score >= 90, use AskUserQuestion:
+- Question: "Verification passed with score {N}/100. Proceed to plan assembly?"
+- Options: ["Proceed to plan assembly", "Review defects first"]
 
-If score < 90 after 2 rework cycles: **"Score is {N}/100 after 2 rework attempts. Here are the remaining defects. Proceed anyway, or adjust scope?"**
+If score < 90 after 2 rework cycles, use AskUserQuestion:
+- Question: "Score is {N}/100 after 2 rework attempts. Here are the remaining defects. Proceed anyway, or adjust scope?"
+- Options: ["Proceed with known defects", "Adjust scope", "Another rework cycle"]
+
+**Do not proceed until the user responds.**
 
 ---
 
@@ -412,7 +424,24 @@ Present the plan summary:
 - Plan Quality Score
 - Output file path
 
-Ask: **"Plan written to {path}. Review and approve, or request changes."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Plan written to {path}. Review and approve, or request changes."
+- Options: ["Approved", "Request changes"]
+
+**Do not proceed until the user responds.**
+
+---
+
+## Transition: Plan Complete
+
+**Terminal state: The next pipeline step is `/stn-skills:plan-execution`.**
+
+Use AskUserQuestion:
+- Question: "Plan saved to `{path}`. Continue to plan-execution, or stop here?"
+- Options: ["Continue to plan-execution", "Stop here"]
+
+**On "Continue to plan-execution":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-execution", args: "{plan_file_path}")`
+**On "Stop here":** End. Inform user: resume later with `/stn-skills:plan-execution`.
 
 ---
 

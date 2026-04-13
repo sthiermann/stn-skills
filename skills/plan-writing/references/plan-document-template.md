@@ -2,8 +2,6 @@
 
 Canonical output for plan-writing skill. Plan-execution skill consumes this structure exactly.
 
-## Template
-
 ````markdown
 # Implementation Plan: {Title}
 

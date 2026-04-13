@@ -177,9 +177,11 @@ Present to the user:
 - Repository size classification
 - Detected commands (build, test, lint, format, dev)
 
-Ask: **"Confirm this assessment, or correct any misdetections before I generate standards."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Confirm this assessment, or correct any misdetections before I generate standards."
+- Options: ["Confirmed", "Correct misdetections"]
 
-Proceed only after user confirmation. Wrong stack detection produces wrong rules.
+**Do not proceed until the user responds.** Wrong stack detection produces wrong rules.
 
 ---
 
@@ -331,9 +333,11 @@ Present to the user:
   - Hook conflicts (if any)
 - **Line count** and budget status
 
-Ask: **"Review the generated standards. Approve to write, or request changes to specific sections."**
+**Present all content above to the user first.** Then use the AskUserQuestion tool:
+- Question: "Review the generated standards. Approve to write, or request changes to specific sections."
+- Options: ["Approve and write", "Request changes"]
 
-User can request modifications. Adjust and re-present until approved. Do not proceed without explicit approval.
+**Do not proceed until the user responds.** User can request modifications. Adjust and re-present until approved. Do not proceed without explicit approval.
 
 ---
 
