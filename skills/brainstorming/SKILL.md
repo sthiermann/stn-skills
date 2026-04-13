@@ -54,6 +54,20 @@ This mandate applies to every phase:
 - **Phase 4:** The adversarial reviewer checks for `Legacy_Pattern` flaws (flaw type #11). Any design decision relying on deprecated or outdated patterns is a Blocker.
 - **Phase 6:** The design spec marks any approach that uses legacy code as rejected in the "Alternatives Considered" section with explicit reasoning.
 
+## Session Resumption Protocol
+
+At the start of EVERY turn — before any other action — read `references/pipeline-state-protocol.md` and follow its procedure:
+
+1. **Read** `.claude/stn-skills-pipeline-state.json` (if it exists).
+2. **State exists, `active_skill` is `brainstorming`:** Report "Resuming brainstorming at Phase {current_phase}/6. Gates passed: {gates_passed}." Continue from that phase. Do not restart completed phases.
+3. **State exists, `active_skill` is a different skill:** Report the mismatch. Use AskUserQuestion: "Pipeline state shows {active_skill} is active at Phase {current_phase}. Resume that skill, or start fresh with brainstorming?"
+4. **No state file:** Initialize the state file with `active_skill: "brainstorming"`, `current_phase: 1`, `total_phases: 6`, `gates_total: 4`.
+5. **Update the state file** before starting each phase.
+
+The state file determines what happens next — not the user's phrasing. Any continuation message ("continue", "next", "go", or anything else) means: read state, continue from current phase.
+
+---
+
 ## When to Use
 
 ```mermaid
@@ -176,9 +190,18 @@ Present to the user:
 
 **Do not proceed until the user responds.** The user must explicitly confirm or deny each unverified assumption. Proceeding with unaddressed assumptions violates the Iron Law.
 
+**On confirmation:** Update state file: append `1` to `gates_passed`, set `current_phase: 2`.
+
 ---
 
 ### Phase 2: Multi-Lens Exploration
+
+**Artifact Gate:** Before starting, verify Phase 1 produced:
+- [ ] Problem statement, complexity classification, and assumptions list exist in conversation context
+- [ ] GATE 1 passed (user confirmed problem statement)
+- [ ] State file shows `current_phase >= 2` and `gates_passed` includes `1`
+
+If any check fails: return to Phase 1. Do not proceed.
 
 Dispatch parallel subagents to explore the problem from multiple angles simultaneously.
 
@@ -229,9 +252,19 @@ Present to the user:
 
 **Do not proceed until the user responds.** The user may eliminate approaches, surface new constraints, or request additional exploration. Non-starters are removed before evaluation.
 
+**On confirmation:** Update state file: append `2` to `gates_passed`, set `current_phase: 3`.
+
 ---
 
 ### Phase 3: Approach Evaluation
+
+**Artifact Gate:** Before starting, verify Phase 2 produced:
+- [ ] Subagent exploration reports returned (minimum 2 agents dispatched and completed)
+- [ ] Deduplicated list of genuinely distinct approaches exists
+- [ ] GATE 2 passed (user reviewed approaches)
+- [ ] State file shows `current_phase >= 3` and `gates_passed` includes `2`
+
+If any check fails: return to Phase 2. Do not proceed.
 
 Dispatch the approach-evaluator subagent.
 
@@ -301,9 +334,19 @@ Present to the user:
 
 **Do not proceed until the user responds.** The user may adjust weights (must still sum to 100%, minimum 5% per criterion), override the recommendation, or request a hybrid of approaches.
 
+**On selection:** Update state file: append `3` to `gates_passed`, set `current_phase: 4`.
+
 ---
 
 ### Phase 4: Adversarial Review
+
+**Artifact Gate:** Before starting, verify Phase 3 produced:
+- [ ] Decision matrix with weighted scores and per-score justifications
+- [ ] Risk pre-assessment for each approach
+- [ ] GATE 3 passed (user selected an approach)
+- [ ] State file shows `current_phase >= 4` and `gates_passed` includes `3`
+
+If any check fails: return to Phase 3. Do not proceed.
 
 Dispatch the adversarial-reviewer subagent to stress-test the selected approach.
 
@@ -345,6 +388,13 @@ This table is displayed to the user before proceeding. Findings without this tab
 
 ### Phase 5: Spec Assembly
 
+**Artifact Gate:** Before starting, verify Phase 4 produced:
+- [ ] Adversarial review flaw assessment table exists
+- [ ] Zero blockers remain (all blockers resolved through the resolution loop)
+- [ ] State file shows `current_phase >= 5`
+
+If any check fails: return to Phase 4. Do not proceed.
+
 The orchestrator assembles the design spec from all prior phases. No new analysis — pure assembly from validated outputs.
 
 Spec structure follows `references/design-spec-template.md`:
@@ -371,9 +421,18 @@ Present the complete design spec to the user.
 
 **Do not proceed until the user responds.** Changes loop back to the relevant phase. The spec is not saved until the user explicitly approves.
 
+**On approval:** Update state file: append `4` to `gates_passed`, set `current_phase: 6`.
+
 ---
 
 ### Phase 6: Write Spec Document
+
+**Artifact Gate:** Before starting, verify Phase 5 produced:
+- [ ] Draft spec assembled with all required sections from `references/design-spec-template.md`
+- [ ] GATE 4 passed (user approved the spec)
+- [ ] State file shows `current_phase >= 6` and `gates_passed` includes `4`
+
+If any check fails: return to Phase 5. Do not proceed.
 
 Save the approved spec to `docs/specs/YYYY-MM-DD-<topic>-design.md` using the format from `references/design-spec-template.md`.
 
@@ -383,15 +442,40 @@ The file name uses the current date and a kebab-case topic derived from the prob
 
 ## Transition: Design Complete
 
+### Pre-Transition Verification
+
+Before offering the user a choice to advance, verify ALL of the following:
+
+1. **All 6 phases completed** — check state file: `current_phase` reached 6
+2. **All 4 gates passed** — check state file: `gates_passed` contains `[1, 2, 3, 4]`
+3. **Spec artifact on disk** — verify the file exists at `docs/specs/YYYY-MM-DD-<topic>-design.md`
+4. **Adversarial review completed** — Phase 4 flaw assessment table was produced (not skipped)
+
+If ANY check fails: STOP. Return to the earliest incomplete phase. Do not present the AskUserQuestion.
+
+### Mandatory Handoff Validation
+
+Run the pipeline-handoff-validator BEFORE offering skill advancement:
+
+1. Invoke: `Skill(skill: "stn-skills:pipeline-handoff-validator", args: "MODE_A {spec_file_path}")`
+2. Wait for the Handoff Compliance Table result
+3. **If READY:** update state file with `handoff_validated: true`. Proceed to Skill Advancement below.
+4. **If GAPS_FOUND:** present gaps to user. Offer: "Fix gaps before proceeding, or proceed with acknowledged gaps?" If fixing: return to the relevant brainstorming phase. Do NOT offer skill advancement until gaps are resolved or explicitly acknowledged.
+
+### Skill Advancement
+
 MANDATORY: Invoke the next skill via the Skill tool. Do NOT start planning without it.
 
 **Terminal state: The next pipeline step is `/stn-skills:plan-writing`.**
 
 Use AskUserQuestion:
-- Question: "Design spec saved to `{path}`. Continue to plan-writing, or stop here?"
+- Question: "Design spec saved to `{path}` and handoff validation passed. Continue to plan-writing, or stop here?"
 - Options: ["Continue to plan-writing", "Stop here"]
 
-**On "Continue to plan-writing":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-writing", args: "{spec_file_path}")`
+**On "Continue to plan-writing":**
+1. Update state file: `active_skill: "plan-writing"`, `current_phase: 1`, `total_phases: 6`, `gates_passed: []`, `gates_total: 4`, `handoff_validated: false`
+2. Immediately invoke: `Skill(skill: "stn-skills:plan-writing", args: "{spec_file_path}")`
+
 **On "Stop here":** End. Inform user: resume later with `/stn-skills:plan-writing`.
 
 If you find yourself about to decompose tasks or write a plan without having invoked the Skill tool — STOP. That is the pipeline violation described in the Mandatory Skill Chain section above.
@@ -427,3 +511,8 @@ If you catch yourself:
 | "I'll note the risks in the spec and move on" | Unmitigated risks in the spec become unmitigated risks in production. Every risk needs a mitigation action. |
 | "Weights don't matter for obvious choices" | Default weights encode specific trade-off preferences. Making them visible prevents hidden bias. |
 | "I can just start writing the plan from here" | NO. Invoke plan-writing via the Skill tool. Planning without it loses DAG decomposition, zero-placeholder enforcement, adversarial verification, and rollback planning. |
+| "I already know the codebase, I can fast-track" | Codebase knowledge does not replace structured exploration. Fast-tracking produces fragile code. Research shows structured workflows improve accuracy from 41% to 96% (Routine Framework, arXiv 2507.14447). |
+| "The user wants speed, I'll compress phases" | Compressed phases produce rework. At 85% per-step accuracy, skipping verification drops end-to-end success to 20%. The fastest path to done is the full pipeline. |
+| "I'll make a quick table and go straight to code" | A table is not a design spec. Without adversarial review and disk artifacts, every "quick" approach becomes a production incident. |
+| "This is just continuing where we left off" | Read the pipeline state file. If mid-workflow, continue to the next phase. Never interpret any continuation message as "skip remaining phases." |
+| "The handoff validator is redundant after GATE 4" | User approval validates direction. Contract validation checks completeness. Different concerns — both are required. |

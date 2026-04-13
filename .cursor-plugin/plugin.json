@@ -1,0 +1,6 @@
+{
+  "name": "stn-skills",
+  "version": "4.0.0",
+  "description": "Professional skill suite for structured software development. 8 skills: build-feature, brainstorming, plan-writing, plan-execution, handoff-validator, codebase-audit, quality-bootstrap, and auto-discovery.",
+  "hooks": "./hooks-cursor.json"
+}

@@ -12,9 +12,9 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Pipeline artifacts (local)
+# Pipeline artifacts and generated docs (local)
 .plan/
-docs/specs/
+docs/
 
 # Eval results (generated)
 evals/results/

@@ -39,6 +39,20 @@ This is enforced at three levels:
 - **Post-execution (Phase 4):** Dedicated cleanup phase scans all modified files for deprecated patterns, legacy code, debug artifacts, and dead code. Replaces them with modern equivalents.
 - **Final verification (Phase 5):** Completion-verifier independently checks the final codebase state — no deprecated patterns may remain in any file touched during execution.
 
+## Session Resumption Protocol
+
+At the start of EVERY turn — before any other action — read `references/pipeline-state-protocol.md` and follow its procedure:
+
+1. **Read** `.claude/stn-skills-pipeline-state.json` (if it exists).
+2. **State exists, `active_skill` is `plan-execution`:** Report "Resuming plan-execution at Phase {current_phase}/7. Gates passed: {gates_passed}." Continue from that phase. Also read `.claude/plan-execution-state.json` for per-task checkpoint state.
+3. **State exists, `active_skill` is a different skill:** Report the mismatch. Use AskUserQuestion: "Pipeline state shows {active_skill} is active at Phase {current_phase}. Resume that skill, or start fresh with plan-execution?"
+4. **No state file:** Initialize the state file with `active_skill: "plan-execution"`, `current_phase: 1`, `total_phases: 7`, `gates_total: 3`.
+5. **Update the state file** before starting each phase.
+
+The state file determines what happens next — not the user's phrasing. Any continuation message means: read state, continue from current phase.
+
+---
+
 ## When to Use
 
 ```mermaid
@@ -90,6 +104,11 @@ graph TD
 
 ### Phase 1: Plan Ingestion & Validation
 
+**Input Provenance Guard:** Before parsing the plan, check pipeline state:
+- [ ] If `.claude/stn-skills-pipeline-state.json` exists and shows `handoff_validated: true` from plan-writing → proceed
+- [ ] If state exists but `handoff_validated: false` → run `Skill(skill: "stn-skills:pipeline-handoff-validator", args: "MODE_B {plan_file}")` BEFORE proceeding
+- [ ] If no state file → validate plan structure independently in step 2 below (stricter: halt on any missing field)
+
 Parse the plan document and validate it is executable.
 
 **1. Accept plan** -- read the full plan document. Identify plan name, task list, dependency graph, and requirements.
@@ -130,9 +149,20 @@ Present to the user:
 
 **Do not proceed until the user responds. After confirmation, proceed immediately to Phase 2. Do not ask "Should I start?", "Which task first?", or similar.**
 
+**On confirmation:** Update state file: append `1` to `gates_passed`, set `current_phase: 2`.
+
 ---
 
 ### Phase 2: Environment Preparation
+
+**Artifact Gate:** Before starting, verify Phase 1 produced:
+- [ ] Plan parsed with task list, dependency graph, and requirements
+- [ ] DAG validated (acyclic, topological sort succeeded)
+- [ ] Baseline test results recorded
+- [ ] GATE 1 passed (user confirmed execution plan)
+- [ ] State file shows `current_phase >= 2` and `gates_passed` includes `1`
+
+If any check fails: return to Phase 1. Do not proceed.
 
 **1. Clean git tree** -- verify `git status` shows clean working tree. If uncommitted changes exist, halt and ask user to commit or stash.
 
@@ -147,6 +177,14 @@ Store as rollback point for full recovery.
 ---
 
 ### Phase 3: Task Execution Loop
+
+**Artifact Gate:** Before starting, verify Phase 2 produced:
+- [ ] Clean git tree confirmed
+- [ ] Starting SHA recorded
+- [ ] State file at `.claude/plan-execution-state.json` initialized with plan ID, starting SHA, empty checkpoint array, circuit breaker at GREEN
+- [ ] State file shows `current_phase >= 3`
+
+If any check fails: return to Phase 2. Do not proceed.
 
 For each task in execution order, execute steps 3.1 through 3.7. Do not skip steps.
 
@@ -283,6 +321,13 @@ Triggered only when a task returns BLOCKED after all retry attempts.
 
 ### Phase 4: Post-Execution Cleanup
 
+**Artifact Gate:** Before starting, verify Phase 3 produced:
+- [ ] All tasks in execution order have checkpoint entries in `.claude/plan-execution-state.json`
+- [ ] Circuit breaker state is not RED (if RED, execution was halted — do not proceed to cleanup)
+- [ ] State file shows `current_phase >= 4`
+
+If any check fails: return to Phase 3. Do not proceed.
+
 **Purpose:** Guarantee zero development artifacts, zero deprecated code, and zero legacy patterns remain after execution. This phase is what ensures the codebase is cleaner AFTER execution than before.
 
 **Step 0: Full context refresh.** Before scanning for cleanup items, read the COMPLETE final state of every modified file (not just the diff). Incremental reviews during Phase 3 see changes in isolation. The cleanup scan sees the final integrated result — it catches issues that emerge only in combination of multiple task changes.
@@ -324,6 +369,13 @@ Record total cleanup item count — this feeds into the Execution Fidelity Score
 ---
 
 ### Phase 5: Final Integration Verification
+
+**Artifact Gate:** Before starting, verify Phase 4 produced:
+- [ ] Cleanup scan completed on all modified files
+- [ ] Cleanup item count recorded (feeds into Fidelity Score)
+- [ ] State file shows `current_phase >= 5`
+
+If any check fails: return to Phase 4. Do not proceed.
 
 **1. Full test suite** -- run complete test suite. Compare against Phase 1 baseline. Zero regressions required.
 
@@ -372,11 +424,22 @@ Present to the user:
 
 **Do not proceed until the user responds. After acceptance, proceed immediately to GATE 3.**
 
+**On acceptance:** Update state file: append `2` to `gates_passed`, set `current_phase: 6`.
+
 If GAPS_FOUND, return to Phase 3 for targeted rework on specific tasks.
 
 ---
 
 ### Phase 6: Completion Report
+
+**Artifact Gate:** Before starting, verify Phase 5 produced:
+- [ ] Full test suite results (zero regressions vs. Phase 1 baseline)
+- [ ] Verification matrix from completion-verifier
+- [ ] Execution Fidelity Score calculated
+- [ ] GATE 2 passed (user confirmed completion review)
+- [ ] State file shows `current_phase >= 6` and `gates_passed` includes `2`
+
+If any check fails: return to Phase 5. Do not proceed.
 
 Generate formal report per `references/completion-report-template.md`. Sections:
 
@@ -405,12 +468,19 @@ Present the completion report.
 
 **Do not proceed until the user responds.**
 
-- Accept → proceed to Phase 7.
+- Accept → update state file: append `3` to `gates_passed`, set `current_phase: 7`. Proceed to Phase 7.
 - Reject → return to Phase 3 for specified rework tasks.
 
 ---
 
 ### Phase 7: Session Persistence
+
+**Artifact Gate:** Before starting, verify Phase 6 produced:
+- [ ] Completion report generated with all 12 sections
+- [ ] GATE 3 passed (user accepted execution)
+- [ ] State file shows `current_phase >= 7` and `gates_passed` includes `3`
+
+If any check fails: return to Phase 6. Do not proceed.
 
 Write final state to `.claude/plan-execution-state.json` with:
 - All checkpoint SHAs
@@ -426,6 +496,12 @@ This enables resumption if the session ends mid-execution. On resume, read state
 ## Transition: Execution Complete
 
 **Terminal state: The feature is implemented and verified.**
+
+### Pipeline State Cleanup
+
+Delete `.claude/stn-skills-pipeline-state.json` — the pipeline is complete. Leaving it on disk would confuse future sessions that read it.
+
+### Next Steps
 
 Use AskUserQuestion:
 - Question: "Execution complete with Fidelity Score {score}/100. Run a codebase audit to verify code quality, or finish here?"
@@ -466,6 +542,10 @@ If you catch yourself:
 | "The circuit breaker is too aggressive, I can push through" | Circuit breakers exist because repeated failure without intervention produces compounding damage. Respect the thresholds. |
 | "Replanning slows us down, just force this task through" | Forcing a blocked task produces broken code that downstream tasks inherit. Replan or skip. |
 | "The test was passing earlier, it probably still passes" | "Probably" is not evidence. Run the command. Capture the output. Now. |
+| "I can skip three-stage review because I wrote the code myself" | Self-review is blind to its own assumptions. Three independent reviewers catch what the author cannot see. |
+| "I already know the codebase, I can implement without the plan steps" | The plan exists because ad-hoc implementation produces drift, missed acceptance criteria, and broken rollbacks. Follow the steps. |
+| "This is just continuing where we left off" | Read the pipeline state file and the plan-execution state file. Resume from the exact checkpoint. Never skip ahead. |
+| "The user wants this done fast, I'll skip cleanup phase" | Cleanup (Phase 4) catches deprecated patterns and debug artifacts. Skipping it ships technical debt. |
 
 ---
 

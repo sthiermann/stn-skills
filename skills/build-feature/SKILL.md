@@ -63,6 +63,17 @@ State transfers between macro-phases via files — no in-memory coupling:
 
 This makes every macro-phase independently resumable. If a session ends after Design, start a new session at Plan by pointing to the spec file.
 
+## Session Continuity
+
+At the start of every session, read `.claude/stn-skills-pipeline-state.json` if it exists.
+
+- **State found:** Report "Found active pipeline '{pipeline_id}' — {active_skill} at Phase {current_phase}/{total_phases}. Gates passed: {gates_passed}." Use AskUserQuestion: "Resume from {active_skill} Phase {current_phase}, or start a fresh pipeline?" Options: ["Resume", "Start fresh"]
+  - **On "Resume":** Invoke the `active_skill` via the Skill tool. The skill's Session Resumption Protocol reads the state file and continues from the correct phase.
+  - **On "Start fresh":** Delete the state file. Begin from Macro-Phase 1.
+- **No state found:** Initialize the state file with `pipeline_id: "{YYYYMMDD}-{slug}"`, `active_skill: "brainstorming"`, `current_phase: 1`, `total_phases: 6`, `gates_passed: []`, `gates_total: 4`, `artifact_path: null`, `handoff_validated: false`. Begin from Macro-Phase 1.
+
+This ensures build-feature survives session boundaries without losing progress or restarting completed work.
+
 ---
 
 ## Macro-Phase 1: Design (Brainstorming)

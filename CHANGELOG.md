@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [4.0.0] - 2026-04-13
+
+### Added
+- **Auto-discovery SessionStart hook** — stn-skills now auto-loads at every session start via `hooks/hooks.json` and `hooks/stn-init`. Injects the `session-init` discovery skill with pipeline-state awareness into the session context. Pure bash, <50ms, zero external dependencies.
+- **session-init discovery skill** — New skill (`skills/session-init/SKILL.md`) with pipeline-state-first routing. When an active pipeline exists, directs Claude to resume it. For fresh sessions, provides a compact skill catalog with routing rules.
+- **Pipeline state protocol** — JSON state file (`.claude/stn-skills-pipeline-state.json`) tracks active skill, phase, gates across sessions. Session Resumption Protocol in all core skills reads state at every turn.
+- **Artifact Gates** — Every phase in brainstorming, plan-writing, and plan-execution checks that the previous phase produced its required artifact before proceeding.
+- **Mandatory handoff validation** — Transition sections in brainstorming and plan-writing now run the pipeline-handoff-validator before offering skill advancement.
+- **Anti-fast-tracking rationalizations** — Research-backed entries in all core skill rationalization tables (e.g., "at 85% per-step accuracy, skipping verification drops success to 20%").
+- **Cursor support** — `.cursor-plugin/` directory with `plugin.json` and `hooks-cursor.json` for Cursor IDE.
+- **Copilot CLI support** — `hooks/stn-init` detects Copilot CLI via `COPILOT_CLI` env var and outputs the correct JSON format.
+- **Recommended hooks template** — `docs/recommended-hooks.md` (local, gitignored) provides a PreToolUse hook that blocks code edits outside plan-execution phase.
+- **Explicit state updates at gates** — Every gate section now includes "On confirmation: update state file" instructions.
+
+### Changed
+- **Version** bumped to 4.0.0 (major: new auto-discovery infrastructure).
+- **Skills count** 7 → 8 (added session-init).
+- **Plugin manifests** updated with new skill and keywords.
+
 ## [3.5.0] - 2026-04-13
 
 ### Added

@@ -49,8 +49,8 @@ get_expected_agents() {
 
 get_expected_refs() {
   case "$1" in
-    brainstorming) echo 4 ;; plan-writing) echo 3 ;; pipeline-handoff-validator) echo 1 ;;
-    plan-execution) echo 7 ;; codebase-audit) echo 4 ;; codebase-quality-bootstrap) echo 3 ;; *) echo 0 ;;
+    brainstorming) echo 5 ;; plan-writing) echo 4 ;; pipeline-handoff-validator) echo 1 ;;
+    plan-execution) echo 8 ;; codebase-audit) echo 4 ;; codebase-quality-bootstrap) echo 3 ;; *) echo 0 ;;
   esac
 }
 

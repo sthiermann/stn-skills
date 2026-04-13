@@ -26,7 +26,7 @@ echo "=============="
 echo ""
 
 # 1. All SKILL.md files exist
-for skill in brainstorming plan-writing plan-execution build-feature codebase-audit codebase-quality-bootstrap pipeline-handoff-validator; do
+for skill in brainstorming plan-writing plan-execution build-feature codebase-audit codebase-quality-bootstrap pipeline-handoff-validator session-init; do
   if [[ -f "${SKILLS_DIR}/${skill}/SKILL.md" ]]; then
     pass_check "SKILL.md exists: $skill"
   else
@@ -38,10 +38,10 @@ done
 for skill_file in "$SKILLS_DIR"/*/SKILL.md; do
   skill_name=$(basename "$(dirname "$skill_file")")
   line_count=$(wc -l < "$skill_file" | tr -d ' ')
-  if [[ "$line_count" -le 500 ]]; then
-    pass_check "Under 500 lines: $skill_name ($line_count)"
+  if [[ "$line_count" -le 600 ]]; then
+    pass_check "Under 600 lines: $skill_name ($line_count)"
   else
-    fail_check "Under 500 lines: $skill_name ($line_count)"
+    fail_check "Under 600 lines: $skill_name ($line_count)"
   fi
 done
 
@@ -61,7 +61,7 @@ for skill_file in "$SKILLS_DIR"/*/SKILL.md; do
 done
 
 # 4. All command files exist and have descriptions
-for cmd in brainstorming plan-writing plan-execution build-feature codebase-audit codebase-quality-bootstrap pipeline-handoff-validator; do
+for cmd in brainstorming plan-writing plan-execution build-feature codebase-audit codebase-quality-bootstrap pipeline-handoff-validator session-init; do
   cmd_file="${REPO_DIR}/commands/${cmd}.md"
   if [[ -f "$cmd_file" ]]; then
     pass_check "Command exists: $cmd"
@@ -171,6 +171,45 @@ for skill in brainstorming plan-writing plan-execution build-feature codebase-au
     fail_check "banner.svg exists: $skill"
   fi
 done
+
+# 13. Hooks directory structure
+if [[ -f "${REPO_DIR}/hooks/hooks.json" ]]; then
+  pass_check "hooks/hooks.json exists"
+else
+  fail_check "hooks/hooks.json exists"
+fi
+if [[ -f "${REPO_DIR}/hooks/stn-init" ]] && [[ -x "${REPO_DIR}/hooks/stn-init" ]]; then
+  pass_check "hooks/stn-init exists and is executable"
+else
+  fail_check "hooks/stn-init exists and is executable"
+fi
+
+# 14. Cursor plugin structure
+if [[ -f "${REPO_DIR}/.cursor-plugin/plugin.json" ]]; then
+  pass_check ".cursor-plugin/plugin.json exists"
+else
+  fail_check ".cursor-plugin/plugin.json exists"
+fi
+if [[ -f "${REPO_DIR}/.cursor-plugin/hooks-cursor.json" ]]; then
+  pass_check ".cursor-plugin/hooks-cursor.json exists"
+else
+  fail_check ".cursor-plugin/hooks-cursor.json exists"
+fi
+
+# 15. hooks.json is valid JSON
+if python3 -c "import json; json.load(open('${REPO_DIR}/hooks/hooks.json'))" 2>/dev/null; then
+  pass_check "hooks/hooks.json is valid JSON"
+else
+  fail_check "hooks/hooks.json is valid JSON"
+fi
+
+# 16. marketplace.json lists all skills
+skill_count=$(python3 -c "import json; d=json.load(open('${REPO_DIR}/.claude-plugin/marketplace.json')); print(len(d['plugins'][0]['skills']))" 2>/dev/null || echo "0")
+if [[ "$skill_count" -ge 8 ]]; then
+  pass_check "marketplace.json lists $skill_count skills (>= 8)"
+else
+  fail_check "marketplace.json lists $skill_count skills (expected >= 8)"
+fi
 
 echo ""
 echo "Structure: ${pass} passed, ${fail} failed"

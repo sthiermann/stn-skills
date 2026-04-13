@@ -58,6 +58,20 @@ This mandate is enforced at every stage:
 - **Phase 5 (Verification):** Plan-verifier checks convention compliance (check #5) — deprecated API usage in any code block is a defect.
 - **Plan Output:** If existing code touched by the plan uses deprecated patterns, the plan includes modernization steps that replace them with current equivalents. No plan may leave deprecated code in files it touches.
 
+## Session Resumption Protocol
+
+At the start of EVERY turn — before any other action — read `references/pipeline-state-protocol.md` and follow its procedure:
+
+1. **Read** `.claude/stn-skills-pipeline-state.json` (if it exists).
+2. **State exists, `active_skill` is `plan-writing`:** Report "Resuming plan-writing at Phase {current_phase}/6. Gates passed: {gates_passed}." Continue from that phase. Do not restart completed phases.
+3. **State exists, `active_skill` is a different skill:** Report the mismatch. Use AskUserQuestion: "Pipeline state shows {active_skill} is active at Phase {current_phase}. Resume that skill, or start fresh with plan-writing?"
+4. **No state file:** Initialize the state file with `active_skill: "plan-writing"`, `current_phase: 1`, `total_phases: 6`, `gates_total: 4`.
+5. **Update the state file** before starting each phase.
+
+The state file determines what happens next — not the user's phrasing. Any continuation message means: read state, continue from current phase.
+
+---
+
 ## When to Use
 
 ```mermaid
@@ -125,6 +139,11 @@ graph TD
 
 ### Phase 1: Input Analysis & Codebase Reconnaissance
 
+**Input Provenance Guard:** Before analyzing input, check pipeline state:
+- [ ] If `.claude/stn-skills-pipeline-state.json` exists and shows `handoff_validated: true` from brainstorming → proceed
+- [ ] If state exists but `handoff_validated: false` → run `Skill(skill: "stn-skills:pipeline-handoff-validator", args: "MODE_A {input_file}")` BEFORE proceeding
+- [ ] If no state file → validate input independently: verify design spec contains Problem Statement, Success Criteria, Scope Boundaries, Selected Approach, and Acceptance Criteria
+
 Accept one of: design spec, brainstorm output, or direct requirements from the user.
 
 **1. Validate input** — if input is a design spec file, verify it contains: Problem Statement, Success Criteria, Scope Boundaries, Selected Approach, and Acceptance Criteria. Flag missing sections. Map design spec fields: Success Criteria + Acceptance Criteria → Requirements list. Selected Approach → architecture guidance. Scope Boundaries → task constraints. Risk Register → task risk seeds.
@@ -169,9 +188,20 @@ Present to the user:
 
 **Do not proceed until the user responds.** Misunderstood requirements produce wasted plans.
 
+**On confirmation:** Update state file: append `1` to `gates_passed`, set `current_phase: 2`.
+
 ---
 
 ### Phase 2: Parallel Codebase Mapping
+
+**Artifact Gate:** Before starting, verify Phase 1 produced:
+- [ ] Numbered requirements list (R1...RN) with testable assertions
+- [ ] Project mode classified (Greenfield / Brownfield / Mixed)
+- [ ] Tech stack detected
+- [ ] GATE 1 passed (user confirmed scope)
+- [ ] State file shows `current_phase >= 2` and `gates_passed` includes `1`
+
+If any check fails: return to Phase 1. Do not proceed.
 
 Build the file structure that the plan will operate on.
 
@@ -201,6 +231,13 @@ This table is authoritative. Every task in the plan must reference files from th
 ---
 
 ### Phase 3: Task Decomposition
+
+**Artifact Gate:** Before starting, verify Phase 2 produced:
+- [ ] File Structure Lock-In table exists (file, action, responsibility, modified by)
+- [ ] Codebase map available (cartographer output or greenfield structure)
+- [ ] State file shows `current_phase >= 3`
+
+If any check fails: return to Phase 2. Do not proceed.
 
 Dispatch the `agents/task-decomposer.md` subagent.
 
@@ -247,9 +284,21 @@ Present to the user:
 
 **Do not proceed until the user responds.**
 
+**On confirmation:** Update state file: append `2` to `gates_passed`, set `current_phase: 4`.
+
 ---
 
 ### Phase 4: Parallel Step Authoring
+
+**Artifact Gate:** Before starting, verify Phase 3 produced:
+- [ ] Task list with all properties per `references/task-anatomy.md`
+- [ ] Mermaid DAG (must pass topological sort)
+- [ ] Wave plan with parallel execution groups
+- [ ] Requirements coverage matrix (every RN mapped to tasks)
+- [ ] GATE 2 passed (user confirmed task breakdown)
+- [ ] State file shows `current_phase >= 4` and `gates_passed` includes `2`
+
+If any check fails: return to Phase 3. Do not proceed.
 
 Author complete steps for every task. Dispatch `step-author` subagents in parallel, clustered by dependency proximity (2-4 tasks per cluster).
 
@@ -340,6 +389,13 @@ Note: Every `write_code` step shows full file content (CREATE) or complete diff 
 
 ### Phase 5: Adversarial Verification
 
+**Artifact Gate:** Before starting, verify Phase 4 produced:
+- [ ] Complete steps authored for every task (all `write_code`, `run_command`, `verify_output` steps present)
+- [ ] Zero placeholder patterns visible (no "TBD", "TODO", "similar to above", ellipsis)
+- [ ] State file shows `current_phase >= 5`
+
+If any check fails: return to Phase 4. Do not proceed.
+
 Dispatch the `agents/plan-verifier.md` subagent with the complete plan.
 
 **Context package:**
@@ -406,9 +462,19 @@ If score < 90 after 2 rework cycles, use AskUserQuestion:
 
 **Do not proceed until the user responds.**
 
+**On proceed:** Update state file: append `3` to `gates_passed`, set `current_phase: 6`.
+
 ---
 
 ### Phase 6: Plan Assembly & Delivery
+
+**Artifact Gate:** Before starting, verify Phase 5 produced:
+- [ ] Plan Quality Score calculated (composite and per-dimension)
+- [ ] All 7 verification checks completed (PASS/FAIL per check)
+- [ ] GATE 3 passed (user confirmed verification results)
+- [ ] State file shows `current_phase >= 6` and `gates_passed` includes `3`
+
+If any check fails: return to Phase 5. Do not proceed.
 
 Assemble the final plan document following `references/plan-document-template.md`.
 
@@ -442,19 +508,46 @@ Present the plan summary:
 
 **Do not proceed until the user responds.**
 
+**On approval:** Update state file: append `4` to `gates_passed`, set `current_phase: 6` (Phase 6 is assembly, already done — Transition follows).
+
 ---
 
 ## Transition: Plan Complete
+
+### Pre-Transition Verification
+
+Before offering the user a choice to advance, verify ALL of the following:
+
+1. **All 6 phases completed** — check state file: `current_phase` reached 6
+2. **All 4 gates passed** — check state file: `gates_passed` contains `[1, 2, 3, 4]`
+3. **Plan artifact on disk** — verify the file exists at `.plan/plan-{YYYYMMDD}-{slug}.md`
+4. **Plan Quality Score >= 90** — or user explicitly acknowledged lower score at GATE 3
+
+If ANY check fails: STOP. Return to the earliest incomplete phase. Do not present the AskUserQuestion.
+
+### Mandatory Handoff Validation
+
+Run the pipeline-handoff-validator BEFORE offering skill advancement:
+
+1. Invoke: `Skill(skill: "stn-skills:pipeline-handoff-validator", args: "MODE_B {plan_file_path}")`
+2. Wait for the Handoff Compliance Table result
+3. **If READY:** update state file with `handoff_validated: true`. Proceed to Skill Advancement below.
+4. **If GAPS_FOUND:** present gaps to user. Offer: "Fix gaps before proceeding, or proceed with acknowledged gaps?" If fixing: return to the relevant plan-writing phase. Do NOT offer skill advancement until gaps are resolved or explicitly acknowledged.
+
+### Skill Advancement
 
 MANDATORY: Invoke the next skill via the Skill tool. Do NOT start executing tasks without it.
 
 **Terminal state: The next pipeline step is `/stn-skills:plan-execution`.**
 
 Use AskUserQuestion:
-- Question: "Plan saved to `{path}`. Continue to plan-execution, or stop here?"
+- Question: "Plan saved to `{path}` and handoff validation passed. Continue to plan-execution, or stop here?"
 - Options: ["Continue to plan-execution", "Stop here"]
 
-**On "Continue to plan-execution":** Immediately invoke the Skill tool: `Skill(skill: "stn-skills:plan-execution", args: "{plan_file_path}")`
+**On "Continue to plan-execution":**
+1. Update state file: `active_skill: "plan-execution"`, `current_phase: 1`, `total_phases: 7`, `gates_passed: []`, `gates_total: 3`, `handoff_validated: false`
+2. Immediately invoke: `Skill(skill: "stn-skills:plan-execution", args: "{plan_file_path}")`
+
 **On "Stop here":** End. Inform user: resume later with `/stn-skills:plan-execution`.
 
 If you find yourself about to write implementation code without having invoked the Skill tool — STOP. That is the pipeline violation described in the Mandatory Skill Chain section above.
@@ -492,3 +585,7 @@ If you catch yourself or an agent:
 | "The DAG is simple enough to keep in my head" | Draw it. If you cannot draw it, the dependencies are not clear. |
 | "Risk assessment is speculative anyway" | Speculative risk identification prevents concrete failures. Name the failure mode. |
 | "I can just start executing the plan directly" | NO. Invoke plan-execution via the Skill tool. Executing without it loses checkpoint recovery, drift detection, circuit breakers, and verification evidence. |
+| "I already know the codebase, I can skip mapping" | Codebase knowledge drifts between sessions. The cartographer captures current state. Stale mental models produce incorrect file references. |
+| "The plan is mostly done, I'll write code directly" | A plan without handoff validation propagates defects. At pipeline boundaries, minutes of validation prevent hours of rework. |
+| "The user is impatient, I'll speed up by skipping verification" | Skipping Phase 5 verification means shipping a plan with unknown defect density. Plan Quality Score exists because unverified plans fail during execution. |
+| "This is just continuing where we left off" | Read the pipeline state file. If mid-workflow, continue to the next phase. Never interpret any continuation message as "skip remaining phases." |

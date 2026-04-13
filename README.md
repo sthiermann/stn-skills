@@ -10,13 +10,13 @@ A professional Claude Code skill suite for the complete software engineering lif
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-3.5.0-blue?style=flat-square" alt="Version 3.5.0">
+  <img src="https://img.shields.io/badge/version-4.0.0-blue?style=flat-square" alt="Version 4.0.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
-  <img src="https://img.shields.io/badge/skills-7-brightgreen?style=flat-square" alt="7 Skills">
+  <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v3.5.0](CHANGELOG.md)
+[What's new in v4.0.0](CHANGELOG.md)
 
 </div>
 
@@ -57,7 +57,7 @@ graph LR
     style E fill:#dc2626,stroke:#b91c1c,color:#fff
 ```
 
-Each skill works independently or as part of the pipeline. Use `/stn-skills:build-feature` for the full pipeline, or invoke each skill separately. Complex audit findings can be escalated to the brainstorming → planning → execution pipeline for structured remediation.
+Each skill works independently or as part of the pipeline. The `session-init` skill auto-loads at session start and routes to the correct skill based on pipeline state. Use `/stn-skills:build-feature` for the full pipeline, or invoke each skill separately. Complex audit findings can be escalated to the brainstorming → planning → execution pipeline for structured remediation.
 
 ---
 
@@ -72,6 +72,7 @@ Each skill works independently or as part of the pipeline. Use `/stn-skills:buil
 | **Plan Execution** | `stn-skills:plan-execution` | Checkpoint-verified execution with drift detection, 3-stage review, circuit breakers, and fidelity scoring. | ~3 min/task |
 | **Codebase Audit** | `stn-skills:codebase-audit` | 13-domain evidence-based repository audit with confidence scoring, optional auto-fix, and pipeline escalation for complex findings. | 15–45 min |
 | **Quality Bootstrap** | `stn-skills:codebase-quality-bootstrap` | Generates production-grade CLAUDE.md and hooks aligned with all 13 audit domains. | 5–15 min |
+| **Auto-Discovery** | `stn-skills:session-init` | Session-start auto-loading with pipeline-state awareness. Routes to the correct skill. | auto |
 
 ---
 
@@ -155,7 +156,7 @@ Or: `Build this feature` | `Implement end-to-end` | `Full pipeline`
 <details>
 <summary><b>Token Efficiency</b> — progressive disclosure architecture</summary>
 
-- SKILL.md bodies: max 400 lines, split into reference files loaded on-demand
+- SKILL.md bodies: target 400 lines, complex skills up to 600 with reference files for on-demand loading
 - Agent prompts: max 200 lines, dense and filler-free
 - Subagent output stays in subagent context — only structured summaries return
 - KV-cache optimized: stable prefixes, deterministic ordering, no timestamps in system content
@@ -185,11 +186,13 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 | Directory | Contents |
 |-----------|----------|
 | `.claude-plugin/` | `plugin.json` (metadata) · `marketplace.json` (marketplace registration) |
-| `commands/` | 7 slash command entry points (one `.md` per skill) |
-| `skills/` | 7 skill implementations (see below) |
+| `.cursor-plugin/` | `plugin.json` (Cursor metadata) · `hooks-cursor.json` (Cursor SessionStart hook) |
+| `hooks/` | `hooks.json` (SessionStart hook definition) · `stn-init` (pipeline-state-aware context injection) |
+| `commands/` | 8 slash command entry points (one `.md` per skill) |
+| `skills/` | 8 skill implementations (see below) |
 | `evals/` | Eval framework for activation and structure testing |
 
-Each skill contains: `SKILL.md` (orchestrator prompt) · `README.md` (documentation) · `banner.svg` · `agents/` (subagent prompts) · `references/` (loaded on-demand)
+Pipeline skills contain: `SKILL.md` (orchestrator prompt) · `README.md` (documentation) · `banner.svg` · `agents/` (subagent prompts) · `references/` (loaded on-demand). `session-init` is a lightweight routing skill auto-injected at session start — it has no agents or references.
 
 | Skill | Phases | Agents | References |
 |-------|--------|--------|------------|
@@ -200,6 +203,7 @@ Each skill contains: `SKILL.md` (orchestrator prompt) · `README.md` (documentat
 | `plan-execution` | 7 phases, 3 gates | 5 | 7 |
 | `codebase-audit` | 5 phases, 3 gates | 17 | 4 |
 | `codebase-quality-bootstrap` | 4 phases, 3 gates | 6 | 3 |
+| `session-init` | auto-discovery | — | — |
 
 ---
 
