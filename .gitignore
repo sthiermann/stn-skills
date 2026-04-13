@@ -12,6 +12,10 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Pipeline artifacts (local)
+.plan/
+docs/specs/
+
 # Eval results (generated)
 evals/results/
 
