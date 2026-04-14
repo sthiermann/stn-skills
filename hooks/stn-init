@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
 # stn-skills SessionStart hook
 # Reads pipeline state + session-init skill, injects into session context.
-# Pure bash, no external dependencies, <50ms target.
+# Uses jq for JSON parsing with python3 fallback. <50ms target.
 
 set -euo pipefail
+
+# Kill-switch: skip all stn-skills hooks
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && exit 0
+
+# JSON field reader: jq with python3 fallback
+json_get() {
+  local file="$1" field="$2"
+  jq -r ".$field // empty" "$file" 2>/dev/null \
+    || python3 -c "import json,sys; v=json.load(open('$file')).get('$field',''); print(v if not isinstance(v,list) else json.dumps(v))" 2>/dev/null \
+    || echo ""
+}
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -37,12 +48,13 @@ if [ -n "$state_file" ]; then
 fi
 
 if [ -n "$state_file" ]; then
-  # Pure bash field extraction — each guarded with || true
-  active_skill=$(grep -o '"active_skill"[[:space:]]*:[[:space:]]*"[^"]*"' "$state_file" | head -1 | sed 's/.*:.*"\([^"]*\)".*/\1/') || true
-  current_phase=$(grep -o '"current_phase"[[:space:]]*:[[:space:]]*[0-9]*' "$state_file" | head -1 | sed 's/.*:[[:space:]]*//' ) || true
-  total_phases=$(grep -o '"total_phases"[[:space:]]*:[[:space:]]*[0-9]*' "$state_file" | head -1 | sed 's/.*:[[:space:]]*//' ) || true
-  gates_passed=$(grep -o '"gates_passed"[[:space:]]*:[[:space:]]*\[[^]]*\]' "$state_file" | head -1 | sed 's/.*:[[:space:]]*//' ) || true
-  updated_at=$(grep -o '"updated_at"[[:space:]]*:[[:space:]]*"[^"]*"' "$state_file" | head -1 | sed 's/.*:.*"\([^"]*\)".*/\1/') || true
+  # JSON field extraction via jq (python3 fallback)
+  active_skill=$(json_get "$state_file" "active_skill")
+  current_phase=$(json_get "$state_file" "current_phase")
+  total_phases=$(json_get "$state_file" "total_phases")
+  gates_passed=$(json_get "$state_file" "gates_passed")
+  updated_at=$(json_get "$state_file" "updated_at")
+  artifact_path=$(json_get "$state_file" "artifact_path")
 
   # Only build state block if essential fields are present
   if [ -n "$active_skill" ] && [ -n "$current_phase" ]; then
@@ -57,6 +69,17 @@ if [ -n "$state_file" ]; then
       fi
     fi
 
+    # Artifact existence check
+    artifact_warning=""
+    if [ -n "$artifact_path" ] && [ "$artifact_path" != "null" ]; then
+      artifact_resolve=""
+      [ -f "$artifact_path" ] && artifact_resolve="$artifact_path"
+      [ -z "$artifact_resolve" ] && [ -n "${git_root:-}" ] && [ -f "${git_root}/${artifact_path}" ] && artifact_resolve="${git_root}/${artifact_path}"
+      if [ -z "$artifact_resolve" ]; then
+        artifact_warning="- **Warning:** artifact_path \`${artifact_path}\` does not exist. The artifact may have been deleted."
+      fi
+    fi
+
     state_block=$(printf '%s\n' \
       "" \
       "---" \
@@ -65,6 +88,7 @@ if [ -n "$state_file" ]; then
       "" \
       "**${active_skill}** | Phase ${current_phase}/${total_phases:-?} | Gates ${gates_passed:-[]} | ${updated_at:-unknown}" \
       ${stale_warning:+"$stale_warning"} \
+      ${artifact_warning:+"$artifact_warning"} \
       "" \
       "**Resume:** Invoke \`Skill(skill: \"stn-skills:${active_skill}\")\` now."
     )
