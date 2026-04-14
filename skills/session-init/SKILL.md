@@ -5,6 +5,18 @@ description: >-
   stn-skills. Triggers: session start, /stn-skills:session-init.
 ---
 
+## Subagent Guard
+
+If you were dispatched as a subagent to execute a specific task, skip this skill entirely. Only the top-level orchestrator routes.
+
+## Instruction Priority
+
+1. **User project rules** (CLAUDE.md, direct instructions) — highest priority
+2. **stn-skills** — override default behavior where they apply
+3. **Default system prompt** — lowest priority
+
+If CLAUDE.md contradicts a skill instruction, follow CLAUDE.md. The user is in control.
+
 ## The Iron Law
 
 ```
@@ -37,7 +49,13 @@ No Active Pipeline State section? Use routing below.
 | 6 | Audit, review, or assess repository health, security, or quality | `stn-skills:codebase-audit` |
 | 7 | Set up or update project quality standards, generate CLAUDE.md | `stn-skills:codebase-quality-bootstrap` |
 
-Multiple match? Use higher priority. No match? Proceed without skill.
+Multiple match? Use higher priority.
+
+**No match?** Before proceeding without a skill, ask: does this task touch 3+ files or require design decisions? If yes, it likely matches priority 2 or 3. Re-evaluate. Only proceed without a skill when genuinely none applies.
+
+## Pre-Plan-Mode Gate
+
+About to enter plan mode? Check: was brainstorming done for this task? If not and the task is non-trivial, invoke `stn-skills:brainstorming` first. The pipeline exists for a reason — design before plan, plan before code.
 
 ## Skip
 
@@ -49,9 +67,16 @@ Do NOT invoke when: simple question, one-line fix, no code changes, user says "s
 
 ## Red Flags and Common Rationalizations
 
-- "Too simple for a skill" -> Check routing. Simple tasks in complex codebases need structure.
-- "I know what to do" -> Skill loads gates + verification. Skipping loses that.
-- "I'll invoke later" -> Skills are invoked BEFORE work, not after.
-- "Pipeline can wait" -> Active pipelines are priority 1. Inform user first.
-- "Already started, too late" -> Stop. Invoke skill. Starting without structure produces rework.
-- "This is a continuation" -> Read state file. State determines what happens next.
+| Thought | Reality |
+|---------|---------|
+| "Too simple for a skill" | Check routing. Simple tasks in complex codebases need structure. |
+| "I know what to do" | Skills load gates + verification. Skipping loses that. |
+| "I'll invoke later" | Skills are invoked BEFORE work, not after. |
+| "Pipeline can wait" | Active pipelines are priority 1. Inform user first. |
+| "Already started, too late" | Stop. Invoke skill. Starting without structure produces rework. |
+| "This is a continuation" | Read state file. State determines what happens next. |
+| "I need more context first" | Skills tell you HOW to gather context. Invoke first. |
+| "Let me just explore quickly" | Exploration without structure produces shallow results. Route first. |
+| "It's only a small change" | Small changes that touch multiple files compound. Check routing. |
+| "The user didn't ask for a skill" | Routing is automatic. Users don't need to request it. |
+| "I can handle this without structure" | That's the rationalization the pipeline was built to prevent. |
