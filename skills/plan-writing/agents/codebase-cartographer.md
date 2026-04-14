@@ -92,6 +92,7 @@ Flag files that must NOT be modified:
 
 1. Report only what exists. No speculation about intent.
 2. Include ALL public exports -- do not summarize with "and others."
+3. **MAX_FILES = 200.** When scanning a module with more than 200 source files, truncate to the 200 most relevant files (prioritize by: files matching task scope > files with most imports/exports > alphabetical). Report: "Scanned {N} of {TOTAL} files. {OMITTED} files omitted by MAX_FILES limit."
 3. If a file has no public API (side-effect-only module), note that explicitly.
 4. Flag any deprecated patterns found (deprecated API usage, legacy imports, outdated config formats).
 5. If {{TARGET_AREA}} is empty or missing, report that immediately -- do not fabricate content.

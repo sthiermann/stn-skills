@@ -188,6 +188,17 @@ If any check fails: return to Phase 2. Do not proceed.
 
 For each task in execution order, execute steps 3.1 through 3.7. Do not skip steps.
 
+#### Step 3.0: Scope Enforcement File
+
+**Before dispatching each task**, write `.claude/current-task-scope.json`:
+```json
+{
+  "task_id": "T{N}",
+  "allowed_files": ["{files_modified list from task spec}"]
+}
+```
+This enables the `stn-scope-guard` hook to block writes outside the task's declared scope. **After the task completes** (regardless of status), delete `.claude/current-task-scope.json`.
+
 #### Step 3.1: Role Anchoring
 
 Inject at the top of every subagent dispatch:

@@ -20,13 +20,15 @@ Durable JSON state file that tracks pipeline progress across sessions. Enables c
   "gates_total": 4,
   "artifact_path": null,
   "handoff_validated": false,
-  "updated_at": "{ISO-8601}"
+  "updated_at": "{ISO-8601}",
+  "schema_version": 1
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `pipeline_id` | string | Unique ID: date + kebab-case topic slug |
+| `schema_version` | integer | Schema version. Optional, defaults to 1 if absent. Added in v5.0.0. |
 | `active_skill` | string | Which skill is currently running |
 | `current_phase` | integer | Phase number currently being executed (1-indexed) |
 | `total_phases` | integer | Total phases in active skill |

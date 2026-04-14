@@ -80,6 +80,8 @@ Produce structured status report (format below).
 
 Reference: `references/status-codes.md` for full format rules.
 
+**MAX_FILES = 20.** When reading context files for a task, limit to 20 files maximum. Prioritize files listed in the task's `files_read` and `files_modified` fields. Report if truncation occurred.
+
 ## Output Format
 
 ```
