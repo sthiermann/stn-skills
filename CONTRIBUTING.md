@@ -44,13 +44,27 @@ A matching entry in `commands/` provides the slash command.
 - Never commit the `.claude/` directory
 - Keep commits focused on a single concern
 
+## Evaluation Suite
+
+Before submitting changes, run the full eval suite:
+
+```bash
+./evals/eval-runner.sh          # All evals
+./evals/eval-behavior.sh        # 48 behavioral hook tests (no LLM calls)
+./evals/eval-consistency.sh     # 88 cross-file consistency checks
+./evals/eval-structure.sh       # File structure validation
+```
+
+All tests must pass. Zero failures is the quality bar.
+
 ## Pull Request Process
 
 1. Open an issue first for new skills or major changes
 2. Branch from `main`
-3. Ensure SKILL.md, README.md, and plugin.json stay consistent
-4. Test locally against a real repository
-5. Submit PR with a clear description of what changed and why
+3. Run `./evals/eval-runner.sh` — all tests must pass
+4. Ensure SKILL.md, README.md, and plugin.json stay consistent
+5. Test locally against a real repository
+6. Submit PR with a clear description of what changed and why
 
 ## Quality Bar
 

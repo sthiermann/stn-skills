@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.1.0] - 2026-04-14
+
+### Added
+- **Routing guard hook** — `stn-routing-guard` blocks multi-file edits (3+ unique files) outside active pipelines. Closes the gap where Claude could bypass session-init routing and implement directly without skill invocation. Self-healing tracker with 12h staleness window. Dedicated kill-switch (`STN_ROUTING_GUARD_SKIP=1`). Configurable threshold (`STN_ROUTING_GUARD_THRESHOLD`).
+- **Path traversal protection** — `stn-routing-guard` and `stn-scope-guard` reject file paths containing `../` sequences.
+- **session-init README** — full documentation for the auto-discovery skill with routing table, enforcement details, and pipeline links.
+- **Troubleshooting section** — root README now includes FAQ for common hook and pipeline questions.
+
+### Changed
+- **Hook hardening** — python3 fallbacks added to `stn-skill-gate` (skill name parsing), `stn-state-validator` (JSON validation + field checks), and `stn-circuit-breaker` (state + failure count). All hooks now work without jq installed.
+- **stn-init injection fix** — python3 fallback in `json_get` now uses `sys.argv` instead of string interpolation, preventing potential code injection.
+- **stn-session-lock hardened** — atomic `mkdir` (no `-p`) for lock acquisition, numeric PID validation, safe stale lock cleanup without `rm -rf`.
+- **session-init Skip criteria tightened** — "one-line fix" → "single-file fix". Added "mechanical/routine changes" to Red Flags table.
+- **Behavioral eval suite** — expanded from 22 to 48 tests. Session-lock (3 tests), skill-gate chain validation (4 tests), state-validator edge cases (3 tests), circuit-breaker tool gating (3 tests), scope-guard path traversal (1 test), routing-guard extras (3 tests).
+- **Coverage matrix** — expanded from R1-R20 to R1-R26.
+- **Marketplace description** — rewritten with value proposition, research backing, and metrics.
+- **.gitignore** — removed `docs/` exclusion to allow versioned documentation.
+- **Skill table links** — root README skill table now links to individual skill READMEs.
+
+### Security
+- **Path traversal rejection** — `stn-scope-guard` and `stn-routing-guard` block `../` paths.
+- **Injection-safe python3 fallbacks** — all hooks use `sys.argv` or `sys.stdin` for value passing, never string interpolation.
+- **Session-lock race condition fixed** — concurrent sessions can no longer both acquire the lock via `mkdir -p`.
+
 ## [5.0.0] - 2026-04-14
 
 ### Added

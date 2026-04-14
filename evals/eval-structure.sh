@@ -178,11 +178,13 @@ if [[ -f "${REPO_DIR}/hooks/hooks.json" ]]; then
 else
   fail_check "hooks/hooks.json exists"
 fi
-if [[ -f "${REPO_DIR}/hooks/stn-init" ]] && [[ -x "${REPO_DIR}/hooks/stn-init" ]]; then
-  pass_check "hooks/stn-init exists and is executable"
-else
-  fail_check "hooks/stn-init exists and is executable"
-fi
+for hook in stn-init stn-session-lock stn-skill-gate stn-state-validator stn-routing-guard stn-scope-guard stn-circuit-breaker; do
+  if [[ -f "${REPO_DIR}/hooks/${hook}" ]] && [[ -x "${REPO_DIR}/hooks/${hook}" ]]; then
+    pass_check "hooks/${hook} exists and is executable"
+  else
+    fail_check "hooks/${hook} exists and is executable"
+  fi
+done
 
 # 14. Cursor plugin structure
 if [[ -f "${REPO_DIR}/.cursor-plugin/plugin.json" ]]; then

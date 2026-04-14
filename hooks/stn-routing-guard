@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# stn-routing-guard: PreToolUse hook for Edit/Write
+# Blocks multi-file edits outside active pipelines.
+# Forces routing through stn-skills for substantial changes.
+# Part of stn-skills Layered Defense Enforcement.
+set -euo pipefail
+
+# Kill-switch (shared)
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Dedicated kill-switch
+[[ "${STN_ROUTING_GUARD_SKIP:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Read stdin JSON
+INPUT="$(cat)"
+TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
+
+# Only gate Edit/Write
+case "$TOOL_NAME" in
+  Edit|Write) ;;
+  *) echo '{"decision":"allow"}' && exit 0 ;;
+esac
+
+FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
+[[ -z "$FILE_PATH" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Always allow .claude/ writes (state files, plans, tracker)
+[[ "$FILE_PATH" == */.claude/* || "$FILE_PATH" == .claude/* ]] && echo '{"decision":"allow"}' && exit 0
+
+# Find repo root
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Check for active pipeline — if pipeline exists, defer to scope-guard
+for dir in ".claude" "${REPO_ROOT}/.claude"; do
+  if [[ -f "$dir/stn-skills-pipeline-state.json" ]]; then
+    SKILL="$(jq -r '.active_skill // empty' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "")"
+    PHASE="$(jq -r '.current_phase // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
+    TOTAL="$(jq -r '.total_phases // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
+    if [[ -n "$SKILL" ]]; then
+      # Treat completed pipeline (phase > total) as inactive
+      if [[ "$SKILL" == "plan-execution" && "$PHASE" -gt 0 && "$TOTAL" -gt 0 && "$PHASE" -gt "$TOTAL" ]]; then
+        break
+      fi
+      echo '{"decision":"allow"}' && exit 0
+    fi
+  fi
+done
+
+# Check for active task scope (codebase-audit quick fixes)
+for dir in ".claude" "${REPO_ROOT}/.claude"; do
+  [[ -f "$dir/current-task-scope.json" ]] && echo '{"decision":"allow"}' && exit 0
+done
+
+# --- No active pipeline. Track edits. ---
+TRACKER="${REPO_ROOT}/.claude/stn-edit-tracker.json"
+THRESHOLD="${STN_ROUTING_GUARD_THRESHOLD:-3}"
+
+# Normalize file path to relative
+REL_PATH="${FILE_PATH#"${REPO_ROOT}"/}"
+
+# Block path traversal
+[[ "$REL_PATH" == *../* || "$REL_PATH" == ..* ]] && echo '{"decision":"block","reason":"Path traversal detected."}' && exit 0
+
+# Read or initialize tracker
+TRACKED_FILES="[]"
+if [[ -f "$TRACKER" ]]; then
+  NOW="$(date +%s)"
+  FILE_MTIME="$(stat -f %m "$TRACKER" 2>/dev/null || stat -c %Y "$TRACKER" 2>/dev/null || echo "0")"
+  FILE_AGE="$((NOW - FILE_MTIME))"
+  if [[ "$FILE_AGE" -le 43200 ]]; then
+    TRACKED_FILES="$(jq -r '.files // []' "$TRACKER" 2>/dev/null || echo "[]")"
+  fi
+fi
+
+# Re-edits to already-tracked files don't count again
+ALREADY="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '[.[] | select(. == $f)] | length' 2>/dev/null || echo "0")"
+if [[ "$ALREADY" -gt 0 ]]; then
+  echo '{"decision":"allow"}' && exit 0
+fi
+
+# Add file and check count
+NEW_FILES="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '. + [$f]' 2>/dev/null)"
+COUNT="$(echo "$NEW_FILES" | jq 'length' 2>/dev/null || echo "0")"
+
+if [[ "$COUNT" -ge "$THRESHOLD" ]]; then
+  echo "{\"decision\":\"block\",\"reason\":\"${COUNT} files edited without an active pipeline. Multi-file changes need structure. Invoke stn-skills:build-feature or stn-skills:brainstorming. Set STN_ROUTING_GUARD_SKIP=1 to override.\"}"
+  exit 0
+fi
+
+# Update tracker
+mkdir -p "$(dirname "$TRACKER")"
+printf '{"files":%s}\n' "$NEW_FILES" > "$TRACKER"
+
+echo '{"decision":"allow"}'

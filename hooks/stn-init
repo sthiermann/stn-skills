@@ -12,7 +12,7 @@ set -euo pipefail
 json_get() {
   local file="$1" field="$2"
   jq -r ".$field // empty" "$file" 2>/dev/null \
-    || python3 -c "import json,sys; v=json.load(open('$file')).get('$field',''); print(v if not isinstance(v,list) else json.dumps(v))" 2>/dev/null \
+    || python3 -c "import json,sys; v=json.load(open(sys.argv[1])).get(sys.argv[2],''); print(v if not isinstance(v,list) else json.dumps(v))" "$file" "$field" 2>/dev/null \
     || echo ""
 }
 

@@ -26,10 +26,14 @@ done
 [[ -z "$STATE_FILE" ]] && echo '{"decision":"allow"}' && exit 0
 
 # Read circuit breaker state
-CB_STATE="$(jq -r '.circuit_breaker.state // "GREEN"' "$STATE_FILE" 2>/dev/null || echo "GREEN")"
+CB_STATE="$(jq -r '.circuit_breaker.state // "GREEN"' "$STATE_FILE" 2>/dev/null \
+  || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('circuit_breaker',{}).get('state','GREEN'))" "$STATE_FILE" 2>/dev/null \
+  || echo "GREEN")"
 
 if [[ "$CB_STATE" == "RED" ]]; then
-  FAILURES="$(jq -r '.circuit_breaker.consecutive_review_failures // 0' "$STATE_FILE" 2>/dev/null || echo "0")"
+  FAILURES="$(jq -r '.circuit_breaker.consecutive_review_failures // 0' "$STATE_FILE" 2>/dev/null \
+    || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('circuit_breaker',{}).get('consecutive_review_failures',0))" "$STATE_FILE" 2>/dev/null \
+    || echo "0")"
   echo "{\"decision\":\"block\",\"reason\":\"Circuit breaker RED: ${FAILURES} consecutive failures. Review execution state before continuing.\"}"
   exit 0
 fi

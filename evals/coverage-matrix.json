@@ -1,6 +1,6 @@
 {
-  "version": "5.0.0",
-  "description": "Maps requirements R1-R20 to implementing files, tasks, and eval checks",
+  "version": "5.1.0",
+  "description": "Maps requirements R1-R26 to implementing files, tasks, and eval checks",
   "coverage": {
     "R1":  {"task": "T02", "files": ["hooks/stn-skill-gate"], "eval": "eval-behavior.sh:B-05,B-06"},
     "R2":  {"task": "T03", "files": ["hooks/stn-state-validator"], "eval": "eval-behavior.sh:B-09,B-10,B-11"},
@@ -21,6 +21,12 @@
     "R17": {"task": "T16", "files": ["evals/coverage-matrix.json"], "eval": "self-verifying"},
     "R18": {"task": "T09", "files": ["skills/*/references/pipeline-state-protocol.md"], "eval": "eval-consistency.sh:C-31"},
     "R19": {"task": "T18", "files": [".claude-plugin/plugin.json", ".cursor-plugin/plugin.json"], "eval": "eval-consistency.sh"},
-    "R20": {"task": "T19", "files": ["CHANGELOG.md"], "eval": "eval-structure.sh"}
+    "R20": {"task": "T19", "files": ["CHANGELOG.md"], "eval": "eval-structure.sh"},
+    "R21": {"task": "T07", "files": ["hooks/stn-routing-guard"], "eval": "eval-behavior.sh:B-23,B-24,B-25,B-26,B-27,B-28,B-29,B-30,B-31,B-46,B-47,B-48"},
+    "R22": {"task": "T02", "files": ["hooks/stn-skill-gate"], "eval": "eval-behavior.sh:B-32,B-33,B-34,B-35"},
+    "R23": {"task": "T03", "files": ["hooks/stn-state-validator"], "eval": "eval-behavior.sh:B-36,B-37,B-38"},
+    "R24": {"task": "T04", "files": ["hooks/stn-session-lock"], "eval": "eval-behavior.sh:B-39,B-40,B-41"},
+    "R25": {"task": "T05", "files": ["hooks/stn-circuit-breaker"], "eval": "eval-behavior.sh:B-42,B-43,B-44"},
+    "R26": {"task": "T06", "files": ["hooks/stn-scope-guard"], "eval": "eval-behavior.sh:B-45"}
   }
 }

@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "stn-skills",
-      "description": "Professional skill suite for Claude Code, Cursor, and Copilot CLI by Sven Thiermann. 8 skills: session-init (auto-discovery), build-feature, brainstorming, plan-writing, handoff-validator, plan-execution, codebase-audit, and quality-bootstrap.",
+      "description": "Enterprise AI development pipeline — from idea to verified code. Multi-lens brainstorming, zero-placeholder DAG planning, checkpoint-verified execution with fidelity scoring, and 13-domain codebase auditing. 8 skills, 7 enforcement hooks, technology-agnostic. Research-backed: structured decomposition yields 12-18% higher correctness; per-step verification prevents 20-27% quality degradation.",
       "source": "./",
       "skills": [
         "./skills/build-feature",

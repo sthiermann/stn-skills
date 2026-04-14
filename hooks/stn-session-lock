@@ -15,16 +15,21 @@ PID_FILE="${LOCK_DIR}/pid"
 # Check existing lock
 if [[ -d "$LOCK_DIR" ]] && [[ -f "$PID_FILE" ]]; then
   LOCKED_PID="$(cat "$PID_FILE" 2>/dev/null || echo "")"
-  if [[ -n "$LOCKED_PID" ]] && kill -0 "$LOCKED_PID" 2>/dev/null; then
+  if [[ "$LOCKED_PID" =~ ^[0-9]+$ ]] && kill -0 "$LOCKED_PID" 2>/dev/null; then
     echo "{\"decision\":\"block\",\"reason\":\"Another stn-skills session is active (PID ${LOCKED_PID}). Close it first or delete .claude/stn-skills.lock/\"}"
     exit 0
   fi
   # Stale lock — process dead, clean up
-  rm -rf "$LOCK_DIR"
+  rm -f "$PID_FILE" 2>/dev/null
+  rmdir "$LOCK_DIR" 2>/dev/null || true
 fi
 
-# Create lock (mkdir is atomic on POSIX)
-mkdir -p "$LOCK_DIR" 2>/dev/null || true
+# Create lock (mkdir without -p is atomic on POSIX — exactly one process succeeds)
+mkdir -p "$(dirname "$LOCK_DIR")" 2>/dev/null || true
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+  # Another session acquired the lock between our check and our attempt
+  exit 0
+fi
 echo "$$" > "$PID_FILE"
 
 exit 0

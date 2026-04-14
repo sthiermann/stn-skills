@@ -35,6 +35,9 @@ FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 REL_PATH="${FILE_PATH#"${REPO_ROOT}"/}"
 
+# Block path traversal
+[[ "$REL_PATH" == *../* || "$REL_PATH" == ..* ]] && echo '{"decision":"block","reason":"Path traversal detected."}' && exit 0
+
 # Check allowed files list
 ALLOWED="$(jq -r '.allowed_files[]?' "$SCOPE_FILE" 2>/dev/null || echo "")"
 

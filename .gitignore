@@ -12,9 +12,8 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Pipeline artifacts and generated docs (local)
+# Pipeline state files (session-scoped, not committed)
 .plan/
-docs/
 
 # Eval results (generated)
 evals/results/

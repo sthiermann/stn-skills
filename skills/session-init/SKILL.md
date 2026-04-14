@@ -59,7 +59,7 @@ About to enter plan mode? Check: was brainstorming done for this task? If not an
 
 ## Skip
 
-Do NOT invoke when: simple question, one-line fix, no code changes, user says "skip".
+Do NOT invoke when: simple question, single-file fix, no code changes, user says "skip".
 
 ## Pipeline
 
@@ -80,3 +80,4 @@ Do NOT invoke when: simple question, one-line fix, no code changes, user says "s
 | "It's only a small change" | Small changes that touch multiple files compound. Check routing. |
 | "The user didn't ask for a skill" | Routing is automatic. Users don't need to request it. |
 | "I can handle this without structure" | That's the rationalization the pipeline was built to prevent. |
+| "These are mechanical/routine changes" | Mechanical changes across multiple files are exactly what pipelines catch. Structure prevents missed interactions. |

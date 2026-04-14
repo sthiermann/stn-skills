@@ -10,13 +10,14 @@ A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-5.0.0-blue?style=flat-square" alt="Version 5.0.0">
+  <img src="https://img.shields.io/badge/version-5.1.0-blue?style=flat-square" alt="Version 5.1.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
+  <img src="https://img.shields.io/badge/hooks-7-red?style=flat-square" alt="7 Enforcement Hooks">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v5.0.0](CHANGELOG.md)
+[What's new in v5.1.0](CHANGELOG.md)
 
 </div>
 
@@ -65,14 +66,14 @@ Each skill works independently or as part of the pipeline. The `session-init` sk
 
 | Skill | Invoke | Description | Typical Duration |
 |-------|--------|-------------|-----------------|
-| **Build Feature** | `stn-skills:build-feature` | End-to-end pipeline: brainstorming → plan-writing → plan-execution in one workflow. | 30–90 min |
-| **Brainstorming** | `stn-skills:brainstorming` | Multi-lens design exploration with adversarial review. Transforms vague requests into validated design specs. | 5–25 min |
-| **Plan Writing** | `stn-skills:plan-writing` | DAG-based task decomposition with zero placeholders. Every step has complete code, verification, and rollback. | 5–35 min |
-| **Handoff Validator** | `stn-skills:pipeline-handoff-validator` | Validates design specs and plans at pipeline boundaries before the next phase consumes them. | 1–3 min |
-| **Plan Execution** | `stn-skills:plan-execution` | Checkpoint-verified execution with drift detection, 3-stage review, circuit breakers, and fidelity scoring. | ~3 min/task |
-| **Codebase Audit** | `stn-skills:codebase-audit` | 13-domain evidence-based repository audit with confidence scoring, optional auto-fix, and pipeline escalation for complex findings. | 15–45 min |
-| **Quality Bootstrap** | `stn-skills:codebase-quality-bootstrap` | Generates production-grade CLAUDE.md and hooks aligned with all 13 audit domains. | 5–15 min |
-| **Auto-Discovery** | `stn-skills:session-init` | Session-start auto-loading with pipeline-state awareness. Routes to the correct skill. | auto |
+| **[Build Feature](skills/build-feature/README.md)** | `stn-skills:build-feature` | End-to-end pipeline: brainstorming → plan-writing → plan-execution in one workflow. | 30–90 min |
+| **[Brainstorming](skills/brainstorming/README.md)** | `stn-skills:brainstorming` | Multi-lens design exploration with adversarial review. Transforms vague requests into validated design specs. | 5–25 min |
+| **[Plan Writing](skills/plan-writing/README.md)** | `stn-skills:plan-writing` | DAG-based task decomposition with zero placeholders. Every step has complete code, verification, and rollback. | 5–35 min |
+| **[Handoff Validator](skills/pipeline-handoff-validator/README.md)** | `stn-skills:pipeline-handoff-validator` | Validates design specs and plans at pipeline boundaries before the next phase consumes them. | 1–3 min |
+| **[Plan Execution](skills/plan-execution/README.md)** | `stn-skills:plan-execution` | Checkpoint-verified execution with drift detection, 3-stage review, circuit breakers, and fidelity scoring. | ~3 min/task |
+| **[Codebase Audit](skills/codebase-audit/README.md)** | `stn-skills:codebase-audit` | 13-domain evidence-based repository audit with confidence scoring, optional auto-fix, and pipeline escalation for complex findings. | 15–45 min |
+| **[Quality Bootstrap](skills/codebase-quality-bootstrap/README.md)** | `stn-skills:codebase-quality-bootstrap` | Generates production-grade CLAUDE.md and hooks aligned with all 13 audit domains. | 5–15 min |
+| **[Auto-Discovery](skills/session-init/README.md)** | `stn-skills:session-init` | Session-start auto-loading with pipeline-state awareness. Routes to the correct skill. | auto |
 
 ---
 
@@ -186,11 +187,29 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 | Directory | Contents |
 |-----------|----------|
 | `.claude-plugin/` | `plugin.json` (metadata) · `marketplace.json` (marketplace registration) |
-| `.cursor-plugin/` | `plugin.json` (Cursor metadata) · `hooks-cursor.json` (Cursor SessionStart hook) |
-| `hooks/` | `hooks.json` (SessionStart hook definition) · `stn-init` (pipeline-state-aware context injection) |
+| `.cursor-plugin/` | `plugin.json` (Cursor metadata) · `hooks-cursor.json` (Cursor hooks) |
+| `hooks/` | `hooks.json` (hook definitions) · 7 enforcement hooks (see below) |
 | `commands/` | 8 slash command entry points (one `.md` per skill) |
 | `skills/` | 8 skill implementations (see below) |
-| `evals/` | Eval framework for activation and structure testing |
+| `evals/` | Eval framework: 48 behavioral tests, 88 consistency checks, activation tests |
+
+### Enforcement Hooks
+
+7 hooks execute at the Claude Code harness level — outside the LLM's reasoning chain. Claude cannot rationalize past them.
+
+| Hook | Event | What It Enforces |
+|------|-------|-----------------|
+| `stn-init` | SessionStart | Loads pipeline state + session-init routing into context |
+| `stn-session-lock` | SessionStart | Prevents concurrent sessions via atomic mkdir lock |
+| `stn-skill-gate` | PreToolUse | Blocks invalid skill chain transitions (handoff not validated) |
+| `stn-state-validator` | PreToolUse | Validates JSON integrity on pipeline state file writes |
+| `stn-routing-guard` | PreToolUse | Blocks multi-file edits (3+ files) outside active pipelines |
+| `stn-scope-guard` | PreToolUse | Blocks writes outside current task scope during execution |
+| `stn-circuit-breaker` | PreToolUse | Blocks all modifications when circuit breaker is RED |
+
+See [Hook Documentation](docs/recommended-hooks.md) for details and override options.
+
+### Skill Structure
 
 Pipeline skills contain: `SKILL.md` (orchestrator prompt) · `README.md` (documentation) · `banner.svg` · `agents/` (subagent prompts) · `references/` (loaded on-demand). `session-init` is a lightweight routing skill auto-injected at session start — it has no agents or references.
 
@@ -207,9 +226,25 @@ Pipeline skills contain: `SKILL.md` (orchestrator prompt) · `README.md` (docume
 
 ---
 
+## Troubleshooting
+
+**A hook blocked my edit. How do I proceed?**
+Read the block reason — it tells you what to do. Usually: invoke the correct skill first. For urgent hotfixes: `export STN_ROUTING_GUARD_SKIP=1` bypasses the routing guard without disabling other hooks.
+
+**My pipeline was interrupted. Can I resume?**
+Yes. Pipeline state persists in `.claude/stn-skills-pipeline-state.json`. Start a new session in the same directory — `session-init` detects the active pipeline and offers to resume.
+
+**How do I disable all hooks temporarily?**
+`export STN_SKILLS_HOOKS_DISABLE=1` disables all stn-skills hooks. See [Hook Documentation](docs/recommended-hooks.md) for granular overrides.
+
+**Can I use individual skills without the full pipeline?**
+Yes. Every skill works independently. Use `/stn-skills:brainstorming` for design only, `/stn-skills:codebase-audit` for audit only, etc.
+
+---
+
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. All changes must pass the eval suite (`./evals/eval-runner.sh`).
 
 ---
 

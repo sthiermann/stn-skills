@@ -16,7 +16,9 @@ TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null \
 # Only gate Skill tool calls
 [[ "$TOOL_NAME" != "Skill" ]] && echo '{"decision":"allow"}' && exit 0
 
-INVOKED_SKILL="$(echo "$INPUT" | jq -r '.tool_input.skill // empty' 2>/dev/null || echo "")"
+INVOKED_SKILL="$(echo "$INPUT" | jq -r '.tool_input.skill // empty' 2>/dev/null \
+  || echo "$INPUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('tool_input',{}).get('skill',''))" 2>/dev/null \
+  || echo "")"
 
 # Only gate stn-skills invocations
 [[ "$INVOKED_SKILL" != stn-skills:* ]] && echo '{"decision":"allow"}' && exit 0
