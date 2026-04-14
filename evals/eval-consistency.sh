@@ -534,5 +534,28 @@ if [[ -f "$hv_skill" ]]; then
   fi
 fi
 
+# C-31: Pipeline state protocol — all 3 copies identical
+proto_exec="${SKILLS_DIR}/plan-execution/references/pipeline-state-protocol.md"
+proto_brain="${SKILLS_DIR}/brainstorming/references/pipeline-state-protocol.md"
+proto_plan="${SKILLS_DIR}/plan-writing/references/pipeline-state-protocol.md"
+if [[ -f "$proto_exec" ]] && [[ -f "$proto_brain" ]] && [[ -f "$proto_plan" ]]; then
+  if diff -q "$proto_exec" "$proto_brain" >/dev/null 2>&1 && diff -q "$proto_exec" "$proto_plan" >/dev/null 2>&1; then
+    pass_check "C-31 Pipeline state protocol: all 3 copies identical"
+  else
+    fail_check "C-31 Pipeline state protocol: copies differ (run: cp plan-execution/references/pipeline-state-protocol.md to brainstorming + plan-writing)"
+  fi
+else
+  fail_check "C-31 Pipeline state protocol: one or more copies missing"
+fi
+
+# C-32: Pipeline state protocol contains schema_version
+if [[ -f "$proto_exec" ]]; then
+  if grep -q 'schema_version' "$proto_exec"; then
+    pass_check "C-32 Pipeline state protocol contains schema_version"
+  else
+    fail_check "C-32 Pipeline state protocol missing schema_version field"
+  fi
+fi
+
 echo ""
 echo "Consistency: ${pass} passed, ${fail} failed"

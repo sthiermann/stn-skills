@@ -1,0 +1,26 @@
+{
+  "version": "5.0.0",
+  "description": "Maps requirements R1-R20 to implementing files, tasks, and eval checks",
+  "coverage": {
+    "R1":  {"task": "T02", "files": ["hooks/stn-skill-gate"], "eval": "eval-behavior.sh:B-05,B-06"},
+    "R2":  {"task": "T03", "files": ["hooks/stn-state-validator"], "eval": "eval-behavior.sh:B-09,B-10,B-11"},
+    "R3":  {"task": "T06,T13", "files": ["hooks/stn-scope-guard", "skills/plan-execution/SKILL.md"], "eval": "eval-behavior.sh:B-18,B-19"},
+    "R4":  {"task": "T04", "files": ["hooks/stn-session-lock"], "eval": "eval-behavior.sh:B-01"},
+    "R5":  {"task": "T05", "files": ["hooks/stn-circuit-breaker"], "eval": "eval-behavior.sh:B-14,B-15"},
+    "R6":  {"task": "T01-T06", "files": ["hooks/stn-*"], "eval": "eval-behavior.sh:B-01,B-07,B-12,B-16,B-21"},
+    "R7":  {"task": "T01", "files": ["hooks/stn-init"], "eval": "eval-behavior.sh:B-02"},
+    "R8":  {"task": "T02-T06", "files": ["hooks/stn-*"], "eval": "eval-behavior.sh:B-22"},
+    "R9":  {"task": "T08", "files": ["hooks/hooks.json", ".cursor-plugin/hooks-cursor.json"], "eval": "eval-structure.sh"},
+    "R10": {"task": "T10,T11", "files": ["skills/*/agents/*.md"], "eval": "eval-structure.sh"},
+    "R11": {"task": "T12", "files": ["skills/plan-writing/agents/codebase-cartographer.md", "skills/plan-execution/agents/task-implementer.md"], "eval": "eval-structure.sh"},
+    "R12": {"task": "T01", "files": ["hooks/stn-init"], "eval": "eval-behavior.sh:B-02"},
+    "R13": {"task": "T13", "files": ["skills/plan-execution/SKILL.md"], "eval": "eval-structure.sh"},
+    "R14": {"task": "T07", "files": ["hooks/stn-init"], "eval": "eval-behavior.sh:B-02"},
+    "R15": {"task": "T07,T09", "files": ["skills/*/references/pipeline-state-protocol.md"], "eval": "eval-consistency.sh:C-31,C-32"},
+    "R16": {"task": "T15", "files": ["evals/eval-behavior.sh"], "eval": "self-verifying"},
+    "R17": {"task": "T16", "files": ["evals/coverage-matrix.json"], "eval": "self-verifying"},
+    "R18": {"task": "T09", "files": ["skills/*/references/pipeline-state-protocol.md"], "eval": "eval-consistency.sh:C-31"},
+    "R19": {"task": "T18", "files": [".claude-plugin/plugin.json", ".cursor-plugin/plugin.json"], "eval": "eval-consistency.sh"},
+    "R20": {"task": "T19", "files": ["CHANGELOG.md"], "eval": "eval-structure.sh"}
+  }
+}

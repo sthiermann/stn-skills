@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.0.0] - 2026-04-14
+
+### Added
+- **5 PreToolUse hook scripts** — `stn-skill-gate` (blocks invalid skill chain invocations), `stn-state-validator` (validates JSON on state file writes), `stn-scope-guard` (blocks writes outside task scope), `stn-circuit-breaker` (blocks at RED threshold), `stn-session-lock` (prevents concurrent sessions via mkdir lock). All hooks use jq with python3 fallback, include kill-switch (`STN_SKILLS_HOOKS_DISABLE=1`), and are security-hardened (no shell expansion of state values).
+- **Behavioral eval suite** — `evals/eval-behavior.sh` with 22 deterministic hook tests (no LLM calls). Tests kill-switch, blocking, allowing, and security for all 6 hooks.
+- **Coverage matrix** — `evals/coverage-matrix.json` maps all 20 requirements to implementing files, tasks, and eval checks.
+- **Scope enforcement file** — `current-task-scope.json` written by plan-execution before each task, read by `stn-scope-guard` hook. Enables hardware-level file scope enforcement during execution.
+- **Schema versioning** — `schema_version` field in pipeline-state-protocol.md. Optional, defaults to 1 if absent. Enables future state migrations.
+- **Protocol sync eval** — `eval-consistency.sh` checks C-31 (3 protocol copies identical) and C-32 (schema_version present).
+
+### Changed
+- **stn-init migrated to jq** — replaced grep/sed JSON parsing with jq (python3 fallback). Added kill-switch, artifact_path existence check, `json_get` helper function.
+- **XML delimiters in 6 agent prompts** — `<codebase-context>` tags prevent prompt injection via codebase content in codebase-cartographer, step-author, task-implementer, problem-decomposer, code-quality-reviewer, completion-verifier.
+- **MAX_FILES truncation** — codebase-cartographer (MAX_FILES=200) and task-implementer (MAX_FILES=20) prevent context window exhaustion on large codebases.
+- **Hook registration** — hooks.json and hooks-cursor.json now include all 6 hooks (SessionStart + PreToolUse).
+- **recommended-hooks.md** — rewritten to document v5.0.0 built-in hooks instead of manual setup instructions.
+- **codebase-audit pipeline handoff** — auto-invokes brainstorming/plan-writing after generating remediation brief (was passive text only).
+
+### Security
+- **Kill-switch** — `STN_SKILLS_HOOKS_DISABLE=1` env var bypasses all hooks (emergency override).
+- **No shell expansion** — all hooks use jq for JSON parsing with double-quoted variables. No `eval` or unquoted `$()` patterns.
+- **Scope guard** — hardware-level enforcement preventing writes outside declared task scope during plan-execution.
+- **Session lock** — mkdir-based lock with PID validation prevents concurrent session state corruption.
+- **State validation** — malformed JSON writes to pipeline state files are blocked before they reach disk.
+
 ## [4.2.0] - 2026-04-14
 
 ### Changed
