@@ -8,5 +8,5 @@
 - [ ] SKILL.md updated (if behavior changed)
 - [ ] README.md updated (if user-facing changes)
 - [ ] CHANGELOG.md updated
-- [ ] Tested locally with Claude Code against a real repository
+- [ ] Tested locally against a real repository
 - [ ] Version synced across plugin.json, README.md badge, and CHANGELOG.md (if version bump)

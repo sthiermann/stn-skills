@@ -48,7 +48,7 @@ Example: `- **Parameterized queries only.** Use Prisma's query builder for all d
 ## Template
 ```markdown
 # {Project Name}
-This file provides guidance to Claude Code when working with code in this repository.
+This file provides guidance to AI coding tools when working with code in this repository.
 
 ## Project
 {2-3 sentence description: what the project is, its tech stack, and its purpose.}

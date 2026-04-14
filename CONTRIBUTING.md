@@ -4,13 +4,13 @@ Contributions are welcome — whether improving existing skills or proposing new
 
 ## Prerequisites
 
-- [Claude Code](https://claude.ai/code) installed
-- Familiarity with Claude Code skills and slash commands
+- [Claude Code](https://claude.ai/code), [Cursor](https://cursor.com), or [Copilot CLI](https://docs.github.com/en/copilot) installed
+- Familiarity with skill-based AI coding tools and slash commands
 
 ## Local Testing
 
 1. Fork and clone the repository
-2. Install as a local plugin inside Claude Code:
+2. Install as a local plugin:
    ```
    /plugin install file:///path/to/your/stn-skills
    ```
@@ -49,7 +49,7 @@ A matching entry in `commands/` provides the slash command.
 1. Open an issue first for new skills or major changes
 2. Branch from `main`
 3. Ensure SKILL.md, README.md, and plugin.json stay consistent
-4. Test locally with Claude Code against a real repository
+4. Test locally against a real repository
 5. Submit PR with a clear description of what changed and why
 
 ## Quality Bar

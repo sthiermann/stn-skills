@@ -18,7 +18,7 @@ Catch gaps before they propagate. Contracts, not assumptions.
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Validates handoff artifacts between pipeline phases. Integrated into build-feature, or use standalone.
 
-A Claude Code validation skill that catches incomplete design specs and defective plans before they propagate through the pipeline. Two validation modes cover both pipeline boundaries: Mode A validates design specs before plan-writing (6 contract checks), Mode B validates plans before plan-execution (7 contract checks). Produces structured Handoff Compliance Tables with PASS/GAP per check and specific remediation suggestions.
+A validation skill that catches incomplete design specs and defective plans before they propagate through the pipeline. Two validation modes cover both pipeline boundaries: Mode A validates design specs before plan-writing (6 contract checks), Mode B validates plans before plan-execution (7 contract checks). Produces structured Handoff Compliance Tables with PASS/GAP per check and specific remediation suggestions.
 
 **Typical duration:** 1–3 min per validation
 

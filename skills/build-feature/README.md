@@ -4,7 +4,7 @@
 
 # Build Feature
 
-**End-to-end design-to-delivery pipeline for Claude Code**
+**End-to-end design-to-delivery pipeline**
 
 Brainstorm. Plan. Execute. One command.
 
@@ -18,7 +18,7 @@ Brainstorm. Plan. Execute. One command.
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Orchestrates the full design-to-delivery workflow. Use individual skills for targeted work.
 
-A Claude Code meta-orchestrator skill that chains brainstorming, plan-writing, and plan-execution into a single pipeline. Takes a feature idea from initial exploration through DAG-based planning to verified, committed code — with user gates at every transition. One command, three research-backed techniques: multi-perspective design exploration, complete-before-execution planning, and independently verified implementation.
+A meta-orchestrator skill that chains brainstorming, plan-writing, and plan-execution into a single pipeline. Takes a feature idea from initial exploration through DAG-based planning to verified, committed code — with user gates at every transition. One command, three research-backed techniques: multi-perspective design exploration, complete-before-execution planning, and independently verified implementation.
 
 **Typical duration:** 30–60 min for a medium-complexity feature (3–5 tasks)
 

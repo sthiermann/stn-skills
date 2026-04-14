@@ -4,7 +4,7 @@
 
 # Codebase Quality Bootstrap
 
-**Zero-finding audit compliance for Claude Code**
+**Zero-finding audit compliance from day one**
 
 6 analyzers. 13 audit domains. Tech-stack-specific rules. Automated hooks.
 
@@ -18,7 +18,7 @@
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. The preventive counterpart to codebase-audit. Use `/stn-skills:build-feature` for the full pipeline.
 
-A Claude Code skill for automated quality configuration. Analyzes a repository's tech stack, dispatches 6 specialized analyzer agents in parallel, and generates a production-grade CLAUDE.md with `.claude/settings.json` hooks — all aligned with the 13 codebase-audit domains. Bootstrap first, then audit with zero findings.
+A skill for automated quality configuration. Analyzes a repository's tech stack, dispatches 6 specialized analyzer agents in parallel, and generates a production-grade CLAUDE.md with `.claude/settings.json` hooks — all aligned with the 13 codebase-audit domains. Bootstrap first, then audit with zero findings.
 
 **Typical duration:** 5–10 min for initial bootstrap | 3–5 min for re-runs
 
@@ -26,15 +26,15 @@ A Claude Code skill for automated quality configuration. Analyzes a repository's
 
 ## Why This Exists
 
-Claude Code follows the rules you give it. Vague CLAUDE.md files produce inconsistent code. Missing hooks mean formatting, linting, and security checks run only when someone remembers to trigger them. Projects without explicit standards accumulate the exact problems a codebase audit later finds — security gaps, deprecated patterns, dead code, documentation drift.
+Your AI coding tool follows the rules you give it. Vague CLAUDE.md files produce inconsistent code. Missing hooks mean formatting, linting, and security checks run only when someone remembers to trigger them. Projects without explicit standards accumulate the exact problems a codebase audit later finds — security gaps, deprecated patterns, dead code, documentation drift.
 
-This skill solves the problem at the source. It reads your tech stack, generates tech-stack-specific rules (not generic advice), and configures hooks that enforce deterministically. The result: Claude Code writes code that passes all 13 audit domains from the first line.
+This skill solves the problem at the source. It reads your tech stack, generates tech-stack-specific rules (not generic advice), and configures hooks that enforce deterministically. The result: your AI coding tool writes code that passes all 13 audit domains from the first line.
 
 ---
 
 ## Quick Start
 
-Open Claude Code in any repository and run:
+Open your AI coding tool in any repository and run:
 
 ```
 /stn-skills:codebase-quality-bootstrap
@@ -119,7 +119,7 @@ The skill is fully technology-agnostic. Rules are generated specific to whatever
 ```markdown
 # my-app
 
-This file provides guidance to Claude Code when working with code in this repository.
+This file provides guidance to AI coding tools when working with code in this repository.
 
 ## Project
 
@@ -302,7 +302,7 @@ The two skills form a complementary pair:
 
 ## CI/CD Integration
 
-The skill runs interactively by default (3 user gates). For CI/CD pipelines, use Claude Code's headless mode with pre-confirmed scope:
+The skill runs interactively by default (3 user gates). For CI/CD pipelines, use headless mode with pre-confirmed scope (example uses Claude Code CLI):
 
 ```yaml
 # GitHub Actions example — regenerate standards on dependency updates

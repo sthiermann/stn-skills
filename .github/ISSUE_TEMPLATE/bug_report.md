@@ -19,5 +19,5 @@ labels: bug
 2. 
 3. 
 
-**Claude Code version**
-<!-- Output of `claude --version` -->
+**Tool and version**
+<!-- Which tool (Claude Code / Cursor / Copilot CLI) and its version -->

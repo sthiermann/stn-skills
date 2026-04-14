@@ -6,7 +6,7 @@
 
 **Structured AI development — from first idea to verified code.**
 
-A professional Claude Code skill suite for the complete software engineering lifecycle.<br>
+A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
@@ -20,7 +20,7 @@ Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 </div>
 
-Requires [Claude Code](https://claude.ai/code) installed.
+Supports [Claude Code](https://claude.ai/code), [Cursor](https://cursor.com), and [Copilot CLI](https://docs.github.com/en/copilot).
 
 ---
 
@@ -78,7 +78,7 @@ Each skill works independently or as part of the pipeline. The `session-init` sk
 
 ## Install
 
-Run inside Claude Code (not your terminal):
+Run inside your AI coding tool (not your terminal):
 
 ```
 /install stn-skills

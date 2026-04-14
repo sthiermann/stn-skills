@@ -4,7 +4,7 @@
 
 # Plan Writing
 
-**Zero-ambiguity implementation plans for Claude Code**
+**Zero-ambiguity implementation plans for AI-assisted development**
 
 Atomic tasks. Complete code. DAG execution. Adversarial verification.
 
@@ -18,7 +18,7 @@ Atomic tasks. Complete code. DAG execution. Adversarial verification.
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Accepts design specs from brainstorming and produces plans for plan-execution. Use `/stn-skills:build-feature` for the full pipeline.
 
-A Claude Code skill that transforms requirements into implementation plans so detailed that execution becomes mechanical. Every task takes 2–5 minutes, every step contains complete code, and the entire plan is adversarially verified before delivery. Zero-placeholder enforcement rejects 40+ lazy shortcut patterns — no `...`, no `similar to above`, no `TODO` — ensuring plans are genuinely complete before execution begins.
+A skill that transforms requirements into implementation plans so detailed that execution becomes mechanical. Every task takes 2–5 minutes, every step contains complete code, and the entire plan is adversarially verified before delivery. Zero-placeholder enforcement rejects 40+ lazy shortcut patterns — no `...`, no `similar to above`, no `TODO` — ensuring plans are genuinely complete before execution begins.
 
 Research measures 20–27% quality degradation in multi-turn generation without per-step verification. Complete plans prevent that.
 

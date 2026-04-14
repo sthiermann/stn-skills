@@ -82,7 +82,7 @@ Generate testing rules adapted to the detected test framework and project struct
 
 ### 5. Test-First When Working with AI Assistants
 
-When implementing features or fixes with Claude Code, writing the test first provides a clear specification:
+When implementing features or fixes with an AI coding assistant, writing the test first provides a clear specification:
 - Define expected behavior in a test before writing implementation — this gives the AI assistant a concrete target
 - Run the test to confirm it fails for the right reason, then implement
 - This is a practical workflow optimization, not a mandatory methodology — teams may adapt based on their development process

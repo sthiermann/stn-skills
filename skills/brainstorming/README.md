@@ -4,7 +4,7 @@
 
 # Brainstorming
 
-**Structured design exploration for Claude Code**
+**Structured design exploration for AI-assisted development**
 
 Multi-lens analysis. Adversarial review. Validated design specs.
 
@@ -18,7 +18,7 @@ Multi-lens analysis. Adversarial review. Validated design specs.
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Produces design specs that feed directly into plan-writing. Use `/stn-skills:build-feature` for the full design-to-delivery pipeline.
 
-A Claude Code skill for structured design exploration that transforms vague requests into validated design specifications. Instead of jumping straight to code, it surfaces hidden assumptions, explores genuinely distinct approaches through 5 cognitive lenses, scores them against a weighted decision matrix, and stress-tests the winner through adversarial review before producing a spec ready for plan-writing.
+A skill for structured design exploration that transforms vague requests into validated design specifications. Instead of jumping straight to code, it surfaces hidden assumptions, explores genuinely distinct approaches through 5 cognitive lenses, scores them against a weighted decision matrix, and stress-tests the winner through adversarial review before producing a spec ready for plan-writing.
 
 Research shows that exploring multiple approaches before implementation yields 12–18% higher correctness than single-path generation.
 

@@ -4,7 +4,7 @@
 
 # Codebase Audit
 
-**Evidence-based repository audits for Claude Code**
+**Evidence-based repository audits**
 
 13 domains. Parallel agents. Independently verified findings. Optional auto-fix.
 
@@ -18,7 +18,7 @@
 
 Part of the [stn-skills](https://github.com/sthiermann/stn-skills) pipeline. Audit findings can be escalated to brainstorming and plan-writing for structured remediation. Use `/stn-skills:build-feature` for the full pipeline.
 
-A Claude Code skill for comprehensive, technology-agnostic code auditing. Dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Simple findings are fixed directly with surgical precision. Complex findings — architectural violations, large-scale refactoring, design decisions — are escalated to the brainstorming → plan-writing → plan-execution pipeline via a structured remediation brief.
+A skill for comprehensive, technology-agnostic code auditing. Dispatches up to 13 specialized auditor agents in parallel, independently verifies every finding, and delivers a structured report with file:line evidence. Simple findings are fixed directly with surgical precision. Complex findings — architectural violations, large-scale refactoring, design decisions — are escalated to the brainstorming → plan-writing → plan-execution pipeline via a structured remediation brief.
 
 **Typical duration:** 15–30 min for a medium repository (50–500 files)
 
@@ -34,7 +34,7 @@ These systemic issues need a systematic audit, not a file-by-file review. This s
 
 ## Quick Start
 
-Open Claude Code in any repository and run:
+Open your AI coding tool in any repository and run:
 
 ```
 /stn-skills:codebase-audit
@@ -229,7 +229,7 @@ Suppression syntax: `audit-suppress: DOMAIN` or `audit-suppress: DOMAIN: reason`
 
 ## CI/CD Integration
 
-The audit runs interactively by default (3 user gates for scope, findings, and remediation). For CI/CD pipelines, use Claude Code's headless mode with pre-confirmed scope:
+The audit runs interactively by default (3 user gates for scope, findings, and remediation). For CI/CD pipelines, use headless mode with pre-confirmed scope (example uses Claude Code CLI):
 
 ```yaml
 # GitHub Actions example

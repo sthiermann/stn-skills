@@ -7,7 +7,7 @@ Lightweight evaluation framework for measuring skill reliability.
 | Script | Requires Claude CLI | What it checks |
 |--------|-------------------|----------------|
 | `eval-structure.sh` | No | File structure, line counts, frontmatter, consistency |
-| `eval-activation.sh` | Yes | Skill activation rate for relevant prompts |
+| `eval-activation.sh` | Yes (Claude Code CLI) | Skill activation rate for relevant prompts |
 
 ## Usage
 

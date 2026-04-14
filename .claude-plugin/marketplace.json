@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "stn-skills",
-      "description": "Professional Claude Code skill suite by Sven Thiermann. 8 skills: session-init (auto-discovery), build-feature, brainstorming, plan-writing, handoff-validator, plan-execution, codebase-audit, and quality-bootstrap.",
+      "description": "Professional skill suite for Claude Code, Cursor, and Copilot CLI by Sven Thiermann. 8 skills: session-init (auto-discovery), build-feature, brainstorming, plan-writing, handoff-validator, plan-execution, codebase-audit, and quality-bootstrap.",
       "source": "./",
       "skills": [
         "./skills/build-feature",

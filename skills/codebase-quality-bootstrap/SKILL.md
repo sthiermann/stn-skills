@@ -37,7 +37,7 @@ graph TD
 ```
 
 **Use this skill when:**
-- Setting up a new project for Claude Code development
+- Setting up a new project for AI-assisted development
 - Onboarding an existing project to quality standards
 - Updating standards after major framework upgrades
 - Preparing a repository for codebase-audit compliance
