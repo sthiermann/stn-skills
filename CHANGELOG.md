@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [4.1.0] - 2026-04-14
+
+### Changed
+- **Multi-platform branding** — all user-facing text updated from Claude Code-only to multi-platform. stn-skills now officially lists Claude Code, Cursor, and Copilot CLI as supported platforms across README, plugin manifests, skill READMEs, templates, and documentation.
+- **Version** bumped to 4.1.0.
+
 ## [4.0.0] - 2026-04-13
 
 ### Added

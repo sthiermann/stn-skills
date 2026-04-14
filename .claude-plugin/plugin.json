@@ -1,7 +1,7 @@
 {
   "name": "stn-skills",
   "description": "Professional skill suite for Claude Code, Cursor, and Copilot CLI by Sven Thiermann. 8 skills: session-init (auto-discovery at session start), build-feature (end-to-end pipeline), brainstorming (multi-lens design exploration), plan-writing (DAG-based zero-placeholder plans), pipeline-handoff-validator (artifact contract validation), plan-execution (checkpoint-verified execution with fidelity scoring), codebase-audit (13-domain evidence-based repository audit), and codebase-quality-bootstrap (CLAUDE.md + hooks generator).",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "author": {
     "name": "Sven Thiermann"
   },
