@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# stn-scope-guard: PreToolUse hook for Edit/Write
+# Blocks writes outside current task scope during plan-execution.
+# Part of stn-skills v5.0.0 Layered Defense Enforcement.
+set -euo pipefail
+
+# Kill-switch
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Read stdin JSON
+INPUT="$(cat)"
+TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
+
+case "$TOOL_NAME" in
+  Edit|Write) ;;
+  *) echo '{"decision":"allow"}' && exit 0 ;;
+esac
+
+# Find scope file
+SCOPE_FILE=""
+for dir in ".claude" "$(git rev-parse --show-toplevel 2>/dev/null)/.claude"; do
+  [[ -f "$dir/current-task-scope.json" ]] && SCOPE_FILE="$dir/current-task-scope.json" && break
+done
+
+# No scope file = no active task = allow all
+[[ -z "$SCOPE_FILE" ]] && echo '{"decision":"allow"}' && exit 0
+
+FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
+[[ -z "$FILE_PATH" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Always allow writes to .claude/ (state files, scope files, plans)
+[[ "$FILE_PATH" == */.claude/* || "$FILE_PATH" == .claude/* ]] && echo '{"decision":"allow"}' && exit 0
+
+# Normalize path
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+REL_PATH="${FILE_PATH#"${REPO_ROOT}"/}"
+
+# Check allowed files list
+ALLOWED="$(jq -r '.allowed_files[]?' "$SCOPE_FILE" 2>/dev/null || echo "")"
+
+while IFS= read -r allowed; do
+  [[ -z "$allowed" ]] && continue
+  [[ "$REL_PATH" == "$allowed" ]] && echo '{"decision":"allow"}' && exit 0
+done <<< "$ALLOWED"
+
+SCOPE_LIST="$(jq -r '.allowed_files | join(", ")' "$SCOPE_FILE" 2>/dev/null || echo "none")"
+echo "{\"decision\":\"block\",\"reason\":\"File '${REL_PATH}' is not in current task scope. Allowed: ${SCOPE_LIST}\"}"

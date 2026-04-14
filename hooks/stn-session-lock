@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# stn-session-lock: SessionStart hook
+# Prevents concurrent stn-skills sessions via mkdir lock.
+# Part of stn-skills v5.0.0 Layered Defense Enforcement.
+set -euo pipefail
+
+# Kill-switch
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && exit 0
+
+# Find repo root
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+LOCK_DIR="${REPO_ROOT}/.claude/stn-skills.lock"
+PID_FILE="${LOCK_DIR}/pid"
+
+# Check existing lock
+if [[ -d "$LOCK_DIR" ]] && [[ -f "$PID_FILE" ]]; then
+  LOCKED_PID="$(cat "$PID_FILE" 2>/dev/null || echo "")"
+  if [[ -n "$LOCKED_PID" ]] && kill -0 "$LOCKED_PID" 2>/dev/null; then
+    echo "{\"decision\":\"block\",\"reason\":\"Another stn-skills session is active (PID ${LOCKED_PID}). Close it first or delete .claude/stn-skills.lock/\"}"
+    exit 0
+  fi
+  # Stale lock — process dead, clean up
+  rm -rf "$LOCK_DIR"
+fi
+
+# Create lock (mkdir is atomic on POSIX)
+mkdir -p "$LOCK_DIR" 2>/dev/null || true
+echo "$$" > "$PID_FILE"
+
+exit 0

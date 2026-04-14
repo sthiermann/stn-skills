@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# stn-skill-gate: PreToolUse hook for Skill invocations
+# Blocks skill chain violations based on pipeline state.
+# Part of stn-skills v5.0.0 Layered Defense Enforcement.
+set -euo pipefail
+
+# Kill-switch
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Read stdin JSON
+INPUT="$(cat)"
+TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null \
+  || echo "$INPUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null \
+  || echo "")"
+
+# Only gate Skill tool calls
+[[ "$TOOL_NAME" != "Skill" ]] && echo '{"decision":"allow"}' && exit 0
+
+INVOKED_SKILL="$(echo "$INPUT" | jq -r '.tool_input.skill // empty' 2>/dev/null || echo "")"
+
+# Only gate stn-skills invocations
+[[ "$INVOKED_SKILL" != stn-skills:* ]] && echo '{"decision":"allow"}' && exit 0
+
+# Find state file
+STATE_FILE=""
+for dir in ".claude" "$(git rev-parse --show-toplevel 2>/dev/null)/.claude"; do
+  [[ -f "$dir/stn-skills-pipeline-state.json" ]] && STATE_FILE="$dir/stn-skills-pipeline-state.json" && break
+done
+
+# No state file = no pipeline active = allow
+[[ -z "$STATE_FILE" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Read state via jq (python3 fallback)
+ACTIVE_SKILL="$(jq -r '.active_skill // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+HANDOFF_VALIDATED="$(jq -r '.handoff_validated // false' "$STATE_FILE" 2>/dev/null || echo "false")"
+
+# Extract short skill name
+SHORT_SKILL="${INVOKED_SKILL#stn-skills:}"
+
+# Non-chain skills: always allow
+case "$SHORT_SKILL" in
+  session-init|build-feature|pipeline-handoff-validator|codebase-audit|codebase-quality-bootstrap)
+    echo '{"decision":"allow"}' && exit 0 ;;
+esac
+
+# Chain enforcement: brainstorming -> plan-writing -> plan-execution
+if [[ "$ACTIVE_SKILL" == "brainstorming" && "$SHORT_SKILL" == "plan-writing" ]]; then
+  if [[ "$HANDOFF_VALIDATED" != "true" ]]; then
+    echo '{"decision":"block","reason":"Pipeline gate: handoff_validated is false. Run pipeline-handoff-validator on the design spec before invoking plan-writing."}'
+    exit 0
+  fi
+elif [[ "$ACTIVE_SKILL" == "plan-writing" && "$SHORT_SKILL" == "plan-execution" ]]; then
+  if [[ "$HANDOFF_VALIDATED" != "true" ]]; then
+    echo '{"decision":"block","reason":"Pipeline gate: handoff_validated is false. Run pipeline-handoff-validator on the plan before invoking plan-execution."}'
+    exit 0
+  fi
+fi
+
+echo '{"decision":"allow"}'

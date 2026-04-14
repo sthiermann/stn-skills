@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# stn-state-validator: PreToolUse hook for Write tool
+# Validates JSON content when writing to pipeline state files.
+# Part of stn-skills v5.0.0 Layered Defense Enforcement.
+set -euo pipefail
+
+# Kill-switch
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Read stdin JSON
+INPUT="$(cat)"
+TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
+
+[[ "$TOOL_NAME" != "Write" ]] && echo '{"decision":"allow"}' && exit 0
+
+FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
+
+# Only validate state files
+case "$FILE_PATH" in
+  *stn-skills-pipeline-state.json|*plan-execution-state.json) ;;
+  *) echo '{"decision":"allow"}' && exit 0 ;;
+esac
+
+# Validate the NEW content (not existing file — allows repair writes)
+CONTENT="$(echo "$INPUT" | jq -r '.tool_input.content // empty' 2>/dev/null || echo "")"
+
+if [[ -z "$CONTENT" ]]; then
+  echo '{"decision":"block","reason":"State file write has empty content."}'
+  exit 0
+fi
+
+# Validate JSON syntax
+if ! echo "$CONTENT" | jq empty 2>/dev/null; then
+  echo '{"decision":"block","reason":"State file content is not valid JSON. Fix the JSON before writing."}'
+  exit 0
+fi
+
+# Validate required fields for pipeline state
+if [[ "$FILE_PATH" == *pipeline-state* ]]; then
+  MISSING=""
+  for field in pipeline_id active_skill current_phase total_phases gates_passed updated_at; do
+    HAS="$(echo "$CONTENT" | jq "has(\"$field\")" 2>/dev/null || echo "false")"
+    [[ "$HAS" != "true" ]] && MISSING="${MISSING} ${field}"
+  done
+  if [[ -n "$MISSING" ]]; then
+    echo "{\"decision\":\"block\",\"reason\":\"Pipeline state missing required fields:${MISSING}\"}"
+    exit 0
+  fi
+fi
+
+echo '{"decision":"allow"}'

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# stn-circuit-breaker: PreToolUse hook for Edit/Write/Agent
+# Blocks code modifications when circuit breaker is RED.
+# Part of stn-skills v5.0.0 Layered Defense Enforcement.
+set -euo pipefail
+
+# Kill-switch
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Read stdin JSON
+INPUT="$(cat)"
+TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
+
+# Only gate code modification tools
+case "$TOOL_NAME" in
+  Edit|Write|Agent) ;;
+  *) echo '{"decision":"allow"}' && exit 0 ;;
+esac
+
+# Find execution state file
+STATE_FILE=""
+for dir in ".claude" "$(git rev-parse --show-toplevel 2>/dev/null)/.claude"; do
+  [[ -f "$dir/plan-execution-state.json" ]] && STATE_FILE="$dir/plan-execution-state.json" && break
+done
+
+[[ -z "$STATE_FILE" ]] && echo '{"decision":"allow"}' && exit 0
+
+# Read circuit breaker state
+CB_STATE="$(jq -r '.circuit_breaker.state // "GREEN"' "$STATE_FILE" 2>/dev/null || echo "GREEN")"
+
+if [[ "$CB_STATE" == "RED" ]]; then
+  FAILURES="$(jq -r '.circuit_breaker.consecutive_review_failures // 0' "$STATE_FILE" 2>/dev/null || echo "0")"
+  echo "{\"decision\":\"block\",\"reason\":\"Circuit breaker RED: ${FAILURES} consecutive failures. Review execution state before continuing.\"}"
+  exit 0
+fi
+
+echo '{"decision":"allow"}'
