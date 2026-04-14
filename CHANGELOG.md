@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [4.2.0] - 2026-04-14
+
+### Changed
+- **Intent-based routing** — session-init routing table now matches by semantic intent instead of literal English keywords. Works in any language — German, Japanese, or any other language triggers the correct skill.
+- **Subagent guard** — subagents dispatched for specific tasks now skip session-init routing, preventing recursive skill invocation.
+- **Instruction priority** — explicit hierarchy: user project rules (CLAUDE.md) > stn-skills > system defaults.
+- **Pre-plan-mode gate** — entering plan mode now checks whether brainstorming was done first for non-trivial tasks.
+- **Stronger no-match fallback** — tasks touching 3+ files or requiring design decisions are re-evaluated instead of proceeding without a skill.
+- **Expanded rationalizations** — 11 anti-bypass entries (was 6), covering "I need more context first", "let me just explore quickly", and other common skip patterns.
+- **Version** bumped to 4.2.0.
+
 ## [4.1.0] - 2026-04-14
 
 ### Changed

@@ -10,13 +10,13 @@ A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-4.1.0-blue?style=flat-square" alt="Version 4.1.0">
+  <img src="https://img.shields.io/badge/version-4.2.0-blue?style=flat-square" alt="Version 4.2.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v4.1.0](CHANGELOG.md)
+[What's new in v4.2.0](CHANGELOG.md)
 
 </div>
 
