@@ -424,18 +424,45 @@ what the target state should be.}}
 project rules that apply to the affected areas.}}
 ```
 
-After saving the brief, inform the user:
+After saving the brief, write pipeline state to `.claude/stn-skills-pipeline-state.json`:
+
+```json
+{
+  "pipeline_id": "{YYYYMMDD}-audit-remediation",
+  "active_skill": "brainstorming",
+  "current_phase": 1,
+  "total_phases": 6,
+  "gates_passed": [],
+  "gates_total": 4,
+  "artifact_path": "docs/audit-remediation-brief-YYYY-MM-DD.md",
+  "handoff_validated": false,
+  "updated_at": "{ISO-8601}"
+}
 ```
-Pipeline remediation brief saved to docs/audit-remediation-brief-YYYY-MM-DD.md
 
-To address these findings through structured design and execution:
-  /stn-skills:brainstorming   — when findings require design decisions or architectural exploration
-  /stn-skills:plan-writing    — when the approach is known but execution spans many files
+This ensures that if the session ends before the user responds, the next session's session-init will detect the active pipeline and resume.
 
-The brief is designed as direct input for either skill's Phase 1.
-```
+**Pipeline handoff (present immediately if ALL findings are PIPELINE tier, or after Remediation Summary if mixed):**
 
-If ALL selected findings are `[PIPELINE]` tier, Phase 5 ends here. If a mix of quick-fix and pipeline findings was selected, proceed with quick fixes below.
+Use AskUserQuestion — Question: "Pipeline remediation brief saved to `docs/audit-remediation-brief-YYYY-MM-DD.md`. How should these findings be addressed?" Options: ["Design exploration (brainstorming)", "Direct planning (plan-writing)", "Stop here — brief saved for later"]. **Do not proceed until the user responds.**
+
+**On "Design exploration (brainstorming)":**
+1. Pipeline state is already written with `active_skill: "brainstorming"` — no update needed.
+2. Immediately invoke: `Skill(skill: "stn-skills:brainstorming")`
+
+**On "Direct planning (plan-writing)":**
+1. Update pipeline state: set `active_skill` to `"plan-writing"`.
+2. Immediately invoke: `Skill(skill: "stn-skills:plan-writing", args: "docs/audit-remediation-brief-YYYY-MM-DD.md")`
+
+**On "Stop here — brief saved for later":**
+Pipeline state remains on disk. The next session will detect it via session-init and offer to resume.
+Inform user: "Brief and pipeline state saved. Resume later — session-init will detect the active pipeline."
+
+**Conditional placement:**
+
+If ALL selected findings are `[PIPELINE]` tier, the handoff above ends Phase 5.
+
+If a mix of quick-fix and pipeline findings was selected: **execute quick fixes first** (Steps 1-3 below), then present the pipeline handoff AFTER the Remediation Summary. The pipeline state is already written (crash safety), but the user choice and skill invocation happen after quick fixes complete so the user sees full remediation results before deciding.
 
 **Step 1: Plan Remediation Batches**
 
@@ -491,3 +518,5 @@ Present to the user:
 - Test suite status (before vs. after, which tests changed state)
 - Files modified (full list with line counts changed)
 - Pipeline escalation (if applicable): brief location, recommended next skill, finding IDs deferred to pipeline
+
+If pipeline findings were present and a remediation brief was generated, present the pipeline handoff now (the AskUserQuestion and Skill invocation from Step 0 above). The user has seen all quick-fix results and can make an informed decision about the pipeline path.

@@ -104,6 +104,9 @@ When a skill completes and the user chooses to advance:
 | brainstorming | 6 | 4 |
 | plan-writing | 6 | 4 |
 | plan-execution | 7 | 3 |
+| codebase-audit | — | — | Entry point only; does not track its own phases in pipeline state |
+
+**Pipeline entry points:** The standard pipeline starts with brainstorming. However, codebase-audit can also initiate a pipeline when `[PIPELINE]` tier findings are discovered. In this case, codebase-audit writes the initial pipeline state with `active_skill` set to `brainstorming` (default) or `plan-writing` (user choice), and `artifact_path` pointing to the remediation brief. The audit itself is not tracked as a pipeline phase — it completes independently, and the pipeline state it writes is the starting point for the subsequent skill chain.
 
 ## Relationship to plan-execution-state.json
 

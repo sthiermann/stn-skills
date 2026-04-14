@@ -63,7 +63,7 @@ Do NOT invoke when: simple question, one-line fix, no code changes, user says "s
 
 ## Pipeline
 
-`brainstorming` -> `plan-writing` -> `plan-execution`. Each outputs an artifact for the next. `build-feature` orchestrates all three. State: `.claude/stn-skills-pipeline-state.json`.
+`brainstorming` -> `plan-writing` -> `plan-execution`. Each outputs an artifact for the next. `build-feature` orchestrates all three. `codebase-audit` can initiate a pipeline when findings require design or multi-file remediation — it writes the pipeline state and hands off to `brainstorming` or `plan-writing`. State: `.claude/stn-skills-pipeline-state.json`.
 
 ## Red Flags and Common Rationalizations
 
