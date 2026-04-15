@@ -2,7 +2,7 @@
 # stn-circuit-breaker: PreToolUse hook for Edit/Write/Agent
 # Blocks code modifications when circuit breaker is RED.
 # Part of stn-skills v5.0.0 Layered Defense Enforcement.
-set -euo pipefail
+set -eo pipefail
 
 # Hook output helpers (Claude Code hookSpecificOutput format)
 _allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }

@@ -3,7 +3,7 @@
 # Blocks multi-file edits outside active pipelines.
 # Forces routing through stn-skills for substantial changes.
 # Part of stn-skills Layered Defense Enforcement.
-set -euo pipefail
+set -eo pipefail
 
 # Hook output helpers (Claude Code hookSpecificOutput format)
 _allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }

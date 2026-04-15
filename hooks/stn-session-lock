@@ -2,7 +2,7 @@
 # stn-session-lock: SessionStart hook
 # Prevents concurrent stn-skills sessions via mkdir lock.
 # Part of stn-skills v5.0.0 Layered Defense Enforcement.
-set -euo pipefail
+set -eo pipefail
 
 # Hook output helper (Claude Code hookSpecificOutput format)
 _deny() { local r="${1//\\/\\\\}"; r="${r//\"/\\\"}"; r="${r//$'\n'/\\n}"; printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$r"; exit 0; }

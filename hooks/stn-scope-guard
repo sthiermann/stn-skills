@@ -2,7 +2,7 @@
 # stn-scope-guard: PreToolUse hook for Edit/Write
 # Blocks writes outside current task scope during plan-execution.
 # Part of stn-skills v5.0.0 Layered Defense Enforcement.
-set -euo pipefail
+set -eo pipefail
 
 # Hook output helpers (Claude Code hookSpecificOutput format)
 _allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }

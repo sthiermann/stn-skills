@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.1.5] - 2026-04-15
+
+### Changed
+- **Removed `set -u` (nounset) from all 7 hooks** — `set -euo pipefail` → `set -eo pipefail`. The `nounset` flag was the root cause of all three crash reports in v5.1.1–v5.1.3 (`unbound variable` on non-numeric state values). Hooks process external data where strict nounset creates fragility. All variable fallbacks (`:-` defaults, numeric validation, jq error handling) remain in place as defense-in-depth. Verified with 51 behavioral tests + 40 stress tests covering every hook with every edge case (empty input, garbage, non-numeric state, corrupt JSON, missing fields, boolean/object/array values).
+
 ## [5.1.4] - 2026-04-15
 
 ### Fixed

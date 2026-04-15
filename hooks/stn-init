@@ -3,7 +3,7 @@
 # Reads pipeline state + session-init skill, injects into session context.
 # Uses jq for JSON parsing with python3 fallback. <50ms target.
 
-set -euo pipefail
+set -eo pipefail
 
 # Kill-switch: skip all stn-skills hooks
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && exit 0
