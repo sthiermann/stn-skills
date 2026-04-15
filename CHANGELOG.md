@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [6.1.0] - 2026-04-15
+
+### Fixed
+- **Routing guard tracker persistence** — when the multi-file edit threshold was reached, the tracker file was not updated because `_inform()` exits before the write. This caused every subsequent new-file edit to re-trigger the guidance message with an incorrect file count. The tracker is now updated before the threshold check, ensuring accurate file tracking across edits.
+
+### Removed
+- **Design specs and plan artifacts** — deleted `docs/specs/` (3 completed design specs) and `.plan/` (3 completed implementation plans). These were build-process artifacts that served no purpose in the final product.
+
 ## [6.0.0] - 2026-04-15
 
 ### Changed

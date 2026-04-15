@@ -256,6 +256,20 @@ result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path"
 check "B-24: routing-guard informs at threshold" '"permissionDecision":"allow"' "$result"
 check "B-24b: routing-guard informs with context" '"additionalContext"' "$result"
 
+# B-56: routing-guard tracker persists after inform fires
+TRACKER_FILE="${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
+if [[ -f "$TRACKER_FILE" ]]; then
+  TRACKED="$(jq -r '.files | length' "$TRACKER_FILE" 2>/dev/null || echo "0")"
+  HAS_C="$(jq -r '.files | map(select(. == "src/c.ts")) | length' "$TRACKER_FILE" 2>/dev/null || echo "0")"
+  if [[ "$TRACKED" -ge 3 && "$HAS_C" -gt 0 ]]; then
+    pass "B-56: routing-guard tracker persists after inform (${TRACKED} files, includes src/c.ts)"
+  else
+    fail "B-56: routing-guard tracker not persisted (tracked=${TRACKED}, has_c=${HAS_C})"
+  fi
+else
+  fail "B-56: routing-guard tracker file missing after inform"
+fi
+
 # B-25: routing-guard allows re-edit of tracked file
 cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 {"files":["src/a.ts","src/b.ts"]}
