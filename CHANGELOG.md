@@ -4,10 +4,19 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [7.0.0] - 2026-04-15
+
+### Changed
+- **Routing guard restores deny enforcement** — the v6.0.0 change from `_deny()` to `_inform()` was a regression. The inform pattern (allow + additionalContext) let edits through while Claude consistently ignored the guidance. The routing guard now blocks edits at 3+ files outside a pipeline with an actionable deny reason directing Claude to invoke `stn-skills:build-feature`. This matches the v5.2.0 approach that was correct but was changed before proper testing. All crash-class fixes from v5.1.2–v6.1.0 (no set -e, complete JSON escaping, tracker persistence) are preserved.
+- **Version bump across all manifests** — plugin.json, README badge, and Cursor plugin aligned to 7.0.0.
+
+### Why this is not going in circles
+The original v5.1.0 deny used the **wrong JSON format** (`decision: "block"` instead of `permissionDecision: "deny"`), and v5.1.1–v5.1.3 had **crash bugs** from `set -e`/`set -u`. These failures were misattributed to the deny approach itself, leading to the v6.0.0 regression to inform. The deny mechanism was never the problem — the implementation bugs were. Those bugs are now fixed.
+
 ## [6.1.0] - 2026-04-15
 
 ### Fixed
-- **Routing guard tracker persistence** — when the multi-file edit threshold was reached, the tracker file was not updated because `_inform()` exits before the write. This caused every subsequent new-file edit to re-trigger the guidance message with an incorrect file count. The tracker is now updated before the threshold check, ensuring accurate file tracking across edits.
+- **Routing guard tracker persistence** — when the multi-file edit threshold was reached, the tracker file was not updated because `_deny()` exits before the write. This caused every subsequent new-file edit to re-trigger the guidance message with an incorrect file count. The tracker is now updated before the threshold check, ensuring accurate file tracking across edits.
 
 ### Removed
 - **Design specs and plan artifacts** — deleted `docs/specs/` (3 completed design specs) and `.plan/` (3 completed implementation plans). These were build-process artifacts that served no purpose in the final product.

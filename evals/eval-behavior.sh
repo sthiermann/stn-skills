@@ -253,10 +253,11 @@ cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 {"files":["src/a.ts","src/b.ts"]}
 FIXTURE
 result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/c.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-24: routing-guard informs at threshold" '"permissionDecision":"allow"' "$result"
-check "B-24b: routing-guard informs with context" '"additionalContext"' "$result"
+check "B-24: routing-guard denies at threshold" '"permissionDecision":"deny"' "$result"
+check "B-24b: routing-guard deny includes reason" '"permissionDecisionReason"' "$result"
+check "B-24c: routing-guard deny includes additionalContext" '"additionalContext"' "$result"
 
-# B-56: routing-guard tracker persists after inform fires
+# B-56: routing-guard tracker persists after deny fires
 TRACKER_FILE="${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
 if [[ -f "$TRACKER_FILE" ]]; then
   TRACKED="$(jq -r '.files | length' "$TRACKER_FILE" 2>/dev/null || echo "0")"
@@ -317,8 +318,8 @@ cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 {"files":["src/a.ts","src/b.ts"]}
 FIXTURE
 result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/c.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-31: routing-guard completed pipeline = inform" '"permissionDecision":"allow"' "$result"
-check "B-31b: routing-guard completed pipeline context" '"additionalContext"' "$result"
+check "B-31: routing-guard completed pipeline = deny" '"permissionDecision":"deny"' "$result"
+check "B-31b: routing-guard completed pipeline has reason" '"permissionDecisionReason"' "$result"
 rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
 rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
 
@@ -337,8 +338,8 @@ cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 {"files":["src/a.ts"]}
 FIXTURE
 result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/b.ts"}}' | STN_ROUTING_GUARD_THRESHOLD=2 bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-47: routing-guard custom threshold=2 informs" '"permissionDecision":"allow"' "$result"
-check "B-52: routing-guard inform includes additionalContext" '"additionalContext"' "$result"
+check "B-47: routing-guard custom threshold=2 denies" '"permissionDecision":"deny"' "$result"
+check "B-52: routing-guard deny includes additionalContext" '"additionalContext"' "$result"
 
 # B-48: routing-guard ignores non-Edit/Write
 result=$(echo '{"tool_name":"Read","tool_input":{"file_path":"src/a.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)

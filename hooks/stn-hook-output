@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # stn-hook-output: Shared output helpers for stn-skills hooks.
-# Provides _allow(), _deny(), _inform(), and _json_escape().
+# Provides _allow(), _deny(), and _json_escape().
 # Sourced by all hooks — do not execute directly.
 
 _json_escape() {
@@ -31,13 +31,5 @@ _deny() {
   else
     printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$reason"
   fi
-  exit 0
-}
-
-# Usage: _inform "guidance text for Claude"
-_inform() {
-  local ctx
-  ctx="$(_json_escape "$1")"
-  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow","additionalContext":"%s"}}' "$ctx"
   exit 0
 }

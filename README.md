@@ -10,14 +10,14 @@ A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-6.0.0-blue?style=flat-square" alt="Version 6.0.0">
+  <img src="https://img.shields.io/badge/version-7.0.0-blue?style=flat-square" alt="Version 6.0.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
   <img src="https://img.shields.io/badge/hooks-7-red?style=flat-square" alt="7 Enforcement Hooks">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v6.0.0](CHANGELOG.md)
+[What's new in v7.0.0](CHANGELOG.md)
 
 </div>
 
@@ -191,7 +191,7 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 | `hooks/` | `hooks.json` (hook definitions) · 7 enforcement hooks (see below) |
 | `commands/` | 8 slash command entry points (one `.md` per skill) |
 | `skills/` | 8 skill implementations (see below) |
-| `evals/` | Eval framework: 57 behavioral tests, 88 consistency checks, activation tests |
+| `evals/` | Eval framework: 59 behavioral tests, 88 consistency checks, activation tests |
 
 ### Enforcement Hooks
 
@@ -203,7 +203,7 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 | `stn-session-lock` | SessionStart | Prevents concurrent sessions via atomic mkdir lock |
 | `stn-skill-gate` | PreToolUse | Blocks invalid skill chain transitions (handoff not validated) |
 | `stn-state-validator` | PreToolUse | Validates JSON integrity on pipeline state file writes |
-| `stn-routing-guard` | PreToolUse | Guides Claude to use pipelines for multi-file edits (3+ files) |
+| `stn-routing-guard` | PreToolUse | Blocks multi-file edits (3+ files) outside pipelines with actionable deny |
 | `stn-scope-guard` | PreToolUse | Blocks writes outside current task scope during execution |
 | `stn-circuit-breaker` | PreToolUse | Blocks all modifications when circuit breaker is RED |
 

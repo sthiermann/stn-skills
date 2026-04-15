@@ -14,7 +14,7 @@ All hooks are registered automatically via `hooks/hooks.json` (Claude Code) and 
 | `stn-session-lock` | SessionStart | `startup\|clear\|compact` | Prevent concurrent stn-skills sessions via mkdir lock |
 | `stn-skill-gate` | PreToolUse | `Skill` | Block invalid skill chain invocations (handoff not validated) |
 | `stn-state-validator` | PreToolUse | `Write` | Validate JSON when writing pipeline/execution state files |
-| `stn-routing-guard` | PreToolUse | `Edit\|Write` | Guide Claude to use pipelines for multi-file edits (3+ files) |
+| `stn-routing-guard` | PreToolUse | `Edit\|Write` | Block multi-file edits (3+ files) outside pipelines with actionable deny |
 | `stn-scope-guard` | PreToolUse | `Edit\|Write` | Block writes outside current task scope during plan-execution |
 | `stn-circuit-breaker` | PreToolUse | `Edit\|Write\|Agent` | Block code modifications when circuit breaker is RED |
 
@@ -50,22 +50,23 @@ When a hook blocks an operation, it returns `permissionDecision: "deny"`:
 }
 ```
 
-Used by: `stn-skill-gate`, `stn-state-validator`, `stn-scope-guard`, `stn-circuit-breaker`, `stn-session-lock`.
+Used by: `stn-skill-gate`, `stn-state-validator`, `stn-scope-guard`, `stn-circuit-breaker`, `stn-session-lock`, `stn-routing-guard`.
 
-### Inform Mode (routing guard)
+### Deny with Actionable Guidance (routing guard)
 
-When the routing guard detects multi-file edits outside a pipeline, it allows the edit but injects guidance:
+When the routing guard detects multi-file edits outside a pipeline, it blocks the edit with a deny reason AND additionalContext directing Claude to invoke stn-skills:
 ```json
 {
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
-    "permissionDecision": "allow",
-    "additionalContext": "You have edited 4 files without an active pipeline. For multi-file changes, invoke Skill(skill: \"stn-skills:build-feature\")..."
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Pipeline required: 4 files edited without an active pipeline. Invoke Skill(skill: \"stn-skills:build-feature\") to start.",
+    "additionalContext": "You have edited 4 files outside a pipeline. You MUST invoke Skill(skill: \"stn-skills:build-feature\") before making further code changes."
   }
 }
 ```
 
-The edit proceeds. Claude sees the guidance in its context and can decide to start a pipeline. This follows the Claude Code best practice of using `additionalContext` for routing decisions rather than hard blocks.
+The edit is blocked. Claude receives both the deny reason and the additional context, and must follow the instruction to invoke the pipeline skill. The `permissionDecisionReason` carries more weight than `additionalContext` alone because it is framed as a constraint, not a suggestion.
 
 Used by: `stn-routing-guard`.
 
