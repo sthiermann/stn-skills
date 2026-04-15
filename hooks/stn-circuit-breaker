@@ -4,8 +4,12 @@
 # Part of stn-skills v5.0.0 Layered Defense Enforcement.
 set -euo pipefail
 
+# Hook output helpers (Claude Code hookSpecificOutput format)
+_allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }
+_deny() { printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$1"; exit 0; }
+
 # Kill-switch
-[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && _allow
 
 # Read stdin JSON
 INPUT="$(cat)"
@@ -14,7 +18,7 @@ TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")
 # Only gate code modification tools
 case "$TOOL_NAME" in
   Edit|Write|Agent) ;;
-  *) echo '{"decision":"allow"}' && exit 0 ;;
+  *) _allow ;;
 esac
 
 # Find execution state file
@@ -23,7 +27,7 @@ for dir in ".claude" "$(git rev-parse --show-toplevel 2>/dev/null)/.claude"; do
   [[ -f "$dir/plan-execution-state.json" ]] && STATE_FILE="$dir/plan-execution-state.json" && break
 done
 
-[[ -z "$STATE_FILE" ]] && echo '{"decision":"allow"}' && exit 0
+[[ -z "$STATE_FILE" ]] && _allow
 
 # Read circuit breaker state
 CB_STATE="$(jq -r '.circuit_breaker.state // "GREEN"' "$STATE_FILE" 2>/dev/null \
@@ -34,8 +38,7 @@ if [[ "$CB_STATE" == "RED" ]]; then
   FAILURES="$(jq -r '.circuit_breaker.consecutive_review_failures // 0' "$STATE_FILE" 2>/dev/null \
     || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('circuit_breaker',{}).get('consecutive_review_failures',0))" "$STATE_FILE" 2>/dev/null \
     || echo "0")"
-  echo "{\"decision\":\"block\",\"reason\":\"Circuit breaker RED: ${FAILURES} consecutive failures. Review execution state before continuing.\"}"
-  exit 0
+  _deny "Circuit breaker RED: ${FAILURES} consecutive failures. Review execution state before continuing."
 fi
 
-echo '{"decision":"allow"}'
+_allow

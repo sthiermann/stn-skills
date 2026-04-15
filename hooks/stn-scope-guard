@@ -4,8 +4,12 @@
 # Part of stn-skills v5.0.0 Layered Defense Enforcement.
 set -euo pipefail
 
+# Hook output helpers (Claude Code hookSpecificOutput format)
+_allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }
+_deny() { printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$1"; exit 0; }
+
 # Kill-switch
-[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && _allow
 
 # Read stdin JSON
 INPUT="$(cat)"
@@ -13,7 +17,7 @@ TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")
 
 case "$TOOL_NAME" in
   Edit|Write) ;;
-  *) echo '{"decision":"allow"}' && exit 0 ;;
+  *) _allow ;;
 esac
 
 # Find scope file
@@ -23,28 +27,28 @@ for dir in ".claude" "$(git rev-parse --show-toplevel 2>/dev/null)/.claude"; do
 done
 
 # No scope file = no active task = allow all
-[[ -z "$SCOPE_FILE" ]] && echo '{"decision":"allow"}' && exit 0
+[[ -z "$SCOPE_FILE" ]] && _allow
 
 FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
-[[ -z "$FILE_PATH" ]] && echo '{"decision":"allow"}' && exit 0
+[[ -z "$FILE_PATH" ]] && _allow
 
 # Always allow writes to .claude/ (state files, scope files, plans)
-[[ "$FILE_PATH" == */.claude/* || "$FILE_PATH" == .claude/* ]] && echo '{"decision":"allow"}' && exit 0
+[[ "$FILE_PATH" == */.claude/* || "$FILE_PATH" == .claude/* ]] && _allow
 
 # Normalize path
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 REL_PATH="${FILE_PATH#"${REPO_ROOT}"/}"
 
 # Block path traversal
-[[ "$REL_PATH" == *../* || "$REL_PATH" == ..* ]] && echo '{"decision":"block","reason":"Path traversal detected."}' && exit 0
+[[ "$REL_PATH" == *../* || "$REL_PATH" == ..* ]] && _deny "Path traversal detected."
 
 # Check allowed files list
 ALLOWED="$(jq -r '.allowed_files[]?' "$SCOPE_FILE" 2>/dev/null || echo "")"
 
 while IFS= read -r allowed; do
   [[ -z "$allowed" ]] && continue
-  [[ "$REL_PATH" == "$allowed" ]] && echo '{"decision":"allow"}' && exit 0
+  [[ "$REL_PATH" == "$allowed" ]] && _allow
 done <<< "$ALLOWED"
 
 SCOPE_LIST="$(jq -r '.allowed_files | join(", ")' "$SCOPE_FILE" 2>/dev/null || echo "none")"
-echo "{\"decision\":\"block\",\"reason\":\"File '${REL_PATH}' is not in current task scope. Allowed: ${SCOPE_LIST}\"}"
+_deny "File '${REL_PATH}' is not in current task scope. Allowed: ${SCOPE_LIST}"

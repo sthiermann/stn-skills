@@ -4,35 +4,37 @@
 # Part of stn-skills v5.0.0 Layered Defense Enforcement.
 set -euo pipefail
 
+# Hook output helpers (Claude Code hookSpecificOutput format)
+_allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }
+_deny() { printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$1"; exit 0; }
+
 # Kill-switch
-[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && echo '{"decision":"allow"}' && exit 0
+[[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && _allow
 
 # Read stdin JSON
 INPUT="$(cat)"
 TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
 
-[[ "$TOOL_NAME" != "Write" ]] && echo '{"decision":"allow"}' && exit 0
+[[ "$TOOL_NAME" != "Write" ]] && _allow
 
 FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
 
 # Only validate state files
 case "$FILE_PATH" in
   *stn-skills-pipeline-state.json|*plan-execution-state.json) ;;
-  *) echo '{"decision":"allow"}' && exit 0 ;;
+  *) _allow ;;
 esac
 
 # Validate the NEW content (not existing file — allows repair writes)
 CONTENT="$(echo "$INPUT" | jq -r '.tool_input.content // empty' 2>/dev/null || echo "")"
 
 if [[ -z "$CONTENT" ]]; then
-  echo '{"decision":"block","reason":"State file write has empty content."}'
-  exit 0
+  _deny "State file write has empty content."
 fi
 
 # Validate JSON syntax
 if ! echo "$CONTENT" | jq empty 2>/dev/null && ! echo "$CONTENT" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
-  echo '{"decision":"block","reason":"State file content is not valid JSON. Fix the JSON before writing."}'
-  exit 0
+  _deny "State file content is not valid JSON. Fix the JSON before writing."
 fi
 
 # Validate required fields for pipeline state
@@ -45,9 +47,8 @@ if [[ "$FILE_PATH" == *pipeline-state* ]]; then
     [[ "$HAS" != "true" ]] && MISSING="${MISSING} ${field}"
   done
   if [[ -n "$MISSING" ]]; then
-    echo "{\"decision\":\"block\",\"reason\":\"Pipeline state missing required fields:${MISSING}\"}"
-    exit 0
+    _deny "Pipeline state missing required fields:${MISSING}"
   fi
 fi
 
-echo '{"decision":"allow"}'
+_allow

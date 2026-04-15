@@ -26,7 +26,7 @@ To disable all hooks (emergency override):
 export STN_SKILLS_HOOKS_DISABLE=1
 ```
 
-All hooks check this env var first and return `{"decision":"allow"}` if set.
+All hooks check this env var first and allow immediately if set.
 
 ## Dependencies
 
@@ -35,12 +35,18 @@ All hooks check this env var first and return `{"decision":"allow"}` if set.
 
 ## How Hooks Block
 
-When a hook blocks an operation, it returns:
+When a hook blocks an operation, it returns the Claude Code `hookSpecificOutput` format:
 ```json
-{"decision": "block", "reason": "Pipeline gate: handoff_validated is false. Run pipeline-handoff-validator before invoking plan-writing."}
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "Pipeline gate: handoff_validated is false. Run pipeline-handoff-validator before invoking plan-writing."
+  }
+}
 ```
 
-The `reason` field includes a corrective action — telling the user (and Claude) exactly what to do to proceed.
+The `permissionDecisionReason` field includes a corrective action — telling the user (and Claude) exactly what to do to proceed.
 
 ## Custom Hooks
 

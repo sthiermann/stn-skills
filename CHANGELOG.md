@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.1.1] - 2026-04-15
+
+### Fixed
+- **Hook JSON output format** — all 6 PreToolUse hooks (`stn-skill-gate`, `stn-state-validator`, `stn-routing-guard`, `stn-scope-guard`, `stn-circuit-breaker`) and `stn-session-lock` now output the Claude Code `hookSpecificOutput` format with `permissionDecision`/`permissionDecisionReason` instead of the deprecated `{"decision":"allow/block"}` format. This eliminates `Hook JSON output validation failed — (root): Invalid input` errors and ensures `permissionDecisionReason` (including corrective actions like "Invoke stn-skills:build-feature") is properly delivered to Claude as structured context.
+- **Routing guard corrective action delivery** — with the corrected output format, the routing guard's deny reason ("Invoke stn-skills:build-feature or stn-skills:brainstorming") is now parsed as structured `permissionDecisionReason` instead of appearing as an unstructured error message. Claude should now follow the corrective action automatically.
+
+### Changed
+- **Hook output helpers** — all PreToolUse hooks use shared `_allow()` / `_deny()` helper functions for consistent, DRY output formatting.
+- **Documentation** — `docs/recommended-hooks.md` updated with correct `hookSpecificOutput` format examples.
+
 ## [5.1.0] - 2026-04-14
 
 ### Added
