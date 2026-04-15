@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# stn-hook-output: Shared output helpers for stn-skills PreToolUse hooks.
+# Produces Claude Code hookSpecificOutput JSON format.
+# Sourced by all PreToolUse hooks — do not execute directly.
+
+_json_escape() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  printf '%s' "$s"
+}
+
+_allow() {
+  echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'
+  exit 0
+}
+
+# Usage: _deny "reason" ["additionalContext"]
+_deny() {
+  local reason
+  reason="$(_json_escape "$1")"
+  if [[ -n "${2:-}" ]]; then
+    local ctx
+    ctx="$(_json_escape "$2")"
+    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s","additionalContext":"%s"}}' "$reason" "$ctx"
+  else
+    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$reason"
+  fi
+  exit 0
+}

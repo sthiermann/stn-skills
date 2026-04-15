@@ -322,6 +322,7 @@ cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 FIXTURE
 result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/b.ts"}}' | STN_ROUTING_GUARD_THRESHOLD=2 bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
 check "B-47: routing-guard custom threshold=2 blocks" '"permissionDecision":"deny"' "$result"
+check "B-52: routing-guard deny includes additionalContext" '"additionalContext"' "$result"
 
 # B-48: routing-guard ignores non-Edit/Write
 result=$(echo '{"tool_name":"Read","tool_input":{"file_path":"src/a.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)

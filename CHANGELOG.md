@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.2.0] - 2026-04-15
+
+### Changed
+- **Shared hook output helpers** — extracted `_allow()`, `_deny()`, and `_json_escape()` into `hooks/stn-hook-output`. All 5 PreToolUse hooks source this single file instead of duplicating 2-line helpers. Format changes now require editing one file, not five.
+- **Routing guard `additionalContext`** — deny output now includes a strong directive (`"STOP editing. Invoke Skill(skill: 'stn-skills:build-feature')..."`) as `additionalContext`, making Claude more likely to follow the corrective action instead of asking for env var overrides.
+- **Routing guard condition cleanup** — merged split `[[ ]]` blocks back to single condition. Numeric validation already ensures safe integer comparison; the split was a `set -u` workaround that is no longer needed.
+- **Session-lock `_deny` refactored** — multi-line with shared `_json_escape()` pattern instead of unreadable one-liner.
+- **Consistent hook headers** — removed outdated "v5.0.0" references. All hooks now say "Part of stn-skills Layered Defense Enforcement."
+
+### Added
+- **B-52 test** — verifies routing guard deny output includes `additionalContext`. Total: 52 behavioral tests.
+
 ## [5.1.5] - 2026-04-15
 
 ### Changed

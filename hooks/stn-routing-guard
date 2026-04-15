@@ -4,10 +4,7 @@
 # Forces routing through stn-skills for substantial changes.
 # Part of stn-skills Layered Defense Enforcement.
 set -eo pipefail
-
-# Hook output helpers (Claude Code hookSpecificOutput format)
-_allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }
-_deny() { local r="${1//\\/\\\\}"; r="${r//\"/\\\"}"; r="${r//$'\n'/\\n}"; printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$r"; exit 0; }
+source "$(dirname "$0")/stn-hook-output"
 
 # Kill-switch (shared)
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && _allow
@@ -43,9 +40,9 @@ for dir in ".claude" "${REPO_ROOT}/.claude"; do
     # Ensure numeric (non-numeric jq output → default to 0)
     [[ "${PHASE:-0}" =~ ^[0-9]+$ ]] || PHASE=0
     [[ "${TOTAL:-0}" =~ ^[0-9]+$ ]] || TOTAL=0
-    if [[ -n "${SKILL:-}" ]]; then
+    if [[ -n "$SKILL" ]]; then
       # Treat completed pipeline (phase > total) as inactive
-      if [[ "${SKILL:-}" == "plan-execution" ]] && [[ "${PHASE:-0}" -gt 0 ]] && [[ "${TOTAL:-0}" -gt 0 ]] && [[ "${PHASE:-0}" -gt "${TOTAL:-0}" ]]; then
+      if [[ "$SKILL" == "plan-execution" && "$PHASE" -gt 0 && "$TOTAL" -gt 0 && "$PHASE" -gt "$TOTAL" ]]; then
         break
       fi
       _allow
@@ -90,7 +87,8 @@ NEW_FILES="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '. + [$f]' 2>/dev/nu
 COUNT="$(echo "$NEW_FILES" | jq 'length' 2>/dev/null || echo "0")"
 
 if [[ "${COUNT:-0}" -ge "${THRESHOLD:-3}" ]]; then
-  _deny "${COUNT} files edited without an active pipeline. Multi-file changes need structure. Invoke stn-skills:build-feature or stn-skills:brainstorming. Set STN_ROUTING_GUARD_SKIP=1 to override."
+  _deny "${COUNT} files edited without an active pipeline. Multi-file changes need structure." \
+    "STOP editing files. You MUST invoke Skill(skill: \"stn-skills:build-feature\") to start the pipeline before making more changes. Set STN_ROUTING_GUARD_SKIP=1 to override for emergency hotfixes only."
 fi
 
 # Update tracker

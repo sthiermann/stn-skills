@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 # stn-skill-gate: PreToolUse hook for Skill invocations
 # Blocks skill chain violations based on pipeline state.
-# Part of stn-skills v5.0.0 Layered Defense Enforcement.
+# Part of stn-skills Layered Defense Enforcement.
 set -eo pipefail
-
-# Hook output helpers (Claude Code hookSpecificOutput format)
-_allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }
-_deny() { local r="${1//\\/\\\\}"; r="${r//\"/\\\"}"; r="${r//$'\n'/\\n}"; printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$r"; exit 0; }
+source "$(dirname "$0")/stn-hook-output"
 
 # Kill-switch
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && _allow
