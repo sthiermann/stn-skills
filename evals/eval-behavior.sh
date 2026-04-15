@@ -253,9 +253,8 @@ cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 {"files":["src/a.ts","src/b.ts"]}
 FIXTURE
 result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/c.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-24: routing-guard denies at threshold" '"permissionDecision":"deny"' "$result"
-check "B-24b: routing-guard deny includes reason" '"permissionDecisionReason"' "$result"
-check "B-24c: routing-guard deny includes additionalContext" '"additionalContext"' "$result"
+check "B-24: routing-guard informs at threshold" '"permissionDecision":"allow"' "$result"
+check "B-24b: routing-guard inform includes context" '"additionalContext"' "$result"
 
 # B-56: routing-guard tracker persists after deny fires
 TRACKER_FILE="${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
@@ -318,8 +317,8 @@ cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 {"files":["src/a.ts","src/b.ts"]}
 FIXTURE
 result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/c.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-31: routing-guard completed pipeline = deny" '"permissionDecision":"deny"' "$result"
-check "B-31b: routing-guard completed pipeline has reason" '"permissionDecisionReason"' "$result"
+check "B-31: routing-guard completed pipeline = inform" '"permissionDecision":"allow"' "$result"
+check "B-31b: routing-guard completed pipeline context" '"additionalContext"' "$result"
 rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
 rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
 
@@ -338,8 +337,8 @@ cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
 {"files":["src/a.ts"]}
 FIXTURE
 result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/b.ts"}}' | STN_ROUTING_GUARD_THRESHOLD=2 bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-47: routing-guard custom threshold=2 denies" '"permissionDecision":"deny"' "$result"
-check "B-52: routing-guard deny includes additionalContext" '"additionalContext"' "$result"
+check "B-47: routing-guard custom threshold=2 informs" '"permissionDecision":"allow"' "$result"
+check "B-52: routing-guard inform includes additionalContext" '"additionalContext"' "$result"
 
 # B-48: routing-guard ignores non-Edit/Write
 result=$(echo '{"tool_name":"Read","tool_input":{"file_path":"src/a.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
@@ -386,7 +385,63 @@ fi
 rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
 
 # ========================================
-# T08: JSON escape — control characters
+# T08: Routing guard — Agent tool
+# ========================================
+
+# B-57: routing-guard tracks Agent tool at threshold
+rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
+rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
+cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
+{"files":["__agent_dispatch__","__agent_dispatch__"]}
+FIXTURE
+result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Agent","tool_input":{"prompt":"explore"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
+check "B-57: routing-guard informs Agent at threshold" '"permissionDecision":"allow"' "$result"
+check "B-57b: routing-guard Agent inform has context" '"additionalContext"' "$result"
+
+# B-58: routing-guard allows Agent under threshold
+cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
+{"files":["__agent_dispatch__"]}
+FIXTURE
+result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Agent","tool_input":{"prompt":"explore"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
+check "B-58: routing-guard allows Agent under threshold" '"permissionDecision":"allow"' "$result"
+rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
+
+# ========================================
+# T09: stn-prompt-router
+# ========================================
+
+# B-59: prompt-router silent when no pipeline and no tracker
+result=$(cd "$TMPDIR_FIX" && rm -f .claude/stn-skills-pipeline-state.json .claude/stn-edit-tracker.json && echo '{"prompt":"hello"}' | bash "${HOOKS_DIR}/stn-prompt-router" 2>&1; echo "exit:$?")
+check "B-59: prompt-router silent when clean" "exit:0" "$result"
+
+# B-60: prompt-router primes when edit tracker at threshold
+cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
+{"files":["a.ts","b.ts","c.ts"]}
+FIXTURE
+result=$(cd "$TMPDIR_FIX" && echo '{"prompt":"fix the bug"}' | bash "${HOOKS_DIR}/stn-prompt-router" 2>&1)
+check "B-60: prompt-router primes at threshold" '"additionalContext"' "$result"
+check "B-60b: prompt-router mentions build-feature" 'build-feature' "$result"
+
+# B-61: prompt-router primes when active pipeline
+cat > "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json" <<'FIXTURE'
+{"pipeline_id":"test","active_skill":"brainstorming","current_phase":3,"total_phases":6,"gates_passed":[1],"artifact_path":"test.md","handoff_validated":false,"updated_at":"2026-01-01T00:00:00Z"}
+FIXTURE
+result=$(cd "$TMPDIR_FIX" && echo '{"prompt":"continue"}' | bash "${HOOKS_DIR}/stn-prompt-router" 2>&1)
+check "B-61: prompt-router primes for active pipeline" '"additionalContext"' "$result"
+check "B-61b: prompt-router mentions active skill" 'brainstorming' "$result"
+rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
+rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
+
+# B-62: prompt-router kill-switch
+cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
+{"files":["a.ts","b.ts","c.ts","d.ts"]}
+FIXTURE
+result=$(cd "$TMPDIR_FIX" && echo '{"prompt":"test"}' | STN_SKILLS_HOOKS_DISABLE=1 bash "${HOOKS_DIR}/stn-prompt-router" 2>&1; echo "exit:$?")
+check "B-62: prompt-router kill-switch" "exit:0" "$result"
+rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
+
+# ========================================
+# T10: JSON escape — control characters
 # ========================================
 
 # B-53: _json_escape handles all JSON control characters

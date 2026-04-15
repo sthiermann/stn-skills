@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# stn-routing-guard: PreToolUse hook for Edit/Write
-# Blocks multi-file edits outside active pipelines.
-# Denies edits at threshold with actionable reason directing Claude to stn-skills.
+# stn-routing-guard: PreToolUse hook for Edit/Write/Agent
+# Tracks multi-file edits and agent dispatches outside active pipelines.
+# Allows actions but injects routing guidance at threshold. Primary enforcement is via stn-prompt-router.
 # Part of stn-skills Layered Defense Enforcement.
 set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
@@ -16,17 +16,22 @@ source "$(dirname "$0")/stn-hook-output"
 INPUT="$(cat)"
 TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
 
-# Only gate Edit/Write
+# Only gate Edit/Write/Agent
 case "$TOOL_NAME" in
-  Edit|Write) ;;
+  Edit|Write|Agent) ;;
   *) _allow ;;
 esac
 
-FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
-[[ -z "$FILE_PATH" ]] && _allow
+# For Agent calls: use a synthetic tracker entry (no file path)
+if [[ "$TOOL_NAME" == "Agent" ]]; then
+  FILE_PATH="__agent_dispatch__"
+else
+  FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
+  [[ -z "$FILE_PATH" ]] && _allow
+fi
 
 # Always allow .claude/ writes (state files, plans, tracker)
-[[ "$FILE_PATH" == */.claude/* || "$FILE_PATH" == .claude/* ]] && _allow
+[[ "$FILE_PATH" != "__agent_dispatch__" ]] && [[ "$FILE_PATH" == */.claude/* || "$FILE_PATH" == .claude/* ]] && _allow
 
 # Find repo root
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
@@ -76,10 +81,12 @@ if [[ -f "$TRACKER" ]]; then
   fi
 fi
 
-# Re-edits to already-tracked files don't count again
-ALREADY="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '[.[] | select(. == $f)] | length' 2>/dev/null || echo "0")"
-if [[ "${ALREADY:-0}" -gt 0 ]]; then
-  _allow
+# Re-edits to already-tracked files don't count again (skip dedup for Agent dispatches)
+if [[ "$TOOL_NAME" != "Agent" ]]; then
+  ALREADY="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '[.[] | select(. == $f)] | length' 2>/dev/null || echo "0")"
+  if [[ "${ALREADY:-0}" -gt 0 ]]; then
+    _allow
+  fi
 fi
 
 # Add file and check count
@@ -92,8 +99,7 @@ mkdir -p "$(dirname "$TRACKER")"
 printf '{"files":%s}\n' "$NEW_FILES" > "$TRACKER"
 
 if [[ "${COUNT:-0}" -ge "${THRESHOLD:-3}" ]]; then
-  _deny "Pipeline required: ${COUNT} files edited without an active pipeline. Invoke Skill(skill: \"stn-skills:build-feature\") to start." \
-    "You have edited ${COUNT} files outside a pipeline. You MUST invoke Skill(skill: \"stn-skills:build-feature\") before making further code changes. This edit has been blocked. Set STN_ROUTING_GUARD_SKIP=1 for emergency hotfixes only."
+  _inform "You have edited ${COUNT} files without an active pipeline. For multi-file changes, invoke Skill(skill: \"stn-skills:build-feature\") to start a structured pipeline. The stn-prompt-router will remind you at the start of each turn."
 fi
 
 _allow

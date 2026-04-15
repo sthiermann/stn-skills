@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [7.1.0] - 2026-04-15
+
+### Added
+- **UserPromptSubmit hook (`stn-prompt-router`)** — primes Claude with routing instructions at the start of every turn. Checks for active pipelines (resume directive) and edit tracker threshold (pipeline start directive). Only injects context when routing is needed — silent otherwise to save context budget. This is the primary enforcement mechanism: Claude is primed BEFORE it starts working, not blocked mid-work.
+- **Agent tool tracking in routing guard** — the routing guard now also fires on Agent tool calls (Explore agents, subagent dispatches). Agent dispatches count toward the 3-action threshold alongside file edits. Catches multi-agent exploration without a pipeline.
+- **`resume` in SessionStart matcher** — the SessionStart hook now fires on `startup|resume|clear|compact` instead of just `startup|clear|compact`. Resumed sessions (reconnect, tool restart) now receive the routing table and pipeline state.
+
+### Changed
+- **Routing guard back to inform** — deny blocked edits but Claude didn't redirect to stn-skills — it just stopped or asked the user. This is a confirmed Claude Code platform limitation (no redirect mechanism in hooks). The routing guard now allows edits and injects guidance. Real enforcement comes from `stn-prompt-router` priming Claude before work begins.
+- **Removed `_inform()`, re-added `_inform()`** — v7.0.0 removed `_inform()` as dead code when switching to deny. Now restored since routing guard uses inform again.
+
 ## [7.0.0] - 2026-04-15
 
 ### Changed

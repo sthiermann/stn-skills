@@ -2,7 +2,7 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|clear|compact",
+        "matcher": "startup|resume|clear|compact",
         "hooks": [
           {
             "type": "command",
@@ -15,6 +15,18 @@
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/stn-session-lock\"",
             "async": false,
             "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/stn-prompt-router\"",
+            "timeout": 5000
           }
         ]
       }
@@ -41,7 +53,7 @@
         ]
       },
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|Agent",
         "hooks": [
           {
             "type": "command",

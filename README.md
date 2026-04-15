@@ -10,14 +10,14 @@ A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-7.0.0-blue?style=flat-square" alt="Version 6.0.0">
+  <img src="https://img.shields.io/badge/version-7.1.0-blue?style=flat-square" alt="Version 6.0.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
-  <img src="https://img.shields.io/badge/hooks-7-red?style=flat-square" alt="7 Enforcement Hooks">
+  <img src="https://img.shields.io/badge/hooks-8-red?style=flat-square" alt="7 Enforcement Hooks">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v7.0.0](CHANGELOG.md)
+[What's new in v7.1.0](CHANGELOG.md)
 
 </div>
 
@@ -188,7 +188,7 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 |-----------|----------|
 | `.claude-plugin/` | `plugin.json` (metadata) · `marketplace.json` (marketplace registration) |
 | `.cursor-plugin/` | `plugin.json` (Cursor metadata) · `hooks-cursor.json` (Cursor hooks) |
-| `hooks/` | `hooks.json` (hook definitions) · 7 enforcement hooks (see below) |
+| `hooks/` | `hooks.json` (hook definitions) · 8 enforcement hooks (see below) |
 | `commands/` | 8 slash command entry points (one `.md` per skill) |
 | `skills/` | 8 skill implementations (see below) |
 | `evals/` | Eval framework: 59 behavioral tests, 88 consistency checks, activation tests |
@@ -203,7 +203,8 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 | `stn-session-lock` | SessionStart | Prevents concurrent sessions via atomic mkdir lock |
 | `stn-skill-gate` | PreToolUse | Blocks invalid skill chain transitions (handoff not validated) |
 | `stn-state-validator` | PreToolUse | Validates JSON integrity on pipeline state file writes |
-| `stn-routing-guard` | PreToolUse | Blocks multi-file edits (3+ files) outside pipelines with actionable deny |
+| `stn-prompt-router` | UserPromptSubmit | Primes Claude with pipeline routing before each turn |
+| `stn-routing-guard` | PreToolUse | Tracks multi-file work (3+ files/agents) outside pipelines |
 | `stn-scope-guard` | PreToolUse | Blocks writes outside current task scope during execution |
 | `stn-circuit-breaker` | PreToolUse | Blocks all modifications when circuit breaker is RED |
 
