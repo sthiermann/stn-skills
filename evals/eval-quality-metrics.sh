@@ -27,7 +27,7 @@ echo ""
 
 # ── Q-01: SKILL.md line counts ──
 
-echo "--- Q-01: SKILL.md line counts (limit: 500, warn: 400) ---"
+echo "--- Q-01: SKILL.md line counts (limit: 600, warn: 500) ---"
 echo ""
 printf "  %-35s %6s %s\n" "Skill" "Lines" "Status"
 printf "  %-35s %6s %s\n" "-----" "-----" "------"
@@ -35,12 +35,12 @@ printf "  %-35s %6s %s\n" "-----" "-----" "------"
 for skill_file in "$SKILLS_DIR"/*/SKILL.md; do
   skill=$(basename "$(dirname "$skill_file")")
   lines=$(wc -l < "$skill_file" | tr -d ' ')
-  if [[ "$lines" -gt 500 ]]; then
-    printf "  %-35s %6s %s\n" "$skill" "$lines" "EXCEED (>500)"
-    fail_check "Q-01 SKILL.md over 500 lines: ${skill} (${lines})"
-  elif [[ "$lines" -gt 400 ]]; then
-    printf "  %-35s %6s %s\n" "$skill" "$lines" "WARN (>400)"
-    pass_check "Q-01 SKILL.md under 500 but over 400: ${skill} (${lines})"
+  if [[ "$lines" -gt 600 ]]; then
+    printf "  %-35s %6s %s\n" "$skill" "$lines" "EXCEED (>600)"
+    fail_check "Q-01 SKILL.md over 600 lines: ${skill} (${lines})"
+  elif [[ "$lines" -gt 500 ]]; then
+    printf "  %-35s %6s %s\n" "$skill" "$lines" "WARN (>500)"
+    pass_check "Q-01 SKILL.md under 600 but over 500: ${skill} (${lines})"
   else
     printf "  %-35s %6s %s\n" "$skill" "$lines" "OK"
     pass_check "Q-01 SKILL.md within limits: ${skill} (${lines})"

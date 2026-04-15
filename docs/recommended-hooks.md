@@ -14,7 +14,7 @@ All hooks are registered automatically via `hooks/hooks.json` (Claude Code) and 
 | `stn-session-lock` | SessionStart | `startup\|clear\|compact` | Prevent concurrent stn-skills sessions via mkdir lock |
 | `stn-skill-gate` | PreToolUse | `Skill` | Block invalid skill chain invocations (handoff not validated) |
 | `stn-state-validator` | PreToolUse | `Write` | Validate JSON when writing pipeline/execution state files |
-| `stn-routing-guard` | PreToolUse | `Edit\|Write` | Block multi-file edits (3+ files) outside active pipelines |
+| `stn-routing-guard` | PreToolUse | `Edit\|Write` | Guide Claude to use pipelines for multi-file edits (3+ files) |
 | `stn-scope-guard` | PreToolUse | `Edit\|Write` | Block writes outside current task scope during plan-execution |
 | `stn-circuit-breaker` | PreToolUse | `Edit\|Write\|Agent` | Block code modifications when circuit breaker is RED |
 
@@ -33,9 +33,13 @@ All hooks check this env var first and allow immediately if set.
 - **jq** (recommended): Fast JSON parsing. Available via `brew install jq` (macOS) or `apt install jq` (Linux).
 - **python3** (fallback): Used automatically if jq is not found. Pre-installed on macOS and most Linux distributions.
 
-## How Hooks Block
+## How Hooks Enforce
 
-When a hook blocks an operation, it returns the Claude Code `hookSpecificOutput` format:
+Hooks use two enforcement modes: **block** (deny) for safety-critical violations and **inform** (allow with context) for routing guidance.
+
+### Block Mode (safety hooks)
+
+When a hook blocks an operation, it returns `permissionDecision: "deny"`:
 ```json
 {
   "hookSpecificOutput": {
@@ -46,7 +50,24 @@ When a hook blocks an operation, it returns the Claude Code `hookSpecificOutput`
 }
 ```
 
-The `permissionDecisionReason` field includes a corrective action — telling the user (and Claude) exactly what to do to proceed.
+Used by: `stn-skill-gate`, `stn-state-validator`, `stn-scope-guard`, `stn-circuit-breaker`, `stn-session-lock`.
+
+### Inform Mode (routing guard)
+
+When the routing guard detects multi-file edits outside a pipeline, it allows the edit but injects guidance:
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow",
+    "additionalContext": "You have edited 4 files without an active pipeline. For multi-file changes, invoke Skill(skill: \"stn-skills:build-feature\")..."
+  }
+}
+```
+
+The edit proceeds. Claude sees the guidance in its context and can decide to start a pipeline. This follows the Claude Code best practice of using `additionalContext` for routing decisions rather than hard blocks.
+
+Used by: `stn-routing-guard`.
 
 ## Custom Hooks
 
