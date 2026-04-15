@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.3.0] - 2026-04-15
+
+### Fixed
+- **Complete JSON escaping** — `_json_escape()` in `stn-hook-output` now escapes all 6 JSON control characters (`\n`, `\r`, `\t`, `\b`, `\f`, plus `\` and `"`). Previous version only escaped 3, producing invalid JSON when error messages or file paths contained tab, carriage return, backspace, or form feed characters. Affects all 5 PreToolUse hooks and `stn-session-lock`.
+- **Routing guard JSON injection** — jq fallback used raw string concatenation, allowing file paths with `"` or control chars to produce invalid JSON. Now uses `_json_escape()` for safe escaping.
+- **`local` outside function crash** — routing guard jq fallback used `local` at top level, crashing on bash 3.2 (macOS default). Inlined to single expression.
+- **Session lock wrote hook PID** — `echo "$$"` wrote the short-lived hook process PID instead of Claude Code's PID (`$PPID`), making the lock always appear stale. Lock now persists correctly.
+- **Stale state false positive** — `stn-init` stat fallback used epoch 0, making files appear 56 years old when stat variants fail. Now falls back to current time (age = 0, no stale warning).
+- **Skill gate missing python3 fallback** — `ACTIVE_SKILL` and `HANDOFF_VALIDATED` reads had no python3 fallback (unlike input parsing), silently bypassing chain enforcement when jq was absent.
+
+### Changed
+- **Removed `set -e` from all 7 hooks** — `set -eo pipefail` → `set -o pipefail`. The `set -e` (errexit) flag was the architectural root cause of crash-class bugs: any unhandled error converted a fail-open hook into a fail-crash. v5.1.5 removed `set -u` for the same reason. All error paths already have explicit `|| fallback` handling; `set -o pipefail` ensures pipe errors are still detected without triggering fatal exits.
+- **DRY `stn-session-lock`** — removed duplicated `_json_escape()`, now sources `stn-hook-output` and overrides only `_deny()` with the SessionStart event name.
+- **SessionStart hook timeouts** — `hooks.json` now specifies `timeout: 10000` for `stn-init` and `stn-session-lock` (previously no timeout, could hang indefinitely).
+- **Eval runner crash detection** — `eval-runner.sh` now detects crashed eval scripts (non-zero exit with no failures) and empty runs (zero tests executed), preventing silent false-green reports.
+- **Shell expansion scan** — B-22 now includes `stn-hook-output` in the security scan (previously only scanned 6 of 7 executable hook files).
+
+### Added
+- **B-53/B-54/B-55 tests** — `_json_escape` with all control characters, scope-guard deny with tab in path, session-lock deny JSON validity. Total: 55 behavioral tests.
+
 ## [5.2.0] - 2026-04-15
 
 ### Changed

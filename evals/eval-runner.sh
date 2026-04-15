@@ -55,6 +55,18 @@ run_single_eval() {
   pass_count=$(echo "$output" | grep -c "^PASS:" || true)
   fail_count=$(echo "$output" | grep -c "^FAIL:" || true)
 
+  # Detect crashed eval scripts: non-zero exit with no FAIL lines means silent crash
+  if [[ "$exit_code" -ne 0 && "$fail_count" -eq 0 ]]; then
+    echo "  CRASH: $name exited $exit_code with no reported failures"
+    fail_count=1
+  fi
+
+  # Detect empty runs: zero pass AND zero fail means no tests executed
+  if [[ "$pass_count" -eq 0 && "$fail_count" -eq 0 ]]; then
+    echo "  EMPTY: $name produced no test results"
+    fail_count=1
+  fi
+
   total_pass=$((total_pass + pass_count))
   total_fail=$((total_fail + fail_count))
 

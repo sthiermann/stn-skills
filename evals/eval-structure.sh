@@ -34,7 +34,7 @@ for skill in brainstorming plan-writing plan-execution build-feature codebase-au
   fi
 done
 
-# 2. All SKILL.md files under 500 lines
+# 2. All SKILL.md files under 600 lines
 for skill_file in "$SKILLS_DIR"/*/SKILL.md; do
   skill_name=$(basename "$(dirname "$skill_file")")
   line_count=$(wc -l < "$skill_file" | tr -d ' ')

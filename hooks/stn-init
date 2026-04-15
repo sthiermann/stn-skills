@@ -3,7 +3,7 @@
 # Reads pipeline state + session-init skill, injects into session context.
 # Uses jq for JSON parsing with python3 fallback. <50ms target.
 
-set -eo pipefail
+set -o pipefail
 
 # Kill-switch: skip all stn-skills hooks
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && exit 0
@@ -62,7 +62,7 @@ if [ -n "$state_file" ]; then
     stale_warning=""
     if [ -n "$updated_at" ]; then
       # Compare file modification time (more reliable than parsing ISO dates in bash)
-      file_age_seconds=$(( $(date +%s) - $(stat -f %m "$state_file" 2>/dev/null || stat -c %Y "$state_file" 2>/dev/null || echo "0") ))
+      file_age_seconds=$(( $(date +%s) - $(stat -f %m "$state_file" 2>/dev/null || stat -c %Y "$state_file" 2>/dev/null || date +%s) ))
       if [ "$file_age_seconds" -gt 86400 ]; then
         days_old=$(( file_age_seconds / 86400 ))
         stale_warning="- **Warning:** State file is ${days_old} day(s) old. The pipeline may have been abandoned."

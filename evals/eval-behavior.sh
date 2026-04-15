@@ -369,12 +369,53 @@ fi
 rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
 
 # ========================================
+# T08: JSON escape — control characters
+# ========================================
+
+# B-53: _json_escape handles all JSON control characters
+result=$(bash -c '
+source "'"${HOOKS_DIR}"'/stn-hook-output"
+input=$(printf "tab\there cr\rnewline\nbs\x08ff\x0c quote\" slash\\\\")
+escaped=$(_json_escape "$input")
+printf "{\"test\":\"%s\"}" "$escaped"
+' 2>&1)
+if echo "$result" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
+  pass "B-53: _json_escape produces valid JSON with all control chars"
+else
+  fail "B-53: _json_escape produces invalid JSON (output: $result)"
+fi
+
+# B-54: scope-guard deny with tab in file path produces valid JSON
+cat > "${TMPDIR_FIX}/.claude/current-task-scope.json" <<'FIXTURE'
+{"task_id":"T1","allowed_files":["src/auth.ts"]}
+FIXTURE
+result=$(cd "$TMPDIR_FIX" && printf '{"tool_name":"Write","tool_input":{"file_path":"src/bad\tfile.ts"}}' | bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
+if echo "$result" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
+  pass "B-54: scope-guard deny with tab = valid JSON"
+else
+  fail "B-54: scope-guard deny with tab = invalid JSON (output: $result)"
+fi
+rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
+
+# B-55: session-lock deny with active PID produces valid JSON
+LOCK_TEST="$(mktemp -d)"
+mkdir -p "${LOCK_TEST}/.claude/stn-skills.lock"
+echo "$$" > "${LOCK_TEST}/.claude/stn-skills.lock/pid"
+result=$(cd "$LOCK_TEST" && bash "${HOOKS_DIR}/stn-session-lock" 2>&1)
+if echo "$result" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
+  pass "B-55: session-lock deny = valid JSON"
+else
+  fail "B-55: session-lock deny = invalid JSON (output: $result)"
+fi
+rm -rf "$LOCK_TEST"
+
+# ========================================
 # R8: Security — no shell expansion
 # ========================================
 
 # B-22: No eval or unquoted $() in hook scripts
 EXPANSION_COUNT=0
-for hook in stn-skill-gate stn-state-validator stn-session-lock stn-circuit-breaker stn-scope-guard stn-routing-guard; do
+for hook in stn-hook-output stn-skill-gate stn-state-validator stn-session-lock stn-circuit-breaker stn-scope-guard stn-routing-guard; do
   count=$(grep -cE '^\s*eval\s|[^"]\$\(' "${HOOKS_DIR}/${hook}" 2>/dev/null; true)
   count="${count##*:}"  # strip filename prefix from grep -c output
   count="${count:-0}"

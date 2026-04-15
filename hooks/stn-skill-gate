@@ -2,7 +2,7 @@
 # stn-skill-gate: PreToolUse hook for Skill invocations
 # Blocks skill chain violations based on pipeline state.
 # Part of stn-skills Layered Defense Enforcement.
-set -eo pipefail
+set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 
 # Kill-switch
@@ -34,8 +34,12 @@ done
 [[ -z "$STATE_FILE" ]] && _allow
 
 # Read state via jq (python3 fallback)
-ACTIVE_SKILL="$(jq -r '.active_skill // empty' "$STATE_FILE" 2>/dev/null || echo "")"
-HANDOFF_VALIDATED="$(jq -r '.handoff_validated // false' "$STATE_FILE" 2>/dev/null || echo "false")"
+ACTIVE_SKILL="$(jq -r '.active_skill // empty' "$STATE_FILE" 2>/dev/null \
+  || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('active_skill',''))" "$STATE_FILE" 2>/dev/null \
+  || echo "")"
+HANDOFF_VALIDATED="$(jq -r '.handoff_validated // false' "$STATE_FILE" 2>/dev/null \
+  || python3 -c "import json,sys; print(str(json.load(open(sys.argv[1])).get('handoff_validated',False)).lower())" "$STATE_FILE" 2>/dev/null \
+  || echo "false")"
 
 # Extract short skill name
 SHORT_SKILL="${INVOKED_SKILL#stn-skills:}"

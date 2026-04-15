@@ -2,7 +2,7 @@
 # stn-scope-guard: PreToolUse hook for Edit/Write
 # Blocks writes outside current task scope during plan-execution.
 # Part of stn-skills Layered Defense Enforcement.
-set -eo pipefail
+set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 
 # Kill-switch

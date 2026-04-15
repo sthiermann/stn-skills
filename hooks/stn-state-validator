@@ -2,7 +2,7 @@
 # stn-state-validator: PreToolUse hook for Write tool
 # Validates JSON content when writing to pipeline state files.
 # Part of stn-skills Layered Defense Enforcement.
-set -eo pipefail
+set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 
 # Kill-switch

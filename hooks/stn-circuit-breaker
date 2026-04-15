@@ -2,7 +2,7 @@
 # stn-circuit-breaker: PreToolUse hook for Edit/Write/Agent
 # Blocks code modifications when circuit breaker is RED.
 # Part of stn-skills Layered Defense Enforcement.
-set -eo pipefail
+set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 
 # Kill-switch
