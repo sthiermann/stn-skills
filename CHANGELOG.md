@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.1.3] - 2026-04-15
+
+### Fixed
+- **Routing guard crash on non-numeric state values** — `stn-routing-guard` crashed with `unbound variable` when pipeline state had non-numeric `current_phase`/`total_phases` (strings, booleans). The `-gt` operator inside `[[ ]]` evaluates operands in arithmetic context, causing `set -u` to trigger on variable-like strings. Added numeric validation (`=~ ^[0-9]+$`) with fallback to 0.
+- **All 42 eval assertions updated** — `eval-behavior.sh` still checked for deprecated `"decision":"allow/block"` format after v5.1.1 migrated hooks to `hookSpecificOutput`/`permissionDecision`. All assertions now match the correct format.
+
+### Added
+- **3 new behavioral tests** — B-49 (non-numeric phase string), B-50 (boolean phase values), B-51 (missing phase fields). Total: 51 tests, all passing.
+
 ## [5.1.2] - 2026-04-15
 
 ### Fixed

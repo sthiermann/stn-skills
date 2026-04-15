@@ -40,6 +40,9 @@ for dir in ".claude" "${REPO_ROOT}/.claude"; do
     SKILL="$(jq -r '.active_skill // empty' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "")"
     PHASE="$(jq -r '.current_phase // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
     TOTAL="$(jq -r '.total_phases // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
+    # Ensure numeric (non-numeric jq output → default to 0)
+    [[ "${PHASE:-0}" =~ ^[0-9]+$ ]] || PHASE=0
+    [[ "${TOTAL:-0}" =~ ^[0-9]+$ ]] || TOTAL=0
     if [[ -n "${SKILL:-}" ]]; then
       # Treat completed pipeline (phase > total) as inactive
       if [[ "${SKILL:-}" == "plan-execution" ]] && [[ "${PHASE:-0}" -gt 0 ]] && [[ "${TOTAL:-0}" -gt 0 ]] && [[ "${PHASE:-0}" -gt "${TOTAL:-0}" ]]; then
