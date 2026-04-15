@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # Hook output helper (Claude Code hookSpecificOutput format)
-_deny() { printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$1"; exit 0; }
+_deny() { local r="${1//\\/\\\\}"; r="${r//\"/\\\"}"; r="${r//$'\n'/\\n}"; printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$r"; exit 0; }
 
 # Kill-switch
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && exit 0

@@ -1,11 +1,11 @@
 {
-  "version": "5.1.3",
+  "version": "5.1.4",
   "description": "Maps requirements R1-R26 to implementing files, tasks, and eval checks",
   "coverage": {
     "R1":  {"task": "T02", "files": ["hooks/stn-skill-gate"], "eval": "eval-behavior.sh:B-05,B-06"},
     "R2":  {"task": "T03", "files": ["hooks/stn-state-validator"], "eval": "eval-behavior.sh:B-09,B-10,B-11"},
     "R3":  {"task": "T06,T13", "files": ["hooks/stn-scope-guard", "skills/plan-execution/SKILL.md"], "eval": "eval-behavior.sh:B-18,B-19"},
-    "R4":  {"task": "T04", "files": ["hooks/stn-session-lock"], "eval": "eval-behavior.sh:B-01"},
+    "R4":  {"task": "T04", "files": ["hooks/stn-session-lock"], "eval": "eval-behavior.sh:B-39,B-40,B-41"},
     "R5":  {"task": "T05", "files": ["hooks/stn-circuit-breaker"], "eval": "eval-behavior.sh:B-14,B-15"},
     "R6":  {"task": "T01-T06", "files": ["hooks/stn-*"], "eval": "eval-behavior.sh:B-01,B-07,B-12,B-16,B-21"},
     "R7":  {"task": "T01", "files": ["hooks/stn-init"], "eval": "eval-behavior.sh:B-02"},

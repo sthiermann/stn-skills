@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.1.4] - 2026-04-15
+
+### Fixed
+- **`_deny()` JSON escaping** — all 6 hooks now escape `\`, `"`, and newlines in deny reason strings before embedding in JSON output. Prevents invalid JSON when file paths or error messages contain special characters.
+- **Routing guard tracker fallback** — `NEW_FILES` jq call (line 89) had no error fallback, causing silent script exit under `set -e` if jq failed on corrupted tracker data. Now falls back to single-file array.
+- **Coverage matrix R4** — referenced wrong test ID (B-01 → B-39,B-40,B-41).
+- **Test grep literal matching** — `check()` function now uses `grep -F` (fixed string) instead of regex matching to prevent false positive substring matches.
+
 ## [5.1.3] - 2026-04-15
 
 ### Fixed

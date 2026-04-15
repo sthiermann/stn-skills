@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Hook output helpers (Claude Code hookSpecificOutput format)
 _allow() { echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'; exit 0; }
-_deny() { printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$1"; exit 0; }
+_deny() { local r="${1//\\/\\\\}"; r="${r//\"/\\\"}"; r="${r//$'\n'/\\n}"; printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$r"; exit 0; }
 
 # Kill-switch (shared)
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && _allow
@@ -86,7 +86,7 @@ if [[ "${ALREADY:-0}" -gt 0 ]]; then
 fi
 
 # Add file and check count
-NEW_FILES="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '. + [$f]' 2>/dev/null)"
+NEW_FILES="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '. + [$f]' 2>/dev/null || echo '["'"$REL_PATH"'"]')"
 COUNT="$(echo "$NEW_FILES" | jq 'length' 2>/dev/null || echo "0")"
 
 if [[ "${COUNT:-0}" -ge "${THRESHOLD:-3}" ]]; then

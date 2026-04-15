@@ -16,7 +16,7 @@ fail() { echo "FAIL: $1"; FAIL_COUNT=$((FAIL_COUNT + 1)); }
 
 check() {
   local desc="$1" expected="$2" actual="$3"
-  if echo "$actual" | grep -q "$expected"; then
+  if echo "$actual" | grep -qF "$expected"; then
     pass "$desc"
   else
     fail "$desc (expected '$expected', got '$actual')"
