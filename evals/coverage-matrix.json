@@ -1,5 +1,5 @@
 {
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "Maps requirements R1-R26 to implementing files, tasks, and eval checks",
   "coverage": {
     "R1":  {"task": "T02", "files": ["hooks/stn-skill-gate"], "eval": "eval-behavior.sh:B-05,B-06"},

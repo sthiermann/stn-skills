@@ -40,9 +40,9 @@ for dir in ".claude" "${REPO_ROOT}/.claude"; do
     SKILL="$(jq -r '.active_skill // empty' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "")"
     PHASE="$(jq -r '.current_phase // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
     TOTAL="$(jq -r '.total_phases // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
-    if [[ -n "$SKILL" ]]; then
+    if [[ -n "${SKILL:-}" ]]; then
       # Treat completed pipeline (phase > total) as inactive
-      if [[ "$SKILL" == "plan-execution" && "$PHASE" -gt 0 && "$TOTAL" -gt 0 && "$PHASE" -gt "$TOTAL" ]]; then
+      if [[ "${SKILL:-}" == "plan-execution" ]] && [[ "${PHASE:-0}" -gt 0 ]] && [[ "${TOTAL:-0}" -gt 0 ]] && [[ "${PHASE:-0}" -gt "${TOTAL:-0}" ]]; then
         break
       fi
       _allow
@@ -78,7 +78,7 @@ fi
 
 # Re-edits to already-tracked files don't count again
 ALREADY="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '[.[] | select(. == $f)] | length' 2>/dev/null || echo "0")"
-if [[ "$ALREADY" -gt 0 ]]; then
+if [[ "${ALREADY:-0}" -gt 0 ]]; then
   _allow
 fi
 
@@ -86,7 +86,7 @@ fi
 NEW_FILES="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '. + [$f]' 2>/dev/null)"
 COUNT="$(echo "$NEW_FILES" | jq 'length' 2>/dev/null || echo "0")"
 
-if [[ "$COUNT" -ge "$THRESHOLD" ]]; then
+if [[ "${COUNT:-0}" -ge "${THRESHOLD:-3}" ]]; then
   _deny "${COUNT} files edited without an active pipeline. Multi-file changes need structure. Invoke stn-skills:build-feature or stn-skills:brainstorming. Set STN_ROUTING_GUARD_SKIP=1 to override."
 fi
 

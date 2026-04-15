@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [5.1.2] - 2026-04-15
+
+### Fixed
+- **Routing guard `set -u` crash** — `stn-routing-guard` line 45 crashed with `execution: unbound variable` on macOS bash 3.2 when a pipeline had `active_skill: "plan-execution"`. The `-gt` operator inside `[[ ]]` evaluates operands in arithmetic context where `plan-execution` is parsed as `plan - execution`, triggering `set -u`. Fixed by splitting into separate `[[ ]]` blocks and adding `${:-}` defaults to all integer comparisons.
+
 ## [5.1.1] - 2026-04-15
 
 ### Fixed
