@@ -10,10 +10,10 @@ A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-7.1.0-blue?style=flat-square" alt="Version 6.0.0">
+  <img src="https://img.shields.io/badge/version-7.1.0-blue?style=flat-square" alt="Version 7.1.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
-  <img src="https://img.shields.io/badge/hooks-8-red?style=flat-square" alt="7 Enforcement Hooks">
+  <img src="https://img.shields.io/badge/hooks-8-red?style=flat-square" alt="8 Enforcement Hooks">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
@@ -191,11 +191,11 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 | `hooks/` | `hooks.json` (hook definitions) · 8 enforcement hooks (see below) |
 | `commands/` | 8 slash command entry points (one `.md` per skill) |
 | `skills/` | 8 skill implementations (see below) |
-| `evals/` | Eval framework: 59 behavioral tests, 88 consistency checks, activation tests |
+| `evals/` | Eval framework: 67 behavioral tests, 88 consistency checks, activation tests |
 
 ### Enforcement Hooks
 
-7 hooks execute at the Claude Code harness level — outside the LLM's reasoning chain. Claude cannot rationalize past them.
+8 hooks execute at the Claude Code harness level — outside the LLM's reasoning chain. Claude cannot rationalize past them.
 
 | Hook | Event | What It Enforces |
 |------|-------|-----------------|

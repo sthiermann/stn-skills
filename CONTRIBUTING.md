@@ -50,7 +50,7 @@ Before submitting changes, run the full eval suite:
 
 ```bash
 ./evals/eval-runner.sh          # All evals
-./evals/eval-behavior.sh        # 59 behavioral hook tests (no LLM calls)
+./evals/eval-behavior.sh        # 67 behavioral hook tests (no LLM calls)
 ./evals/eval-consistency.sh     # 88 cross-file consistency checks
 ./evals/eval-structure.sh       # File structure validation
 ```
