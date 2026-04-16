@@ -58,26 +58,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CURSOR_PLUGIN_ROOT}/hooks/stn-routing-guard\"",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"${CURSOR_PLUGIN_ROOT}/hooks/stn-scope-guard\"",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|Agent",
-        "hooks": [
-          {
-            "type": "command",
             "command": "\"${CURSOR_PLUGIN_ROOT}/hooks/stn-circuit-breaker\"",
             "timeout": 5000
           }

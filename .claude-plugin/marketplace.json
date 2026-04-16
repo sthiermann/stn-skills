@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "stn-skills",
-      "description": "Enterprise AI development pipeline — from idea to verified code. Multi-lens brainstorming, zero-placeholder DAG planning, checkpoint-verified execution with fidelity scoring, and 13-domain codebase auditing. 8 skills, 7 enforcement hooks, technology-agnostic. Research-backed: structured decomposition yields 12-18% higher correctness; per-step verification prevents 20-27% quality degradation.",
+      "description": "Enterprise AI development pipeline — from idea to verified code. Multi-lens brainstorming, zero-placeholder DAG planning, checkpoint-verified execution with fidelity scoring, and 13-domain codebase auditing. 8 skills, 6 hooks (safety + context priming), technology-agnostic. Research-backed: structured decomposition yields 12-18% higher correctness; per-step verification prevents 20-27% quality degradation.",
       "source": "./",
       "skills": [
         "./skills/build-feature",

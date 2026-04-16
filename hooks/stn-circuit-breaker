@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # stn-circuit-breaker: PreToolUse hook for Edit/Write/Agent
 # Blocks code modifications when circuit breaker is RED.
-# Part of stn-skills Layered Defense Enforcement.
+# Part of stn-skills hook system.
 set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 

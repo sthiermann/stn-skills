@@ -3,37 +3,52 @@
 # Tests whether each skill activates when given relevant prompts.
 #
 # Requires: claude CLI in PATH
-# Each prompt is sent with --max-turns 1 to check if the skill is invoked.
+# Uses --max-turns 3 to allow routing (session-init -> routing -> skill invocation).
+# Uses --output-format json to capture tool calls, falling back to text grep.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROMPTS_DIR="${SCRIPT_DIR}/prompts"
-TIMEOUT="${EVAL_TIMEOUT:-60}"
+TIMEOUT="${EVAL_TIMEOUT:-120}"
+MAX_TURNS="${EVAL_MAX_TURNS:-3}"
 
 check_activation() {
   local skill_name="$1"
   local prompt="$2"
-  local prompt_file
-  prompt_file=$(mktemp)
-  echo "$prompt" > "$prompt_file"
 
   local output
-  output=$(timeout "$TIMEOUT" claude -p < "$prompt_file" --max-turns 1 2>&1) || true
-  rm -f "$prompt_file"
+  output=$(timeout "$TIMEOUT" claude -p "$prompt" --max-turns "$MAX_TURNS" --output-format json 2>/dev/null) || true
 
-  # Check if the skill name appears in the output (case-insensitive)
-  if echo "$output" | grep -qi "$skill_name"; then
+  # Strategy 1: Check JSON output for Skill tool invocation
+  if echo "$output" | grep -qi "stn-skills:${skill_name}"; then
     echo "PASS: [$skill_name] activated for: \"$prompt\""
     return 0
-  else
-    echo "FAIL: [$skill_name] NOT activated for: \"$prompt\""
-    return 1
   fi
+
+  # Strategy 2: Check for skill name mention in text output (weaker signal)
+  if echo "$output" | grep -qi "\"$skill_name\""; then
+    echo "PASS: [$skill_name] mentioned for: \"$prompt\" (weak match)"
+    return 0
+  fi
+
+  # Strategy 3: Fallback to plain text mode if JSON mode fails
+  local text_output
+  text_output=$(timeout "$TIMEOUT" claude -p "$prompt" --max-turns "$MAX_TURNS" 2>&1) || true
+  if echo "$text_output" | grep -qi "$skill_name"; then
+    echo "PASS: [$skill_name] activated (text mode) for: \"$prompt\""
+    return 0
+  fi
+
+  echo "FAIL: [$skill_name] NOT activated for: \"$prompt\""
+  return 1
 }
 
 echo "Activation Eval"
 echo "==============="
+echo ""
+echo "NOTE: This eval requires the Claude CLI and makes LLM calls."
+echo "      Set EVAL_TIMEOUT (default: 120s) and EVAL_MAX_TURNS (default: 3)."
 echo ""
 
 pass=0

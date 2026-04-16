@@ -44,9 +44,9 @@ Single-file fixes, simple questions, no code changes, or when the user explicitl
 
 The `stn-init` SessionStart hook reads the session-init SKILL.md and injects it into Claude's context at session start. This happens automatically -- no `/stn-skills:session-init` invocation required.
 
-## Enforcement
+## Routing Guidance
 
-The `stn-routing-guard` hook provides mechanical enforcement: edits to 3+ files without an active pipeline are blocked, forcing skill invocation.
+The `stn-prompt-router` hook reinforces routing: when an active pipeline exists or the edit threshold is reached, Claude is reminded to resume or start a pipeline.
 
 ---
 

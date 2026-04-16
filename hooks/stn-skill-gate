@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # stn-skill-gate: PreToolUse hook for Skill invocations
 # Blocks skill chain violations based on pipeline state.
-# Part of stn-skills Layered Defense Enforcement.
+# Part of stn-skills hook system.
 set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 

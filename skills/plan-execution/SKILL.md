@@ -197,7 +197,7 @@ For each task in execution order, execute steps 3.1 through 3.7. Do not skip ste
   "allowed_files": ["{files_modified list from task spec}"]
 }
 ```
-This enables the `stn-scope-guard` hook to block writes outside the task's declared scope. **After the task completes** (regardless of status), delete `.claude/current-task-scope.json`.
+This scope file defines the task's boundary. **The orchestrator and reviewers use it to detect scope drift.** If a task-implementer needs a file outside the declared scope, it must document the reason and the orchestrator adds it to the scope before proceeding. **After the task completes** (regardless of status), delete `.claude/current-task-scope.json`.
 
 #### Step 3.1: Role Anchoring
 

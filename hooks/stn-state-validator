@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # stn-state-validator: PreToolUse hook for Write tool
 # Validates JSON content when writing to pipeline state files.
-# Part of stn-skills Layered Defense Enforcement.
+# Part of stn-skills hook system.
 set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 
@@ -15,6 +15,9 @@ TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")
 [[ "$TOOL_NAME" != "Write" ]] && _allow
 
 FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
+
+# Block path traversal
+[[ "$FILE_PATH" == *../* || "$FILE_PATH" == ..* ]] && _deny "Path traversal detected in file path."
 
 # Only validate state files
 case "$FILE_PATH" in

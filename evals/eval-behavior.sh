@@ -200,211 +200,12 @@ check "B-44: circuit-breaker ignores Read tool" '"permissionDecision":"allow"' "
 rm -f "${TMPDIR_FIX}/.claude/plan-execution-state.json"
 
 # ========================================
-# T06: stn-scope-guard
+# T06: stn-state-validator — path traversal
 # ========================================
 
-# B-17: scope-guard allows when no scope file
-result=$(cd "$TMPDIR_FIX" && rm -f .claude/current-task-scope.json && echo '{"tool_name":"Write","tool_input":{"file_path":"any/file.ts"}}' | bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
-check "B-17: scope-guard no scope = allow" '"permissionDecision":"allow"' "$result"
-
-# B-18: scope-guard blocks out-of-scope
-cat > "${TMPDIR_FIX}/.claude/current-task-scope.json" <<'FIXTURE'
-{"task_id":"T1","allowed_files":["src/auth.ts","src/router.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Write","tool_input":{"file_path":"src/database.ts"}}' | bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
-check "B-18: scope-guard blocks out-of-scope" '"permissionDecision":"deny"' "$result"
-
-# B-19: scope-guard allows in-scope
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Write","tool_input":{"file_path":"src/auth.ts"}}' | bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
-check "B-19: scope-guard allows in-scope" '"permissionDecision":"allow"' "$result"
-
-# B-20: scope-guard always allows .claude/ writes
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Write","tool_input":{"file_path":".claude/state.json"}}' | bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
-check "B-20: scope-guard allows .claude/" '"permissionDecision":"allow"' "$result"
-
-# B-21: scope-guard kill-switch
-result=$(echo '{"tool_name":"Write","tool_input":{"file_path":"blocked.ts"}}' | STN_SKILLS_HOOKS_DISABLE=1 bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
-check "B-21: scope-guard kill-switch" '"permissionDecision":"allow"' "$result"
-
-# B-45: scope-guard blocks path traversal
-cat > "${TMPDIR_FIX}/.claude/current-task-scope.json" <<'FIXTURE'
-{"task_id":"T1","allowed_files":["src/auth.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/../../etc/passwd"}}' | bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
-check "B-45: scope-guard blocks path traversal" '"permissionDecision":"deny"' "$result"
-rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
-
-# ========================================
-# T07: stn-routing-guard
-# ========================================
-
-# B-23: routing-guard allows when pipeline exists
-cat > "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json" <<'FIXTURE'
-{"pipeline_id":"test","active_skill":"brainstorming","current_phase":3,"total_phases":6,"gates_passed":[1],"artifact_path":"test.md","handoff_validated":false,"updated_at":"2026-01-01T00:00:00Z"}
-FIXTURE
-rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/index.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-23: routing-guard active pipeline = allow" '"permissionDecision":"allow"' "$result"
-
-# B-24: routing-guard blocks at threshold (3 files, no pipeline)
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["src/a.ts","src/b.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/c.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-24: routing-guard informs at threshold" '"permissionDecision":"allow"' "$result"
-check "B-24b: routing-guard inform includes context" '"additionalContext"' "$result"
-
-# B-56: routing-guard tracker persists after inform fires
-TRACKER_FILE="${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
-if [[ -f "$TRACKER_FILE" ]]; then
-  TRACKED="$(jq -r '.files | length' "$TRACKER_FILE" 2>/dev/null || echo "0")"
-  HAS_C="$(jq -r '.files | map(select(. == "src/c.ts")) | length' "$TRACKER_FILE" 2>/dev/null || echo "0")"
-  if [[ "$TRACKED" -ge 3 && "$HAS_C" -gt 0 ]]; then
-    pass "B-56: routing-guard tracker persists after inform (${TRACKED} files, includes src/c.ts)"
-  else
-    fail "B-56: routing-guard tracker not persisted (tracked=${TRACKED}, has_c=${HAS_C})"
-  fi
-else
-  fail "B-56: routing-guard tracker file missing after inform"
-fi
-
-# B-25: routing-guard allows re-edit of tracked file
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["src/a.ts","src/b.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/a.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-25: routing-guard re-edit = allow" '"permissionDecision":"allow"' "$result"
-
-# B-26: routing-guard allows under threshold
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["src/a.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/b.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-26: routing-guard under threshold = allow" '"permissionDecision":"allow"' "$result"
-
-# B-27: routing-guard always allows .claude/ paths
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["a.ts","b.ts","c.ts","d.ts","e.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":".claude/something.json"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-27: routing-guard allows .claude/" '"permissionDecision":"allow"' "$result"
-
-# B-28: routing-guard global kill-switch
-rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
-result=$(echo '{"tool_name":"Edit","tool_input":{"file_path":"src/blocked.ts"}}' | STN_SKILLS_HOOKS_DISABLE=1 bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-28: routing-guard global kill-switch" '"permissionDecision":"allow"' "$result"
-
-# B-29: routing-guard dedicated kill-switch
-result=$(echo '{"tool_name":"Edit","tool_input":{"file_path":"src/blocked.ts"}}' | STN_ROUTING_GUARD_SKIP=1 bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-29: routing-guard dedicated kill-switch" '"permissionDecision":"allow"' "$result"
-
-# B-30: routing-guard allows with active task scope (codebase-audit)
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-cat > "${TMPDIR_FIX}/.claude/current-task-scope.json" <<'FIXTURE'
-{"task_id":"T1","allowed_files":["src/auth.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/anything.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-30: routing-guard task scope = allow" '"permissionDecision":"allow"' "$result"
-rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
-
-# B-31: routing-guard treats completed pipeline as inactive
-cat > "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json" <<'FIXTURE'
-{"pipeline_id":"test","active_skill":"plan-execution","current_phase":8,"total_phases":7,"gates_passed":[1,2,3],"artifact_path":"test.md","handoff_validated":true,"updated_at":"2026-01-01T00:00:00Z"}
-FIXTURE
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["src/a.ts","src/b.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/c.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-31: routing-guard completed pipeline = inform" '"permissionDecision":"allow"' "$result"
-check "B-31b: routing-guard completed pipeline context" '"additionalContext"' "$result"
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
-
-# B-46: routing-guard blocks path traversal
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["src/a.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/../../etc/passwd"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-46: routing-guard blocks path traversal" '"permissionDecision":"deny"' "$result"
-
-# B-47: routing-guard custom threshold via env var
-rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["src/a.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/b.ts"}}' | STN_ROUTING_GUARD_THRESHOLD=2 bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-47: routing-guard custom threshold=2 informs" '"permissionDecision":"allow"' "$result"
-check "B-52: routing-guard inform includes additionalContext" '"additionalContext"' "$result"
-
-# B-48: routing-guard ignores non-Edit/Write
-result=$(echo '{"tool_name":"Read","tool_input":{"file_path":"src/a.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-48: routing-guard ignores Read tool" '"permissionDecision":"allow"' "$result"
-rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
-
-# B-49: routing-guard handles non-numeric current_phase (string)
-cat > "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json" <<'FIXTURE'
-{"pipeline_id":"test","active_skill":"plan-execution","current_phase":"plan-execution","total_phases":"plan-execution","gates_passed":[],"artifact_path":"test.md","handoff_validated":true,"updated_at":"2026-01-01T00:00:00Z"}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/foo.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-rc=$?
-if [[ $rc -eq 0 ]]; then
-  check "B-49: routing-guard non-numeric phase = no crash" '"permissionDecision":"allow"' "$result"
-else
-  fail "B-49: routing-guard non-numeric phase crashed (exit $rc)"
-fi
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-
-# B-50: routing-guard handles boolean phase values
-cat > "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json" <<'FIXTURE'
-{"pipeline_id":"test","active_skill":"plan-execution","current_phase":true,"total_phases":false,"gates_passed":[],"artifact_path":"test.md","handoff_validated":true,"updated_at":"2026-01-01T00:00:00Z"}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/foo.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-rc=$?
-if [[ $rc -eq 0 ]]; then
-  check "B-50: routing-guard boolean phase = no crash" '"permissionDecision":"allow"' "$result"
-else
-  fail "B-50: routing-guard boolean phase crashed (exit $rc)"
-fi
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-
-# B-51: routing-guard handles missing phase fields
-cat > "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json" <<'FIXTURE'
-{"pipeline_id":"test","active_skill":"plan-execution","gates_passed":[],"artifact_path":"test.md","handoff_validated":true,"updated_at":"2026-01-01T00:00:00Z"}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path":"src/foo.ts"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-rc=$?
-if [[ $rc -eq 0 ]]; then
-  check "B-51: routing-guard missing phase fields = no crash" '"permissionDecision":"allow"' "$result"
-else
-  fail "B-51: routing-guard missing phase fields crashed (exit $rc)"
-fi
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-
-# ========================================
-# T08: Routing guard — Agent tool
-# ========================================
-
-# B-57: routing-guard tracks Agent tool at threshold
-rm -f "${TMPDIR_FIX}/.claude/stn-skills-pipeline-state.json"
-rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["__agent_dispatch__","__agent_dispatch__"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Agent","tool_input":{"prompt":"explore"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-57: routing-guard informs Agent at threshold" '"permissionDecision":"allow"' "$result"
-check "B-57b: routing-guard Agent inform has context" '"additionalContext"' "$result"
-
-# B-58: routing-guard allows Agent under threshold
-cat > "${TMPDIR_FIX}/.claude/stn-edit-tracker.json" <<'FIXTURE'
-{"files":["__agent_dispatch__"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Agent","tool_input":{"prompt":"explore"}}' | bash "${HOOKS_DIR}/stn-routing-guard" 2>&1)
-check "B-58: routing-guard allows Agent under threshold" '"permissionDecision":"allow"' "$result"
-rm -f "${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
+# B-17: state-validator blocks path traversal
+result=$(echo '{"tool_name":"Write","tool_input":{"file_path":"src/../../etc/passwd","content":"x"}}' | bash "${HOOKS_DIR}/stn-state-validator" 2>&1)
+check "B-17: state-validator blocks path traversal" '"permissionDecision":"deny"' "$result"
 
 # ========================================
 # T09: stn-prompt-router
@@ -457,17 +258,13 @@ else
   fail "B-53: _json_escape produces invalid JSON (output: $result)"
 fi
 
-# B-54: scope-guard deny with tab in file path produces valid JSON
-cat > "${TMPDIR_FIX}/.claude/current-task-scope.json" <<'FIXTURE'
-{"task_id":"T1","allowed_files":["src/auth.ts"]}
-FIXTURE
-result=$(cd "$TMPDIR_FIX" && printf '{"tool_name":"Write","tool_input":{"file_path":"src/bad\tfile.ts"}}' | bash "${HOOKS_DIR}/stn-scope-guard" 2>&1)
+# B-54: state-validator deny with tab in path produces valid JSON
+result=$(printf '{"tool_name":"Write","tool_input":{"file_path":"src/../bad\tfile.ts","content":"x"}}' | bash "${HOOKS_DIR}/stn-state-validator" 2>&1)
 if echo "$result" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
-  pass "B-54: scope-guard deny with tab = valid JSON"
+  pass "B-54: state-validator deny with tab = valid JSON"
 else
-  fail "B-54: scope-guard deny with tab = invalid JSON (output: $result)"
+  fail "B-54: state-validator deny with tab = invalid JSON (output: $result)"
 fi
-rm -f "${TMPDIR_FIX}/.claude/current-task-scope.json"
 
 # B-55: session-lock deny with active PID produces valid JSON
 LOCK_TEST="$(mktemp -d)"
@@ -487,7 +284,7 @@ rm -rf "$LOCK_TEST"
 
 # B-22: No eval or unquoted $() in hook scripts
 EXPANSION_COUNT=0
-for hook in stn-hook-output stn-skill-gate stn-state-validator stn-session-lock stn-circuit-breaker stn-scope-guard stn-routing-guard; do
+for hook in stn-hook-output stn-skill-gate stn-state-validator stn-session-lock stn-circuit-breaker stn-prompt-router; do
   count=$(grep -cE '^\s*eval\s|[^"]\$\(' "${HOOKS_DIR}/${hook}" 2>/dev/null; true)
   count="${count##*:}"  # strip filename prefix from grep -c output
   count="${count:-0}"

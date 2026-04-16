@@ -10,14 +10,14 @@ A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-7.3.0-blue?style=flat-square" alt="Version 7.3.0">
+  <img src="https://img.shields.io/badge/version-8.0.0-blue?style=flat-square" alt="Version 8.0.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
-  <img src="https://img.shields.io/badge/hooks-8-red?style=flat-square" alt="8 Enforcement Hooks">
+  <img src="https://img.shields.io/badge/hooks-6-blue?style=flat-square" alt="6 Hooks">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v7.3.0](CHANGELOG.md)
+[What's new in v8.0.0](CHANGELOG.md)
 
 </div>
 
@@ -188,24 +188,22 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 |-----------|----------|
 | `.claude-plugin/` | `plugin.json` (metadata) · `marketplace.json` (marketplace registration) |
 | `.cursor-plugin/` | `plugin.json` (Cursor metadata) · `hooks-cursor.json` (Cursor hooks) |
-| `hooks/` | `hooks.json` (hook definitions) · 8 enforcement hooks (see below) |
+| `hooks/` | `hooks.json` (hook definitions) · 6 hooks (see below) |
 | `commands/` | 8 slash command entry points (one `.md` per skill) |
 | `skills/` | 8 skill implementations (see below) |
-| `evals/` | Eval framework: 67 behavioral tests, 88 consistency checks, activation tests |
+| `evals/` | Eval framework: behavioral tests, 88 consistency checks, activation tests |
 
 ### Enforcement Hooks
 
-8 hooks execute at the Claude Code harness level — outside the LLM's reasoning chain. Claude cannot rationalize past them.
+6 hooks execute at the Claude Code harness level — safety enforcement and context priming.
 
-| Hook | Event | What It Enforces |
-|------|-------|-----------------|
+| Hook | Event | What It Does |
+|------|-------|-------------|
 | `stn-init` | SessionStart | Loads pipeline state + session-init routing into context |
 | `stn-session-lock` | SessionStart | Prevents concurrent sessions via atomic mkdir lock |
 | `stn-skill-gate` | PreToolUse | Blocks invalid skill chain transitions (handoff not validated) |
 | `stn-state-validator` | PreToolUse | Validates JSON integrity on pipeline state file writes |
-| `stn-prompt-router` | UserPromptSubmit | Primes Claude with pipeline routing before each turn |
-| `stn-routing-guard` | PreToolUse | Tracks multi-file work (3+ files/agents) outside pipelines |
-| `stn-scope-guard` | PreToolUse | Blocks writes outside current task scope during execution |
+| `stn-prompt-router` | UserPromptSubmit | Reminds Claude about active pipelines and edit thresholds |
 | `stn-circuit-breaker` | PreToolUse | Blocks all modifications when circuit breaker is RED |
 
 See [Hook Documentation](docs/recommended-hooks.md) for details and override options.
@@ -230,7 +228,7 @@ Pipeline skills contain: `SKILL.md` (orchestrator prompt) · `README.md` (docume
 ## Troubleshooting
 
 **A hook blocked my edit. How do I proceed?**
-Read the block reason — it tells you what to do. Usually: invoke the correct skill first. For urgent hotfixes: `export STN_ROUTING_GUARD_SKIP=1` bypasses the routing guard without disabling other hooks.
+Read the block reason — it tells you what to do. Usually: invoke the correct skill first, or fix the issue described in the deny reason.
 
 **My pipeline was interrupted. Can I resume?**
 Yes. Pipeline state persists in `.claude/stn-skills-pipeline-state.json`. Start a new session in the same directory — `session-init` detects the active pipeline and offers to resume.

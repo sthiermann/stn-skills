@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.0.0] - 2026-04-16
+
+### Changed
+- **Hooks reduced from 8 to 6 — safety-only deny, no more workflow enforcement.** Removed `stn-routing-guard` (blocked legitimate exploration, 7-version deny/inform cycle that never stabilized) and `stn-scope-guard` (redundant with plan-execution's 3-stage review). No other skill plugin on the market uses deny for workflow routing — this aligns stn-skills with Karpathy-style guidance (CLAUDE.md instructions) and hookify-style precision (deny only for safety).
+- **Prompt-router no longer fires on every prompt.** Removed the always-fire fallback that injected ~30 tokens on every user prompt. Now silent when no pipeline is active and edit threshold not reached. Saves context budget on simple questions.
+- **Session-init simplified.** Removed adversarial "Red Flags and Common Rationalizations" table. Routing is guidance, not enforcement. Removed ack-marker cleanup (concept no longer exists).
+- **Path-traversal check moved to state-validator.** The useful security check from routing-guard now lives in stn-state-validator, which already validates Write operations.
+- **Plan-execution scope awareness via instructions.** Replaced mechanical stn-scope-guard blocking with explicit scope-awareness instructions and the existing 3-stage review system.
+
+### Fixed
+- **Activation eval methodology.** Upgraded from `claude -p --max-turns 1` (broken: piped mode, 1 turn insufficient, grep can't see tool calls) to `--max-turns 3 --output-format json` with multi-strategy detection.
+- **Version mismatch.** plugin.json was stuck at 7.1.0 while CHANGELOG was at 7.3.0. Now aligned at 8.0.0.
+
+### Removed
+- `hooks/stn-routing-guard` — deny on first Agent dispatch, ack-marker system, edit tracking (edit tracking remains in prompt-router)
+- `hooks/stn-scope-guard` — mechanical scope enforcement during plan-execution
+
 ## [7.3.0] - 2026-04-16
 
 ### Changed

@@ -2,7 +2,7 @@
 # stn-prompt-router: UserPromptSubmit hook
 # Primes Claude with stn-skills routing instructions before work begins.
 # Fires on every user prompt. Only injects context when routing is needed.
-# Part of stn-skills Layered Defense Enforcement.
+# Part of stn-skills hook system.
 set -o pipefail
 
 # Kill-switch
@@ -40,7 +40,7 @@ done
 
 # --- Check edit tracker (secondary: multi-file work without pipeline) ---
 TRACKER="${REPO_ROOT}/.claude/stn-edit-tracker.json"
-THRESHOLD="${STN_ROUTING_GUARD_THRESHOLD:-3}"
+THRESHOLD="${STN_PROMPT_ROUTER_THRESHOLD:-3}"
 
 if [[ -f "$TRACKER" ]]; then
   NOW="$(date +%s)"
@@ -59,8 +59,5 @@ if [[ -f "$TRACKER" ]]; then
   fi
 fi
 
-# --- Fallback: lightweight routing reminder (always fires) ---
-source "$(dirname "$0")/stn-hook-output"
-local_ctx="stn-skills routing: if this task involves building, designing, or multi-file changes, invoke the matching skill (brainstorming/build-feature/plan-writing) BEFORE any other action including Agent dispatches."
-printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}' "$(_json_escape "$local_ctx")"
+# No active pipeline and under edit threshold — exit silently
 exit 0

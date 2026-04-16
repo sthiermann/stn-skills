@@ -389,6 +389,9 @@ echo "--- C-22/C-23/C-24: Standard sections ---"
 for skill_file in "$SKILLS_DIR"/*/SKILL.md; do
   skill=$(basename "$(dirname "$skill_file")")
 
+  # Skip session-init (lightweight routing skill, no pipeline phases)
+  [[ "$skill" == "session-init" ]] && continue
+
   # C-22: Iron Law or Contract Rule
   if grep -qE 'Iron Law|Contract Rule' "$skill_file"; then
     pass_check "C-22 Iron Law/Contract Rule present: ${skill}"
