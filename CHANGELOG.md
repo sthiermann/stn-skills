@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [7.2.0] - 2026-04-16
+
+### Fixed
+- **stn-prompt-router always-on routing reminder** — the router was silent on fresh conversations (no active pipeline, no edit threshold), leaving Claude with only advisory session-init instructions that lost the priority contest against plan mode's "Launch Explore agents." The router now outputs a lightweight routing reminder (~30 tokens) on every prompt, ensuring Claude always gets a skill-routing nudge — especially on the critical first message where large specs were being ignored.
+
+### Added
+- **Plan Mode Override in session-init** — new section explicitly states that skill routing supersedes plan mode's Phase 1 instructions. If a skill matches the user's intent, it must be invoked before any Explore agent dispatches, regardless of plan mode state.
+
 ## [7.1.0] - 2026-04-15
 
 ### Added

@@ -25,6 +25,10 @@ MATCHING SKILLS ARE INVOKED BEFORE ANY WORK.
 THE STATE FILE IS THE TRUTH.
 ```
 
+## Plan Mode Override
+
+If plan mode is active, routing STILL applies first. The plan mode "Phase 1: Launch Explore agents" instruction is SUPERSEDED by skill routing. If a skill matches the user's intent, invoke it — the skill itself handles exploration, planning, and execution with proper structure. Do NOT follow plan mode phases when a skill match exists.
+
 ## Active Pipeline
 
 If an **Active Pipeline State** section appears below, a pipeline is active.

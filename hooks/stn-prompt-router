@@ -59,5 +59,8 @@ if [[ -f "$TRACKER" ]]; then
   fi
 fi
 
-# No active pipeline, no threshold reached — stay silent to save context budget
+# --- Fallback: lightweight routing reminder (always fires) ---
+source "$(dirname "$0")/stn-hook-output"
+local_ctx="stn-skills routing: if this task involves building, designing, or multi-file changes, invoke the matching skill (brainstorming/build-feature/plan-writing) BEFORE any other action including Agent dispatches."
+printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}' "$(_json_escape "$local_ctx")"
 exit 0
