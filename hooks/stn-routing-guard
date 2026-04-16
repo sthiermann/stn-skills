@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # stn-routing-guard: PreToolUse hook for Edit/Write/Agent
-# Tracks multi-file edits and agent dispatches outside active pipelines.
-# Allows actions but injects routing guidance at threshold. Primary enforcement is via stn-prompt-router.
+# Denies first Agent dispatch outside active pipelines (forces routing check).
+# Tracks multi-file edits and injects guidance at threshold.
 # Part of stn-skills Layered Defense Enforcement.
 set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
@@ -60,7 +60,26 @@ for dir in ".claude" "${REPO_ROOT}/.claude"; do
   [[ -f "$dir/current-task-scope.json" ]] && _allow
 done
 
-# --- No active pipeline. Track edits. ---
+# --- No active pipeline. Deny first Agent dispatch (routing gate). ---
+if [[ "$TOOL_NAME" == "Agent" ]]; then
+  ROUTING_ACKED="${REPO_ROOT}/.claude/stn-routing-acked"
+  if [[ ! -f "$ROUTING_ACKED" ]]; then
+    mkdir -p "$(dirname "$ROUTING_ACKED")"
+    date +%s > "$ROUTING_ACKED"
+    _deny "No stn-skills pipeline active. For multi-file or design tasks, invoke Skill(skill: \"stn-skills:build-feature\") or Skill(skill: \"stn-skills:brainstorming\") first. For simple questions, retry Agent." \
+      "ROUTING REQUIRED: Invoke the matching skill from the session-init routing table BEFORE dispatching agents. This deny will not repeat if you retry."
+  else
+    NOW="$(date +%s)"
+    ACK_MTIME="$(stat -f %m "$ROUTING_ACKED" 2>/dev/null || stat -c %Y "$ROUTING_ACKED" 2>/dev/null || echo "0")"
+    ACK_AGE="$((NOW - ACK_MTIME))"
+    if [[ "$ACK_AGE" -gt 43200 ]]; then
+      date +%s > "$ROUTING_ACKED"
+      _deny "No stn-skills pipeline active (stale ack). Invoke matching skill first or retry Agent."
+    fi
+  fi
+fi
+
+# --- Track edits. ---
 TRACKER="${REPO_ROOT}/.claude/stn-edit-tracker.json"
 THRESHOLD="${STN_ROUTING_GUARD_THRESHOLD:-3}"
 

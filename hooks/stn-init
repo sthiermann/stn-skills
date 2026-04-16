@@ -26,13 +26,17 @@ if [ ! -f "$skill_file" ]; then
 fi
 skill_content=$(cat "$skill_file" 2>/dev/null) || exit 0
 
+# --- Clean routing ack marker (fresh routing check each session) ---
+rm -f ".claude/stn-routing-acked" 2>/dev/null
+git_root=$(git rev-parse --show-toplevel 2>/dev/null) || true
+[ -n "$git_root" ] && rm -f "${git_root}/.claude/stn-routing-acked" 2>/dev/null
+
 # --- Locate pipeline state file ---
 # Check cwd first (fast), fall back to git root if needed
 state_file=""
 if [ -f ".claude/stn-skills-pipeline-state.json" ]; then
   state_file=".claude/stn-skills-pipeline-state.json"
 else
-  git_root=$(git rev-parse --show-toplevel 2>/dev/null) || true
   if [ -n "$git_root" ] && [ -f "${git_root}/.claude/stn-skills-pipeline-state.json" ]; then
     state_file="${git_root}/.claude/stn-skills-pipeline-state.json"
   fi

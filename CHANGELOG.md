@@ -4,13 +4,17 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [7.2.0] - 2026-04-16
+## [7.3.0] - 2026-04-16
 
-### Fixed
-- **stn-prompt-router always-on routing reminder** — the router was silent on fresh conversations (no active pipeline, no edit threshold), leaving Claude with only advisory session-init instructions that lost the priority contest against plan mode's "Launch Explore agents." The router now outputs a lightweight routing reminder (~30 tokens) on every prompt, ensuring Claude always gets a skill-routing nudge — especially on the critical first message where large specs were being ignored.
+### Changed
+- **Routing guard denies first Agent dispatch** — `additionalContext` (inform) is advisory and Claude ignores it. Every inform-based version (v6.0.0, v7.1.0, v7.2.0) failed. Only `deny` physically enforces routing. The routing guard now denies the first Agent dispatch when no pipeline is active, with a specific redirect to `stn-skills:build-feature` or `stn-skills:brainstorming`. An ack marker (`stn-routing-acked`) ensures subsequent Agent dispatches go through — simple questions work on retry.
+- **Session start clears routing ack marker** — `stn-init` removes `stn-routing-acked` at session start so each session gets a fresh routing check. Stale ack markers (>12h) are also re-challenged by the routing guard.
 
-### Added
-- **Plan Mode Override in session-init** — new section explicitly states that skill routing supersedes plan mode's Phase 1 instructions. If a skill matches the user's intent, it must be invoked before any Explore agent dispatches, regardless of plan mode state.
+### Fixed (from v7.2.0)
+- **stn-prompt-router always-on routing reminder** — the router was silent on fresh conversations. Now outputs a lightweight routing reminder on every prompt (~30 tokens), priming Claude before the deny fires.
+
+### Added (from v7.2.0)
+- **Plan Mode Override in session-init** — skill routing supersedes plan mode's Phase 1 instructions.
 
 ## [7.1.0] - 2026-04-15
 
