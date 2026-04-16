@@ -13,9 +13,15 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 # --- Check for active pipeline (highest priority) ---
 for dir in ".claude" "${REPO_ROOT}/.claude"; do
   if [[ -f "$dir/stn-skills-pipeline-state.json" ]]; then
-    SKILL="$(jq -r '.active_skill // empty' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "")"
-    PHASE="$(jq -r '.current_phase // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
-    TOTAL="$(jq -r '.total_phases // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null || echo "0")"
+    SKILL="$(jq -r '.active_skill // empty' "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
+      || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('active_skill',''))" "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
+      || echo "")"
+    PHASE="$(jq -r '.current_phase // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
+      || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('current_phase',0))" "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
+      || echo "0")"
+    TOTAL="$(jq -r '.total_phases // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
+      || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('total_phases',0))" "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
+      || echo "0")"
     [[ "${PHASE:-0}" =~ ^[0-9]+$ ]] || PHASE=0
     [[ "${TOTAL:-0}" =~ ^[0-9]+$ ]] || TOTAL=0
     if [[ -n "$SKILL" ]]; then
@@ -41,7 +47,9 @@ if [[ -f "$TRACKER" ]]; then
   FILE_MTIME="$(stat -f %m "$TRACKER" 2>/dev/null || stat -c %Y "$TRACKER" 2>/dev/null || echo "0")"
   FILE_AGE="$((NOW - FILE_MTIME))"
   if [[ "$FILE_AGE" -le 43200 ]]; then
-    COUNT="$(jq '.files | length' "$TRACKER" 2>/dev/null || echo "0")"
+    COUNT="$(jq '.files | length' "$TRACKER" 2>/dev/null \
+      || python3 -c "import json,sys; print(len(json.load(open(sys.argv[1])).get('files',[])))" "$TRACKER" 2>/dev/null \
+      || echo "0")"
     if [[ "${COUNT:-0}" -ge "${THRESHOLD:-3}" ]]; then
       source "$(dirname "$0")/stn-hook-output"
       local_ctx="ROUTING: ${COUNT} files have been edited without an stn-skills pipeline. Before making code changes, invoke Skill(skill: \\\"stn-skills:build-feature\\\") to start a structured pipeline with design review, planning, and verified execution."

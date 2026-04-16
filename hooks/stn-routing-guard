@@ -94,7 +94,7 @@ NEW_FILES="$(echo "$TRACKED_FILES" | jq --arg f "$REL_PATH" '. + [$f]' 2>/dev/nu
   || NEW_FILES="[\"$(_json_escape "$REL_PATH")\"]"
 COUNT="$(echo "$NEW_FILES" | jq 'length' 2>/dev/null || echo "0")"
 
-# Update tracker before threshold check — _deny() exits, so tracker must persist first
+# Update tracker before threshold check — _inform() exits, so tracker must persist first
 mkdir -p "$(dirname "$TRACKER")"
 printf '{"files":%s}\n' "$NEW_FILES" > "$TRACKER"
 

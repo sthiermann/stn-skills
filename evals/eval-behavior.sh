@@ -256,7 +256,7 @@ result=$(cd "$TMPDIR_FIX" && echo '{"tool_name":"Edit","tool_input":{"file_path"
 check "B-24: routing-guard informs at threshold" '"permissionDecision":"allow"' "$result"
 check "B-24b: routing-guard inform includes context" '"additionalContext"' "$result"
 
-# B-56: routing-guard tracker persists after deny fires
+# B-56: routing-guard tracker persists after inform fires
 TRACKER_FILE="${TMPDIR_FIX}/.claude/stn-edit-tracker.json"
 if [[ -f "$TRACKER_FILE" ]]; then
   TRACKED="$(jq -r '.files | length' "$TRACKER_FILE" 2>/dev/null || echo "0")"
