@@ -1,0 +1,10 @@
+#!/bin/sh
+# .copilot-plugin/hooks/stn-skill-gate — Copilot CLI wrapper for hooks/stn-skill-gate
+# NOTE: Copilot CLI has no "Skill" tool, so chain enforcement is advisory-only on
+# this platform (hook always exits via _allow). Documented in docs/copilot-cli.md
+# "no Skill tool" section. Wrapper kept for symmetry + future skill-tool support.
+[ "${STN_SKILLS_HOOKS_DISABLE:-}" = "1" ] && exit 0
+[ -n "$BASH_VERSION" ] || exec bash "$0" "$@"
+export STN_PLATFORM="copilot"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec "${SCRIPT_DIR}/../../hooks/stn-skill-gate" "$@"

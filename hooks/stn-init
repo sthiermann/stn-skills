@@ -1,23 +1,18 @@
 #!/usr/bin/env bash
 # stn-skills SessionStart hook
 # Reads pipeline state + session-init skill, injects into session context.
-# Uses jq for JSON parsing with python3 fallback. <50ms target.
+# Uses json_get from stn-hook-output library (jq with python3 fallback). <50ms target.
 
 set -o pipefail
 
 # Kill-switch: skip all stn-skills hooks
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && exit 0
 
-# JSON field reader: jq with python3 fallback
-json_get() {
-  local file="$1" field="$2"
-  jq -r ".$field // empty" "$file" 2>/dev/null \
-    || python3 -c "import json,sys; v=json.load(open(sys.argv[1])).get(sys.argv[2],''); print(v if not isinstance(v,list) else json.dumps(v))" "$file" "$field" 2>/dev/null \
-    || echo ""
-}
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Source library (stn_detect_platform, json_get, _json_escape)
+source "${SCRIPT_DIR}/stn-hook-output"
 
 # --- Read the session-init skill content ---
 skill_file="${PLUGIN_ROOT}/skills/session-init/SKILL.md"
@@ -48,13 +43,13 @@ if [ -n "$state_file" ]; then
 fi
 
 if [ -n "$state_file" ]; then
-  # JSON field extraction via jq (python3 fallback)
-  active_skill=$(json_get "$state_file" "active_skill")
-  current_phase=$(json_get "$state_file" "current_phase")
-  total_phases=$(json_get "$state_file" "total_phases")
-  gates_passed=$(json_get "$state_file" "gates_passed")
-  updated_at=$(json_get "$state_file" "updated_at")
-  artifact_path=$(json_get "$state_file" "artifact_path")
+  # JSON field extraction via library json_get (jq + python3 fallback)
+  active_skill=$(json_get "active_skill" "$state_file")
+  current_phase=$(json_get "current_phase" "$state_file")
+  total_phases=$(json_get "total_phases" "$state_file")
+  gates_passed=$(json_get "gates_passed" "$state_file")
+  updated_at=$(json_get "updated_at" "$state_file")
+  artifact_path=$(json_get "artifact_path" "$state_file")
 
   # Only build state block if essential fields are present
   if [ -n "$active_skill" ] && [ -n "$current_phase" ]; then
@@ -102,17 +97,20 @@ if [ -n "$state_block" ]; then
 fi
 
 # --- Escape for JSON embedding ---
-source "$(dirname "$0")/stn-hook-output"
-
 escaped=$(_json_escape "$full_content")
 
 # --- Platform-specific JSON output ---
-if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
-  printf '{\n  "additional_context": "%s"\n}\n' "$escaped"
-elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -z "${COPILOT_CLI:-}" ]; then
-  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
-else
-  printf '{\n  "additionalContext": "%s"\n}\n' "$escaped"
-fi
+platform="$(stn_detect_platform)"
+case "$platform" in
+  cursor)
+    printf '{\n  "additional_context": "%s"\n}\n' "$escaped"
+    ;;
+  claude)
+    printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$escaped"
+    ;;
+  copilot|*)
+    printf '{\n  "additionalContext": "%s"\n}\n' "$escaped"
+    ;;
+esac
 
 exit 0

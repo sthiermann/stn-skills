@@ -14,7 +14,12 @@ Contributions are welcome — whether improving existing skills or proposing new
    ```
    /plugin install file:///path/to/your/stn-skills
    ```
-3. Test your changes by invoking the skill in a real repository
+3. For Copilot CLI, install from the `.copilot-plugin/` subdirectory:
+   ```
+   copilot plugin install ./.copilot-plugin
+   ```
+   See [docs/copilot-cli.md](docs/copilot-cli.md) for Copilot-specific install and known limitations.
+4. Test your changes by invoking the skill in a real repository
 
 ## Skill Architecture
 

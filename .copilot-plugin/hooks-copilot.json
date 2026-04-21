@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "bash": "./.copilot-plugin/hooks/stn-init",
+        "timeoutSec": 10
+      },
+      {
+        "type": "command",
+        "bash": "./.copilot-plugin/hooks/stn-session-lock",
+        "timeoutSec": 10
+      }
+    ],
+    "userPromptSubmitted": [
+      {
+        "type": "command",
+        "bash": "./.copilot-plugin/hooks/stn-prompt-router",
+        "timeoutSec": 5
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "./.copilot-plugin/hooks/stn-skill-gate",
+        "timeoutSec": 5
+      },
+      {
+        "type": "command",
+        "bash": "./.copilot-plugin/hooks/stn-state-validator",
+        "timeoutSec": 5
+      },
+      {
+        "type": "command",
+        "bash": "./.copilot-plugin/hooks/stn-circuit-breaker",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}

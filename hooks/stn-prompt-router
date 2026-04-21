@@ -13,25 +13,26 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 # --- Check for active pipeline (highest priority) ---
 for dir in ".claude" "${REPO_ROOT}/.claude"; do
   if [[ -f "$dir/stn-skills-pipeline-state.json" ]]; then
-    SKILL="$(jq -r '.active_skill // empty' "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
-      || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('active_skill',''))" "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
-      || echo "")"
-    PHASE="$(jq -r '.current_phase // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
-      || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('current_phase',0))" "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
-      || echo "0")"
-    TOTAL="$(jq -r '.total_phases // 0' "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
-      || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('total_phases',0))" "$dir/stn-skills-pipeline-state.json" 2>/dev/null \
-      || echo "0")"
-    [[ "${PHASE:-0}" =~ ^[0-9]+$ ]] || PHASE=0
-    [[ "${TOTAL:-0}" =~ ^[0-9]+$ ]] || TOTAL=0
+    # Lazy-source library only when about to emit (preserves fast path <5ms)
+    source "$(dirname "$0")/stn-hook-output"
+    SKILL="$(json_get "active_skill" "$dir/stn-skills-pipeline-state.json")"
+    PHASE="$(json_get "current_phase" "$dir/stn-skills-pipeline-state.json")"
+    TOTAL="$(json_get "total_phases" "$dir/stn-skills-pipeline-state.json")"
+    [[ -z "$PHASE" ]] && PHASE=0
+    [[ -z "$TOTAL" ]] && TOTAL=0
+    [[ "$PHASE" =~ ^[0-9]+$ ]] || PHASE=0
+    [[ "$TOTAL" =~ ^[0-9]+$ ]] || TOTAL=0
     if [[ -n "$SKILL" ]]; then
       # Treat completed pipeline as inactive
       if [[ "$SKILL" == "plan-execution" && "$PHASE" -gt 0 && "$TOTAL" -gt 0 && "$PHASE" -gt "$TOTAL" ]]; then
         break
       fi
       # Active pipeline — prime Claude to resume
-      source "$(dirname "$0")/stn-hook-output"
       local_ctx="Active stn-skills pipeline: ${SKILL} (phase ${PHASE}/${TOTAL:-?}). Resume by invoking Skill(skill: \\\"stn-skills:${SKILL}\\\") before starting other work."
+      # Claude/Cursor use hookSpecificOutput wrapper for UserPromptSubmit.
+      # Copilot userPromptSubmitted output is IGNORED per A5 (see docs/copilot-cli.md),
+      # so we keep the Claude format here — correctness on Claude/Cursor matters,
+      # Copilot drops it regardless of shape.
       printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}' "$(_json_escape "$local_ctx")"
       exit 0
     fi
@@ -47,12 +48,25 @@ if [[ -f "$TRACKER" ]]; then
   FILE_MTIME="$(stat -f %m "$TRACKER" 2>/dev/null || stat -c %Y "$TRACKER" 2>/dev/null || echo "0")"
   FILE_AGE="$((NOW - FILE_MTIME))"
   if [[ "$FILE_AGE" -le 43200 ]]; then
-    COUNT="$(jq '.files | length' "$TRACKER" 2>/dev/null \
-      || python3 -c "import json,sys; print(len(json.load(open(sys.argv[1])).get('files',[])))" "$TRACKER" 2>/dev/null \
-      || echo "0")"
+    # Lazy-source library only when about to emit
+    source "$(dirname "$0")/stn-hook-output"
+    FILES_JSON="$(json_get "files" "$TRACKER")"
+    # Count via jq if available, else python3, else string-based fallback
+    COUNT=0
+    if [[ -n "$FILES_JSON" ]]; then
+      if command -v jq >/dev/null 2>&1; then
+        COUNT="$(echo "$FILES_JSON" | jq 'length' 2>/dev/null || echo "0")"
+      elif command -v python3 >/dev/null 2>&1; then
+        COUNT="$(echo "$FILES_JSON" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))' 2>/dev/null || echo "0")"
+      fi
+    fi
+    [[ "$COUNT" =~ ^[0-9]+$ ]] || COUNT=0
     if [[ "${COUNT:-0}" -ge "${THRESHOLD:-3}" ]]; then
-      source "$(dirname "$0")/stn-hook-output"
       local_ctx="ROUTING: ${COUNT} files have been edited without an stn-skills pipeline. Before making code changes, invoke Skill(skill: \\\"stn-skills:build-feature\\\") to start a structured pipeline with design review, planning, and verified execution."
+      # Claude/Cursor use hookSpecificOutput wrapper for UserPromptSubmit.
+      # Copilot userPromptSubmitted output is IGNORED per A5 (see docs/copilot-cli.md),
+      # so we keep the Claude format here — correctness on Claude/Cursor matters,
+      # Copilot drops it regardless of shape.
       printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}' "$(_json_escape "$local_ctx")"
       exit 0
     fi

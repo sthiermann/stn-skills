@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [8.1.0] - 2026-04-21
+
+### Added
+
+- **Real GitHub Copilot CLI support** — `.copilot-plugin/plugin.json` + `hooks-copilot.json` + 6 thin POSIX-sh wrapper scripts in `.copilot-plugin/hooks/` that self-locate via `$0`, set `STN_PLATFORM=copilot`, and re-exec the main hooks under bash. Three enforcement hooks (`stn-circuit-breaker`, `stn-state-validator`, `stn-session-lock`) work fully on Copilot because Copilot honors top-level `permissionDecision: deny`. Documented in `docs/copilot-cli.md` with 6 honest known limitations.
+- **`hooks/stn-hook-output` library extension** — 6 new public functions: `stn_detect_platform` (positive+negative assertion, spoof-resistant), `stn_emit_context`, `stn_emit_permission_decision`, `stn_should_skip_tool` (replaces Copilot's missing matcher), `stn_require_json_tool` (caches result in `_STN_JSON_TOOL_OK`, fail-loud with stderr diagnostic when both jq+python3 missing), `json_get` (unified signature: `json_get <path_or_field> [<file_or_dash>]` with automatic leading-dot prepend and python3 fallback).
+- **Platform-aware `_allow`/`_deny`/`_inform`** — under Copilot, `_allow` exits silently (absence = allow), `_deny` emits top-level `permissionDecision`/`permissionDecisionReason`, `_inform` emits top-level `additionalContext`. `_deny` now accepts optional third arg `event_name` (defaults `PreToolUse`) — used by `stn-session-lock` to emit `hookEventName=SessionStart` on Claude/Cursor.
+- **`docs/copilot-cli.md`** — install instructions + 6 named known limitations (no Skill tool → advisory chain enforcement, userPromptSubmitted output ignored, sessionStart best-effort, 6 skills use AskUserQuestion, Windows WSL/Git Bash required, no Copilot CLI in CI).
+- **9 new evals** — `eval-00-golden-diff.sh` (regression firewall: 50 byte-exact snapshots of Claude/Cursor hook output), `eval-copilot-contract.sh` (library Copilot emission verification + 25 contract-spec goldens under `evals/copilot-contract/`), `eval-copilot-smoke.sh` (opt-in via `COPILOT_CLI=1`), `eval-platform-isolation.sh` (adversarial env-var spoofing test — 12 scenarios), `eval-session-lock-deny.sh` (SessionStart hookEventName assertion), `eval-shell-compat.sh` (wrappers execute under POSIX sh), `eval-tool-requirement.sh` (fail-loud when both jq+python3 missing), `eval-copilot-skills-count.sh` (docs-vs-SKILL.md AskUserQuestion count consistency), `eval-lazy-source-timing.sh` (stn-prompt-router no-state path ≤50ms median), `eval-docs-limitations.sh` (docs/copilot-cli.md contains all 6 named limitations).
+- **Baseline goldens** — 50 byte-exact snapshots of Claude/Cursor hook output captured from v8.0.0 (commit `c41d952`) under `evals/golden/baseline/{claude,cursor}/` as the regression firewall baseline.
+- **Contract-spec Copilot goldens** — 25 JSON fixtures under `evals/copilot-contract/` describing what stn-skills intends to emit to Copilot CLI.
+- **`README.md` Plugin Structure table** — new row for `.copilot-plugin/` + dedicated Copilot CLI install section pointing to `docs/copilot-cli.md`.
+
+### Changed
+
+- **Library hardening** — 17 duplicate `jq -r '...' || python3 -c '...' || echo ""` call sites across 6 hooks consolidated into the single `json_get` library function. Missing-tool condition now fail-loud via `stn_require_json_tool` (was silent empty return on some paths).
+- **Platform detection centralized** — `stn-init` lines 110-116 inline branches moved into the library function `stn_detect_platform`. All 6 hooks now use centralized detection with positive + negative assertion; spoofing `COPILOT_CLI=1` inside a Claude session does NOT flip hooks to Copilot output (enforced by `evals/eval-platform-isolation.sh`).
+- **`stn-session-lock`** — local `_deny` override removed; now uses library `_deny` with optional event-name parameter: `_deny "reason" "" "SessionStart"`. Output remains byte-identical on Claude/Cursor (verified by `evals/eval-00-golden-diff.sh`); on Copilot emits top-level `permissionDecision: deny`.
+
+### Known Issues
+
+- Copilot `sessionStart` `additionalContext` is best-effort (may be silently dropped per known Copilot behavior analogous to bug #2585 for `preToolUse`). Skill auto-activation by description is the primary discovery mechanism on Copilot.
+- Copilot goldens in `evals/copilot-contract/` are contract-spec (intent, not authoritative). Live verification requires `COPILOT_CLI=1 ./evals/eval-copilot-smoke.sh` with GitHub Copilot CLI installed.
+- On Copilot CLI, pipeline chain enforcement is advisory-only because Copilot has no `Skill` tool to match in `preToolUse`.
+
+### Migration Notes
+
+No breaking changes for Claude Code or Cursor users. Byte-identical hook output guaranteed by the 50-golden regression firewall. `STN_SKILLS_HOOKS_DISABLE=1` kill-switch works across all three platforms.
+
 ## [8.0.0] - 2026-04-16
 
 ### Changed

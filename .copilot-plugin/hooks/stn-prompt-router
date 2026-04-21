@@ -1,0 +1,10 @@
+#!/bin/sh
+# .copilot-plugin/hooks/stn-prompt-router — Copilot CLI wrapper for hooks/stn-prompt-router
+# NOTE: On Copilot CLI, userPromptSubmitted output is IGNORED (docs-confirmed limitation).
+# This wrapper still executes for symmetry, but its context-injection has no effect.
+# See docs/copilot-cli.md "userPromptSubmitted output ignored" for details.
+[ "${STN_SKILLS_HOOKS_DISABLE:-}" = "1" ] && exit 0
+[ -n "$BASH_VERSION" ] || exec bash "$0" "$@"
+export STN_PLATFORM="copilot"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec "${SCRIPT_DIR}/../../hooks/stn-prompt-router" "$@"

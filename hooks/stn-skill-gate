@@ -10,16 +10,12 @@ source "$(dirname "$0")/stn-hook-output"
 
 # Read stdin JSON
 INPUT="$(cat)"
-TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null \
-  || echo "$INPUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('tool_name',''))" 2>/dev/null \
-  || echo "")"
+TOOL_NAME="$(printf '%s' "$INPUT" | json_get "tool_name" -)"
 
 # Only gate Skill tool calls
 [[ "$TOOL_NAME" != "Skill" ]] && _allow
 
-INVOKED_SKILL="$(echo "$INPUT" | jq -r '.tool_input.skill // empty' 2>/dev/null \
-  || echo "$INPUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('tool_input',{}).get('skill',''))" 2>/dev/null \
-  || echo "")"
+INVOKED_SKILL="$(printf '%s' "$INPUT" | json_get "tool_input.skill" -)"
 
 # Only gate stn-skills invocations
 [[ "$INVOKED_SKILL" != stn-skills:* ]] && _allow
@@ -33,13 +29,10 @@ done
 # No state file = no pipeline active = allow
 [[ -z "$STATE_FILE" ]] && _allow
 
-# Read state via jq (python3 fallback)
-ACTIVE_SKILL="$(jq -r '.active_skill // empty' "$STATE_FILE" 2>/dev/null \
-  || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('active_skill',''))" "$STATE_FILE" 2>/dev/null \
-  || echo "")"
-HANDOFF_VALIDATED="$(jq -r '.handoff_validated // false' "$STATE_FILE" 2>/dev/null \
-  || python3 -c "import json,sys; print(str(json.load(open(sys.argv[1])).get('handoff_validated',False)).lower())" "$STATE_FILE" 2>/dev/null \
-  || echo "false")"
+# Read state
+ACTIVE_SKILL="$(json_get "active_skill" "$STATE_FILE")"
+HANDOFF_VALIDATED="$(json_get "handoff_validated" "$STATE_FILE")"
+[[ -z "$HANDOFF_VALIDATED" ]] && HANDOFF_VALIDATED="false"
 
 # Extract short skill name
 SHORT_SKILL="${INVOKED_SKILL#stn-skills:}"

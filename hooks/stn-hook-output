@@ -16,20 +16,39 @@ _json_escape() {
 }
 
 _allow() {
+  local platform
+  platform="$(stn_detect_platform 2>/dev/null || echo claude)"
+  case "$platform" in
+    copilot)
+      # Copilot: absence = allow. Emit nothing.
+      exit 0 ;;
+  esac
   echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'
   exit 0
 }
 
-# Usage: _deny "reason" ["additionalContext"]
+# Usage: _deny "reason" ["additionalContext"] ["event_name"]
+# event_name defaults to PreToolUse. Used for Claude/Cursor hookEventName field.
+# Copilot branch emits top-level permissionDecision (no wrapper); reason is
+# honored, additionalContext is best-effort (Copilot bug #2585 may drop it).
 _deny() {
   local reason
   reason="$(_json_escape "$1")"
-  if [[ -n "${2:-}" ]]; then
-    local ctx
-    ctx="$(_json_escape "$2")"
-    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s","additionalContext":"%s"}}' "$reason" "$ctx"
+  local ctx="${2:-}"
+  local event="${3:-PreToolUse}"
+  local platform
+  platform="$(stn_detect_platform 2>/dev/null || echo claude)"
+  case "$platform" in
+    copilot)
+      printf '{"permissionDecision":"deny","permissionDecisionReason":"%s"}\n' "$reason"
+      exit 0 ;;
+  esac
+  if [[ -n "$ctx" ]]; then
+    local ctx_esc
+    ctx_esc="$(_json_escape "$ctx")"
+    printf '{"hookSpecificOutput":{"hookEventName":"%s","permissionDecision":"deny","permissionDecisionReason":"%s","additionalContext":"%s"}}' "$event" "$reason" "$ctx_esc"
   else
-    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$reason"
+    printf '{"hookSpecificOutput":{"hookEventName":"%s","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$event" "$reason"
   fi
   exit 0
 }
@@ -38,6 +57,163 @@ _deny() {
 _inform() {
   local ctx
   ctx="$(_json_escape "$1")"
+  local platform
+  platform="$(stn_detect_platform 2>/dev/null || echo claude)"
+  case "$platform" in
+    copilot)
+      # Copilot: top-level additionalContext (best-effort — Copilot bug #2585
+      # means preToolUse additionalContext may be dropped; informing hooks
+      # should not rely on this channel for critical context).
+      printf '{"additionalContext":"%s"}\n' "$ctx"
+      exit 0 ;;
+  esac
   printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow","additionalContext":"%s"}}' "$ctx"
   exit 0
+}
+
+# Usage: stn_emit_context <event_name> <context_string>
+# Platform-aware sessionStart/userPromptSubmit context injection.
+# Claude/Cursor emit wrapped output; Copilot emits top-level additionalContext.
+stn_emit_context() {
+  local event_name="$1"
+  local ctx_esc
+  ctx_esc="$(_json_escape "$2")"
+  local platform
+  platform="$(stn_detect_platform)"
+  case "$platform" in
+    copilot)
+      printf '{"additionalContext":"%s"}\n' "$ctx_esc" ;;
+    cursor)
+      # Cursor uses snake_case additional_context at top-level for sessionStart
+      printf '{\n  "additional_context": "%s"\n}\n' "$ctx_esc" ;;
+    claude|*)
+      printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "%s",\n    "additionalContext": "%s"\n  }\n}\n' "$event_name" "$ctx_esc" ;;
+  esac
+}
+
+# Usage: stn_emit_permission_decision <allow|deny|ask> <reason> [event_name]
+# Platform-aware preToolUse permission emission. Thin wrapper around _allow/_deny.
+stn_emit_permission_decision() {
+  local decision="$1"
+  local reason="$2"
+  local event="${3:-PreToolUse}"
+  case "$decision" in
+    allow) _allow ;;
+    deny)  _deny "$reason" "" "$event" ;;
+    ask)   _deny "$reason" "" "$event" ;;  # Copilot honors only deny; ask degrades to deny
+    *) _allow ;;
+  esac
+}
+
+# Usage: stn_should_skip_tool <tool_name> <filter_regex>
+# Replaces Copilot's missing matcher. Returns 0 (skip: emit allow early) when
+# platform is Copilot AND tool_name does NOT match filter_regex. Returns 1
+# (don't skip) otherwise. Claude/Cursor hooks use matcher fields in hooks.json
+# and don't need this — but calling it is harmless (always returns 1 under them).
+stn_should_skip_tool() {
+  local tool_name="$1"
+  local filter="$2"
+  local platform
+  platform="$(stn_detect_platform)"
+  [ "$platform" != "copilot" ] && return 1
+  if [[ "$tool_name" =~ ^($filter)$ ]]; then
+    return 1
+  fi
+  return 0
+}
+
+# =============================================================================
+# Library API (added in v8.1.0): platform detection + JSON helpers.
+# Public functions are prefixed stn_* (namespaced); _allow/_deny/_inform remain
+# legacy helpers for hook emission. See docs/copilot-cli.md for usage.
+# =============================================================================
+
+# Usage: stn_detect_platform
+# Prints claude|cursor|copilot|unknown. Positive + negative assertion:
+# - STN_PLATFORM=copilot wins (set by our .copilot-plugin/hooks/ wrappers)
+# - CURSOR_PLUGIN_ROOT set -> cursor
+# - CLAUDE_PLUGIN_ROOT set AND STN_PLATFORM != copilot -> claude
+# - otherwise unknown
+# Detection is spoof-resistant: merely setting COPILOT_CLI=1 inside a Claude
+# session does NOT flip platform (our marker is STN_PLATFORM, not COPILOT_CLI).
+stn_detect_platform() {
+  if [ "${STN_PLATFORM:-}" = "copilot" ]; then
+    printf 'copilot'
+    return 0
+  fi
+  if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+    printf 'cursor'
+    return 0
+  fi
+  if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+    printf 'claude'
+    return 0
+  fi
+  printf 'unknown'
+}
+
+# Usage: stn_require_json_tool
+# Verifies jq OR python3 is available. Caches in _STN_JSON_TOOL_OK after first
+# success. Returns 0 on success, 2 on failure (library function — do NOT exit).
+# Caller decides how to surface the error (enforcement hooks exit 2; informing
+# hooks may emit graceful fallback additionalContext with install hint).
+stn_require_json_tool() {
+  if [ "${_STN_JSON_TOOL_OK:-0}" = "1" ]; then
+    return 0
+  fi
+  if command -v jq >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1; then
+    _STN_JSON_TOOL_OK=1
+    return 0
+  fi
+  printf 'stn-skills: requires jq or python3 (not found in PATH)\n' >&2
+  return 2
+}
+
+# Usage: json_get <path_or_field> [<file_or_dash>]
+# Reads a JSON field using jq or python3 fallback. Unified signature:
+# - path may be a simple field ("active_skill") or dotted path ("tool_input.skill")
+#   a leading dot is automatically prepended if missing
+# - second arg: file path, "-" for stdin, or empty (default "-")
+# - prints field value or empty string on missing/invalid; exit status 0
+json_get() {
+  local path="$1"
+  local source="${2:--}"
+  case "$path" in
+    .*) ;;
+    *) path=".$path" ;;
+  esac
+  local val=""
+  if command -v jq >/dev/null 2>&1; then
+    if [ "$source" = "-" ]; then
+      val="$(jq -r "$path // empty" 2>/dev/null || true)"
+    else
+      val="$(jq -r "$path // empty" "$source" 2>/dev/null || true)"
+    fi
+  elif command -v python3 >/dev/null 2>&1; then
+    local py_field="${path#.}"
+    if [ "$source" = "-" ]; then
+      val="$(python3 -c 'import json,sys
+d=json.load(sys.stdin); v=d
+for k in sys.argv[1].split("."):
+    if isinstance(v, dict): v=v.get(k,"")
+    else: v=""; break
+if isinstance(v,(dict,list)):
+    import json as _j
+    print(_j.dumps(v))
+else:
+    print(v if v is not None else "")' "$py_field" 2>/dev/null || true)"
+    else
+      val="$(python3 -c 'import json,sys
+d=json.load(open(sys.argv[1])); v=d
+for k in sys.argv[2].split("."):
+    if isinstance(v, dict): v=v.get(k,"")
+    else: v=""; break
+if isinstance(v,(dict,list)):
+    import json as _j
+    print(_j.dumps(v))
+else:
+    print(v if v is not None else "")' "$source" "$py_field" 2>/dev/null || true)"
+    fi
+  fi
+  printf '%s' "${val:-}"
 }

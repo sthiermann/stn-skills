@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"ROUTING: 4 files have been edited without an stn-skills pipeline. Before making code changes, invoke Skill(skill: \\\"stn-skills:build-feature\\\") to start a structured pipeline with design review, planning, and verified execution."}}

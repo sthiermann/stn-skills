@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Pipeline gate: handoff_validated is false. Run pipeline-handoff-validator on the design spec before invoking plan-writing."}}

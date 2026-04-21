@@ -10,7 +10,7 @@ source "$(dirname "$0")/stn-hook-output"
 
 # Read stdin JSON
 INPUT="$(cat)"
-TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
+TOOL_NAME="$(printf '%s' "$INPUT" | json_get "tool_name" -)"
 
 # Only gate code modification tools
 case "$TOOL_NAME" in
@@ -26,15 +26,13 @@ done
 
 [[ -z "$STATE_FILE" ]] && _allow
 
-# Read circuit breaker state
-CB_STATE="$(jq -r '.circuit_breaker.state // "GREEN"' "$STATE_FILE" 2>/dev/null \
-  || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('circuit_breaker',{}).get('state','GREEN'))" "$STATE_FILE" 2>/dev/null \
-  || echo "GREEN")"
+# Read circuit breaker state (default GREEN when missing)
+CB_STATE="$(json_get "circuit_breaker.state" "$STATE_FILE")"
+[[ -z "$CB_STATE" ]] && CB_STATE="GREEN"
 
 if [[ "$CB_STATE" == "RED" ]]; then
-  FAILURES="$(jq -r '.circuit_breaker.consecutive_review_failures // 0' "$STATE_FILE" 2>/dev/null \
-    || python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('circuit_breaker',{}).get('consecutive_review_failures',0))" "$STATE_FILE" 2>/dev/null \
-    || echo "0")"
+  FAILURES="$(json_get "circuit_breaker.consecutive_review_failures" "$STATE_FILE")"
+  [[ -z "$FAILURES" ]] && FAILURES="0"
   _deny "Circuit breaker RED: ${FAILURES} consecutive failures. Review execution state before continuing."
 fi
 

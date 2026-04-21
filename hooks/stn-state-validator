@@ -10,11 +10,11 @@ source "$(dirname "$0")/stn-hook-output"
 
 # Read stdin JSON
 INPUT="$(cat)"
-TOOL_NAME="$(echo "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || echo "")"
+TOOL_NAME="$(printf '%s' "$INPUT" | json_get "tool_name" -)"
 
 [[ "$TOOL_NAME" != "Write" ]] && _allow
 
-FILE_PATH="$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")"
+FILE_PATH="$(printf '%s' "$INPUT" | json_get "tool_input.file_path" -)"
 
 # Block path traversal
 [[ "$FILE_PATH" == *../* || "$FILE_PATH" == ..* ]] && _deny "Path traversal detected in file path."
@@ -26,14 +26,14 @@ case "$FILE_PATH" in
 esac
 
 # Validate the NEW content (not existing file — allows repair writes)
-CONTENT="$(echo "$INPUT" | jq -r '.tool_input.content // empty' 2>/dev/null || echo "")"
+CONTENT="$(printf '%s' "$INPUT" | json_get "tool_input.content" -)"
 
 if [[ -z "$CONTENT" ]]; then
   _deny "State file write has empty content."
 fi
 
-# Validate JSON syntax
-if ! echo "$CONTENT" | jq empty 2>/dev/null && ! echo "$CONTENT" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
+# Validate JSON syntax (jq empty or python3 parse — specialized check, not a field read)
+if ! printf '%s' "$CONTENT" | jq empty 2>/dev/null && ! printf '%s' "$CONTENT" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
   _deny "State file content is not valid JSON. Fix the JSON before writing."
 fi
 
@@ -41,8 +41,9 @@ fi
 if [[ "$FILE_PATH" == *pipeline-state* ]]; then
   MISSING=""
   for field in pipeline_id active_skill current_phase total_phases gates_passed updated_at; do
-    HAS="$(echo "$CONTENT" | jq "has(\"$field\")" 2>/dev/null \
-      || echo "$CONTENT" | python3 -c "import json,sys; print('true' if sys.argv[1] in json.load(sys.stdin) else 'false')" "$field" 2>/dev/null \
+    # has() is a specialized jq predicate (not a field read); python3 fallback checks dict membership
+    HAS="$(printf '%s' "$CONTENT" | jq "has(\"$field\")" 2>/dev/null \
+      || printf '%s' "$CONTENT" | python3 -c "import json,sys; print('true' if sys.argv[1] in json.load(sys.stdin) else 'false')" "$field" 2>/dev/null \
       || echo "false")"
     [[ "$HAS" != "true" ]] && MISSING="${MISSING} ${field}"
   done

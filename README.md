@@ -10,14 +10,14 @@ A professional skill suite for Claude Code, Cursor, and Copilot CLI.<br>
 Brainstorm. Plan. Execute. Verify. Every step produces evidence.
 
 <p>
-  <img src="https://img.shields.io/badge/version-8.0.0-blue?style=flat-square" alt="Version 8.0.0">
+  <img src="https://img.shields.io/badge/version-8.1.0-blue?style=flat-square" alt="Version 8.1.0">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
   <img src="https://img.shields.io/badge/skills-8-brightgreen?style=flat-square" alt="8 Skills">
   <img src="https://img.shields.io/badge/hooks-6-blue?style=flat-square" alt="6 Hooks">
   <img src="https://img.shields.io/badge/tech--agnostic-any%20language-orange?style=flat-square" alt="Technology Agnostic — Any Language">
 </p>
 
-[What's new in v8.0.0](CHANGELOG.md)
+[What's new in v8.1.0](CHANGELOG.md)
 
 </div>
 
@@ -84,6 +84,18 @@ Run inside your AI coding tool (not your terminal):
 ```
 /install stn-skills
 ```
+
+### Copilot CLI
+
+Copilot CLI installs the plugin from the `.copilot-plugin/` subdirectory:
+
+```sh
+git clone https://github.com/sthiermann/stn-skills.git
+cd stn-skills
+copilot plugin install ./.copilot-plugin
+```
+
+See [`docs/copilot-cli.md`](docs/copilot-cli.md) for install details and 6 known limitations (advisory chain enforcement, userPromptSubmitted output ignored, sessionStart best-effort, AskUserQuestion degraded to prose, WSL/Git Bash required on Windows, opt-in smoke test via `COPILOT_CLI=1`).
 
 ---
 
@@ -188,6 +200,7 @@ Every design choice in stn-skills is grounded in established principles of AI-as
 |-----------|----------|
 | `.claude-plugin/` | `plugin.json` (metadata) · `marketplace.json` (marketplace registration) |
 | `.cursor-plugin/` | `plugin.json` (Cursor metadata) · `hooks-cursor.json` (Cursor hooks) |
+| `.copilot-plugin/` | `plugin.json` (Copilot metadata) · `hooks-copilot.json` (Copilot hooks) · `hooks/` (6 thin POSIX-sh wrappers) |
 | `hooks/` | `hooks.json` (hook definitions) · 6 hooks (see below) |
 | `commands/` | 8 slash command entry points (one `.md` per skill) |
 | `skills/` | 8 skill implementations (see below) |

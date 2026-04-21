@@ -5,14 +5,6 @@
 set -o pipefail
 source "$(dirname "$0")/stn-hook-output"
 
-# Override _deny for SessionStart (stn-hook-output defines PreToolUse version)
-_deny() {
-  local reason
-  reason="$(_json_escape "$1")"
-  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","permissionDecision":"deny","permissionDecisionReason":"%s"}}' "$reason"
-  exit 0
-}
-
 # Kill-switch
 [[ "${STN_SKILLS_HOOKS_DISABLE:-}" == "1" ]] && exit 0
 
@@ -25,7 +17,10 @@ PID_FILE="${LOCK_DIR}/pid"
 if [[ -d "$LOCK_DIR" ]] && [[ -f "$PID_FILE" ]]; then
   LOCKED_PID="$(cat "$PID_FILE" 2>/dev/null || echo "")"
   if [[ "$LOCKED_PID" =~ ^[0-9]+$ ]] && kill -0 "$LOCKED_PID" 2>/dev/null; then
-    _deny "Another stn-skills session is active (PID ${LOCKED_PID}). Close it first or delete .claude/stn-skills.lock/"
+    # Use library _deny with SessionStart event-name (3rd arg). Claude/Cursor
+    # emit wrapped output with hookEventName=SessionStart; Copilot emits
+    # top-level permissionDecision=deny.
+    _deny "Another stn-skills session is active (PID ${LOCKED_PID}). Close it first or delete .claude/stn-skills.lock/" "" "SessionStart"
   fi
   # Stale lock — process dead, clean up
   rm -f "$PID_FILE" 2>/dev/null

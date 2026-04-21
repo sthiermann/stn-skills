@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Pipeline state missing required fields: pipeline_id current_phase total_phases gates_passed updated_at"}}

@@ -1,6 +1,6 @@
 {
-  "version": "8.0.0",
-  "description": "Maps requirements to implementing files, tasks, and eval checks",
+  "version": "8.1.0",
+  "description": "Maps requirements to implementing files, tasks, and eval checks. Pre-v8.1.0 requirements under 'coverage'; v8.1.0 Copilot CLI feature requirements under 'copilot_coverage'.",
   "coverage": {
     "R1":  {"task": "T02", "files": ["hooks/stn-skill-gate"], "eval": "eval-behavior.sh:B-05,B-06"},
     "R2":  {"task": "T03", "files": ["hooks/stn-state-validator"], "eval": "eval-behavior.sh:B-09,B-10,B-11,B-17"},
@@ -27,5 +27,30 @@
     "R24": {"task": "T04", "files": ["hooks/stn-session-lock"], "eval": "eval-behavior.sh:B-39,B-40,B-41"},
     "R25": {"task": "T05", "files": ["hooks/stn-circuit-breaker"], "eval": "eval-behavior.sh:B-42,B-43,B-44"},
     "R26": {"task": "T09", "files": ["hooks/stn-prompt-router"], "eval": "eval-behavior.sh:B-59,B-60,B-61,B-62"}
+  },
+  "copilot_coverage": {
+    "description": "v8.1.0 Copilot CLI feature — 20 requirements from .plan/plan-20260421-copilot-cli-support.md",
+    "requirements": {
+      "R1":  {"title": ".copilot-plugin/plugin.json conforms to Copilot schema",          "task": "T11,T19", "files": [".copilot-plugin/plugin.json"], "eval": "eval-copilot-contract.sh"},
+      "R2":  {"title": ".copilot-plugin/hooks-copilot.json uses Copilot schema",          "task": "T10,T11", "files": [".copilot-plugin/hooks-copilot.json"], "eval": "eval-copilot-contract.sh"},
+      "R3":  {"title": "6 thin wrappers in .copilot-plugin/hooks/ with STN_PLATFORM=copilot", "task": "T12", "files": [".copilot-plugin/hooks/"], "eval": "eval-shell-compat.sh"},
+      "R4":  {"title": "Wrappers work under POSIX sh",                                    "task": "T12,T16", "files": [".copilot-plugin/hooks/"], "eval": "eval-shell-compat.sh"},
+      "R5":  {"title": "Library has 6+ new functions",                                    "task": "T3,T4,T6,T7,T8,T9,T10", "files": ["hooks/stn-hook-output"], "eval": "eval-copilot-contract.sh"},
+      "R6":  {"title": "Platform detection positive+negative assertion",                  "task": "T3,T15", "files": ["hooks/stn-hook-output"], "eval": "eval-platform-isolation.sh"},
+      "R7":  {"title": "Golden-output regression firewall (Claude/Cursor byte-identical)", "task": "T1,T2", "files": ["evals/golden/baseline/"], "eval": "eval-00-golden-diff.sh"},
+      "R8":  {"title": "Copilot contract-spec goldens ≥ 25",                              "task": "T13", "files": ["evals/copilot-contract/"], "eval": "eval-copilot-contract.sh"},
+      "R9":  {"title": "Copilot smoke test opt-in via COPILOT_CLI env",                   "task": "T14", "files": ["evals/eval-copilot-smoke.sh"], "eval": "eval-copilot-smoke.sh"},
+      "R10": {"title": "Kill-switch parity across 3 platforms",                           "task": "T12,T15", "files": ["hooks/", ".copilot-plugin/hooks/"], "eval": "eval-platform-isolation.sh"},
+      "R11": {"title": "stn-session-lock emits hookEventName=SessionStart on lock deny",  "task": "T5,T10,T15", "files": ["hooks/stn-session-lock"], "eval": "eval-session-lock-deny.sh"},
+      "R12": {"title": "Fail-loud when both jq+python3 missing",                          "task": "T3,T4,T6,T7,T8,T9,T16", "files": ["hooks/stn-hook-output"], "eval": "eval-tool-requirement.sh"},
+      "R13": {"title": "Lazy-source ≤5ms (50ms practical budget) median",                 "task": "T6,T17", "files": ["hooks/stn-prompt-router"], "eval": "eval-lazy-source-timing.sh"},
+      "R14": {"title": "6 skills' AskUserQuestion counts documented",                     "task": "T17", "files": ["docs/copilot-cli.md"], "eval": "eval-copilot-skills-count.sh"},
+      "R15": {"title": "docs/copilot-cli.md contains 6 named limitations",                "task": "T18", "files": ["docs/copilot-cli.md"], "eval": "eval-docs-limitations.sh"},
+      "R16": {"title": "Full eval suite green",                                           "task": "T23", "files": ["evals/eval-runner.sh"], "eval": "eval-runner.sh"},
+      "R17": {"title": "Version sync v8.1.0 across manifests + README + CHANGELOG",       "task": "T19,T20,T21", "files": [".claude-plugin/plugin.json", ".cursor-plugin/plugin.json", ".copilot-plugin/plugin.json", "README.md", "CHANGELOG.md"], "eval": "eval-consistency.sh"},
+      "R18": {"title": "README claim verifiable (3 platform directories)",                "task": "T11,T20,T22", "files": [".claude-plugin/", ".cursor-plugin/", ".copilot-plugin/"], "eval": "eval-structure.sh"},
+      "R19": {"title": "No overclaiming in docs/copilot-cli.md",                          "task": "T18", "files": ["docs/copilot-cli.md"], "eval": "eval-docs-limitations.sh"},
+      "R20": {"title": "Claude/Cursor behavior unchanged (67 tests pass unmodified)",     "task": "T1,T2,T4,T5,T6,T7,T8,T9,T23", "files": ["hooks/"], "eval": "eval-behavior.sh,eval-00-golden-diff.sh"}
+    }
   }
 }
